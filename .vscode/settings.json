@@ -1,0 +1,10 @@
+{
+    "robloxLsp.diagnostics.globals": [
+        "ItemArchive",
+        "ReplicatedStorage",
+        "PhysicsService"
+    ],
+    "robloxLsp.diagnostics.disable": [
+        5
+    ]
+}
