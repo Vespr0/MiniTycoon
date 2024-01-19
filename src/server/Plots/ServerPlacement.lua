@@ -53,27 +53,27 @@ end
 function ServerPlacement.DisableQueries(model)
     for _,d in pairs(model:GetDescendants()) do
         if d:IsA("BasePart") then
-            if d ~= model.PrimaryPart then
-                d.CanCollide = false
+            if d ~= model.PrimaryPart and d.Parent.Name ~= "Hitbox" then
+                --d.CanCollide = false
                 d.CanQuery = false
                 d.CanTouch = false
             else
-                d.CanCollide = true
+                --d.CanCollide = true
             end
             d.Anchored = true
         end
     end
 end
 
-function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filteredModel)
+function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filteredModel,ignoreValidation)
     local name,entry = ItemUtility.GetItemFromID(itemID)
 
     if entry then
         -- Get item info.
         local plot = PlotUtility.GetPlotFromPlayer(player)
         local item = AssetsDealer.GetItem(entry.Directory)
-        local stats = require(item.Stats)
-        local type = stats.Type
+        local config = require(item.config)
+        local type = config.Type
 
         -- Place the model.
         local model = item.Model:Clone()
@@ -88,7 +88,7 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
         overlapParams.FilterDescendantsInstances = {workspace.Nodes,plot.Drops,model,filteredModel}
 
         -- Validate placement.
-        local isPlacementValid = PlacementUtility.isPlacementValid(plot,model,overlapParams)
+        local isPlacementValid = ignoreValidation or PlacementUtility.isPlacementValid(plot,model,overlapParams)
         if isPlacementValid then
             -- IDs.
             if not localID then
@@ -105,15 +105,16 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
                         plot = plot;
                         owner = player;
                         model = model;
-                        dropDelay = stats.DropDelay;
-                        dropPropieties = stats.DropPropieties;
+                        dropDelay = config.DropDelay;
+                        dropPropieties = config.DropPropieties;
                     })
                 end;
                 Belt = function()
-                    model.Root:SetAttribute("Speed",stats.BeltSpeed)
+                    model.Belt:SetAttribute("Speed",config.BeltSpeed or 1)
+                    model.Belt:SetAttribute("Slipperiness",config.BeltSlipperiness or 0)
                 end;
                 Forge = function()
-                    model.Root:SetAttribute("SellMultiplier",stats.SellMultiplier)
+                    model.Seller:SetAttribute("SellMultiplier",config.SellMultiplier)
                 end;
                 Upgrader = function()
 
@@ -128,6 +129,39 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
         end
     else
         return false,string.gsub(errors.ItemNameDoesntExist,"&a",itemID)
+    end
+end
+
+local function checkItemPrimaryPart(item)
+    if not item.PrimaryPart then
+        local root = item:FindFirstChild("Root")
+        if root then
+            item.PrimaryPart = root
+        else
+            warn("CRITICAL: "..item.Name.."'s model doesn't have a primary part, and there is no part named 'Root'.")
+        end
+    end
+end
+
+local function generateDefaultEdges(item)
+
+end
+
+local function setupItems()
+    -- Missing primary part:
+    local descendants = ReplicatedStorage.Assets:GetDescendants()
+    for _,item in pairs(descendants) do
+        if item:IsA("Model") then
+            local folder = item.Parent
+            if folder:IsA("Folder") then
+                -- It's an item:
+                checkItemPrimaryPart(item)
+            end
+            local anyEdge = item.PrimaryPart:FindFirstChild("Edge")
+            if not anyEdge then
+                generateDefaultEdges(item)
+            end
+        end
     end
 end
 

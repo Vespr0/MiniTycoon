@@ -21,12 +21,12 @@ local Camera = workspace.Camera
 -- Gui elements --
 local Gui = PlayerGui:WaitForChild("ItemSelection")
 local MainFrame = Gui:WaitForChild("MainFrame")
-local _SubFrame = MainFrame:WaitForChild("SubFrame")
+local SubFrame = MainFrame:WaitForChild("SubFrame")
 
 -- Modules --
 local PlacementUtility = require(Shared.Plots.PlacementUtility)
 local ClientPlacement = require(Shared.Plots.ClientPlacement)
-local _ItemUtility = require(Shared.Items.ItemUtility)
+local ItemUtility = require(Shared.Items.ItemUtility)
 
 -- Variables --
 local CurrentllySelectedItem = nil
@@ -82,7 +82,6 @@ local function hover(item)
     if CurrentllySelectedItem then return end
     updateHoverHighlight(CurrentllyHoveredItem)
     toggleHoverHighlight(true)
-    print("nobady will listen")
 end
 
 local function unHover()
@@ -93,6 +92,8 @@ end
 
 local function select(item)
     Gui.Enabled = true
+    local config = ItemUtility.GetItemConfig(item.Name)
+    SubFrame.ItemNameLabel.Text = config.DisplayName
     updateSelectionHighlight(item)
     CurrentllySelectedItem = item
 end

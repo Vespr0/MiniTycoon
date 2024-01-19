@@ -12,12 +12,13 @@ end
 local Plots = workspace:WaitForChild("Plots")
 
 -- Constants --
-local DEFAULT_GRID_SIZE = 1
+local DEFAULT_GRID_SIZE = 1/2
 local OVERLAP_PARAMS = OverlapParams.new()
-OVERLAP_PARAMS.FilterType = Enum.RaycastFilterType.Exclude
+OVERLAP_PARAMS.FilterType = Enum.RaycastFilterType.Include
+OVERLAP_PARAMS.FilterDescendantsInstances = {workspace.Plots}
 
 local function snapCoordinate(alpha,gridSize)
-    return math.floor(alpha / gridSize + 0.5) * gridSize
+    return math.round(alpha / gridSize) * gridSize
 end
 
 function PlacementUtility.GetClientPlot()
@@ -57,15 +58,29 @@ end
 
 function PlacementUtility.isPlacementValid(plot,model,overlapParams)
     local hitbox = model.Hitbox
-    for _,part in pairs(hitbox:GetChildren()) do
+    local root = model.PrimaryPart
+    for _,hitPart in pairs(hitbox:GetChildren()) do
         -- Add a bias, because touching counts even if they are not overllaping, witch makes placing droppers on the tiles impossible.
-        local bias = Vector3.new(.1,.1,.1)
-        local collidingParts = workspace:GetPartBoundsInBox(part.CFrame,part.Size-bias,overlapParams)
+        local bias = Vector3.new(.2,.2,.2)
+        local collidingParts = workspace:GetPartBoundsInBox(hitPart.CFrame,hitPart.Size-bias,overlapParams)
         for _,part in collidingParts do
             if part.Parent.Name == "Hitbox" then return false end
         end
     end
-    return true;
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Include
+    raycastParams.FilterDescendantsInstances = {plot.Root}
+    for _,edge in pairs(model.PrimaryPart:GetChildren()) do
+        if edge.Name == "Edge" then
+            local raycast = workspace:Raycast(edge.WorldPosition,-Vector3.yAxis*1000,raycastParams)
+            print(raycast)
+            local isEdgeOnPlot = raycast and raycast.Instance
+            if not isEdgeOnPlot then
+                return false
+            end
+        end
+    end
+    return true
 end
 
 return PlacementUtility

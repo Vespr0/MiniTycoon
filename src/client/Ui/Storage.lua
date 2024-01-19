@@ -56,19 +56,19 @@ local function updateItems()
     UiUtility.ClearFrame(ItemsFrame)
     trove:Clean()
     for id,count in pairs(ClientPlayerData.GetKey("Storage")) do
-        print(id.." - x"..count)
+        --print(id.." - x"..count)
         local itemName,itemInfo = ItemUtility.GetItemFromID(id)
         -- Item.
         local item = AssetsDealer.GetItem(itemInfo.Directory)
-        local stats = require(item.Stats)
-        local type = stats.Type
-        print(type.."/"..CurrentType)
+        local config = require(item.config)
+        local type = config.Type
+        --print(type.."/"..CurrentType)
         if type ~= CurrentType then continue end
         -- Ui item.
         local uiItem = ItemTemplate:Clone()
         uiItem.Parent = ItemsFrame
         uiItem.ItemCount.Text = "x"..count
-        uiItem.ItemName.Text = stats.DisplayName
+        uiItem.ItemName.Text = config.DisplayName
         trove:Connect(uiItem.MouseButton1Click,function()
             ClientPlacement.StartPlacing(itemName)
         end)

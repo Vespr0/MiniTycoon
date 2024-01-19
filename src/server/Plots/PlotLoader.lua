@@ -38,7 +38,7 @@ function PlotLoader.Load(player)
     if not playerPlacedItems then return end
     for localID,data in pairs(playerPlacedItems) do
         local position = Vector3.new(data[1],data[2],data[3])
-        local success,arg1 = ServerPlacement.PlaceItem(player,position,data[4],data[5],localID)
+        local success,arg1 = ServerPlacement.PlaceItem(player,position,data[4],data[5],localID,nil,true)
         if not success then
             warn("Error from player's("..playerTag..") plot loading placement : "..arg1)
         end

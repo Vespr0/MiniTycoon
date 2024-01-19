@@ -29,7 +29,7 @@ Data scopes:
 --]]
 
 local DATA_SCOPES = {
-    Player = "Player#T0";
+    Player = "Player#T00";
 }
 
 function DataUtility.GetTypeFromId(id)

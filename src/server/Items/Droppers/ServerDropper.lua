@@ -30,9 +30,10 @@ end
 
 function Dropper:drop()
     local drop = Drop.new(self.dropPropieties,{plot = self.plot,origin = self.dropperPart.Position})
+    self.plot.Parts.Value += 1
     local connection
     connection = drop.sold:Connect(function(sellMultiplier)
-        warn("jeep")
+        self.plot.Parts.Value -= 1
         PlayerDataAccess.AddCashToQueue(self.owner,drop.value*sellMultiplier)
         connection:Disconnect()
     end)

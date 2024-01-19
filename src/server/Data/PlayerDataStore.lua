@@ -34,10 +34,10 @@ local dataTemplate = {
 }
 
 local function stateChanged(state,dataStore)
-    print("The datastore's state is "..tostring(dataStore.State))
+    --print("The datastore's state is "..tostring(dataStore.State))
     while dataStore.State == false do
         if dataStore:Open(dataTemplate) ~= "Success" then warn("Failed to open datastore, retrying..."); task.wait(6) end
-        print("The datastore's state is "..tostring(dataStore.State))
+        --print("The datastore's state is "..tostring(dataStore.State))
     end
 end
 

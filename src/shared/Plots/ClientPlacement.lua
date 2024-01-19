@@ -68,7 +68,7 @@ function ClientPlacement.StartPlacing(name,model,moving)
     else
         item = ItemUtility.GetItemFromID(model:GetAttribute("ID"))
     end
-    --local stats = require(item.Stats)
+    --local config = require(item.config)
 
     -- Model.
     local localID = 0
@@ -143,7 +143,7 @@ function ClientPlacement.StartPlacing(name,model,moving)
         model:PivotTo(lerpedCFrame)
 
         if frame%2 == 0 then
-            validPlacement = PlacementUtility.isPlacementValid(plot,model,overlapParams) and true or false
+            validPlacement = PlacementUtility.isPlacementValid(plot,model,overlapParams)
             switchHighlight(validPlacement)
         end
     end)

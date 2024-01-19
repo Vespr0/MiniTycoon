@@ -18,7 +18,7 @@ local PlayerDataAccess = require(Server.Data.PlayerDataAccess)
 
 -- Bridge.
 local PlayerDataUpdateBridge = BridgeNet2.ServerBridge("PlayerDataUpdate")
-PlayerDataUpdateBridge.Logging = true
+PlayerDataUpdateBridge.Logging = false
 
 -- Functions --
 function PlayerDataReplication.SetupPlayer(player)
@@ -49,7 +49,7 @@ function PlayerDataReplication.Setup()
         PlayerDataUpdateBridge:Fire(player,data)
     end
     PlayerDataAccess.PlayerDataChanged:Connect(function(player,type,arg1,arg2)
-        print(type,arg1,arg2)
+        --print(type,arg1,arg2)
         local functions = {
             [DataUtility.GetTypeId("Storage")] = function(player,itemID,count)
                 if count > 0 then
