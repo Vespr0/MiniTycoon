@@ -13,7 +13,7 @@ local ScreenSize = PlayerGui:FindFirstChildOfClass("ScreenGui").AbsoluteSize
 function UiUtility.GetDeviceType()
 	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 		and not UserInputService.GamepadEnabled and not GuiService:IsTenFootInterface() then
-		return "Mobile"
+		return "MOBILE"
 	end
 	return "PC"
 end
