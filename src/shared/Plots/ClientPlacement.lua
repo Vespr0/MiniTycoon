@@ -142,8 +142,14 @@ function ClientPlacement.StartPlacing(name,model,moving)
         local lerpedCFrame = modelRoot.CFrame:Lerp(goalCFrame,deltaTime/lerpTime)
         model:PivotTo(lerpedCFrame)
 
-        if frame%2 == 0 then
-            validPlacement = PlacementUtility.isPlacementValid(plot,model,overlapParams)
+        validPlacement = PlacementUtility.isPlacementValid(plot,model,overlapParams)
+        -- Only switch highlight when the model rotation is a multiple of 90, so there aren't any akward highlight flashes 
+        -- when rotating a model. This happens because with lerp, the item will be rotated smoothly and that implies a transition 
+        -- that has intervals that may touch other models (especially near 45 degrees, because of the rombus like shape).
+        -- These frames wouldn't exist without lerping, because clean angles (multiples of 90) fit well in the square grid.
+        local angle = Vector3.new(Camera.CFrame - Camera.CFrame.Position)
+        local angleY = math.deg(angle.Y)
+        if angleY%90 == 0 then
             switchHighlight(validPlacement)
         end
     end)
