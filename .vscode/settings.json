@@ -6,5 +6,6 @@
     ],
     "robloxLsp.diagnostics.disable": [
         5
-    ]
+    ],
+    "stylua.targetReleaseVersion": "latest"
 }

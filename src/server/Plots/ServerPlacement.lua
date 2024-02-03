@@ -144,7 +144,24 @@ local function checkItemPrimaryPart(item)
 end
 
 local function generateDefaultEdges(item)
-
+    local root = item.PrimaryPart
+    local size = root.Size
+    local hX = size.X/2
+    local hZ = size.Z/2
+    local x = Vector3.xAxis
+    local z = Vector3.zAxis
+    local positions = {
+        -x*hX + z*hZ;
+        x*hX - z*hZ;
+        x*hX + z*hZ;
+        -x*hX - z*hZ;
+    }
+    for _,pos in pairs(positions) do
+        local edge = Instance.new("Attachment")
+        edge.Name = "Edge"
+        edge.Parent = root
+        edge.Position = pos-Vector3.yAxis*size.Y/2
+    end
 end
 
 local function setupItems()
@@ -156,10 +173,11 @@ local function setupItems()
             if folder:IsA("Folder") then
                 -- It's an item:
                 checkItemPrimaryPart(item)
-            end
-            local anyEdge = item.PrimaryPart:FindFirstChild("Edge")
-            if not anyEdge then
-                generateDefaultEdges(item)
+
+                local anyEdge = item.PrimaryPart:FindFirstChild("Edge")
+                if not anyEdge then
+                    generateDefaultEdges(item)
+                end
             end
         end
     end
@@ -227,6 +245,8 @@ function ServerPlacement.Setup()
         PlayerDataAccess.GiveStorageItems(player,placedItemID,1)
         return true
     end
+
+    setupItems()
 end
 
 return ServerPlacement
