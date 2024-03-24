@@ -150,17 +150,22 @@ local function generateDefaultEdges(item)
     local hZ = size.Z/2
     local x = Vector3.xAxis
     local z = Vector3.zAxis
+    local edgeBias = 0.1 -- So the raycasts of edges at the limits of the plot dont go through
+    local bHX = (hX-edgeBias)
+    local bHZ = (hZ-edgeBias)
     local positions = {
-        -x*hX + z*hZ;
-        x*hX - z*hZ;
-        x*hX + z*hZ;
-        -x*hX - z*hZ;
+        -x*bHX + z*bHZ;
+        x*bHX - z*bHZ;
+        x*bHX + z*bHZ;
+        -x*bHX - z*bHZ;
     }
     for _,pos in pairs(positions) do
         local edge = Instance.new("Attachment")
         edge.Name = "Edge"
         edge.Parent = root
-        edge.Position = pos-Vector3.yAxis*size.Y/2
+        local heightBias = -Vector3.yAxis*size.Y/2
+        local extraBias = Vector3.yAxis*0.1 -- So it's not exactlly on the plot, which causes the raycasting to go through
+        edge.Position = pos+heightBias+extraBias
     end
 end
 

@@ -7,26 +7,20 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 
-local Ui = script.Parent
+local UiModules = script.Parent
 
 local Gui = PlayerGui:WaitForChild("Menu")
 local MainFrame = Gui:WaitForChild("MainFrame")
 
-local TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Sine)
-local HOVER_INCREMENT = UDim2.fromOffset(5,0)
+local Ui = require(script.Parent.Parent.UiUtility)
 
 -- Functions --
-local function tweenHover(button,goal)
-    local tween = TweenService:Create(button,TWEEN_INFO,{Position = goal})
-    tween:Play()
-end
-
 local modules = {}
 local function toggleUi(gui)
     -- As we use require modules put them into a folder, so modules arent required again.
     local module = modules[gui.Name]
     if not module then
-        modules[gui.Name] = Ui[gui.Name]
+        modules[gui.Name] = UiModules[gui.Name]
     end
     module = require(modules[gui.Name])
     if gui.Enabled then
@@ -46,14 +40,14 @@ function Menu.Setup()
         local origin = button.Icon.Position
         -- Events --
         button.MouseEnter:Connect(function()
-            local goal = origin + HOVER_INCREMENT
-            tweenHover(button.Icon,goal)
+            local goal = origin + Ui.HOVER_INCREMENT
+            Ui.HoverTween(button.Icon,goal)
         end)
         button.MouseLeave:Connect(function()
             -- Avoid hovering from resetting the increment to the button's position when it's gui is open.
             if gui.Enabled == true then return end
             local goal = origin
-            tweenHover(button.Icon,goal)
+            Ui.HoverTween(button.Icon,goal)
         end)
         button.MouseButton1Click:Connect(function()
             if gui then
@@ -74,8 +68,8 @@ function Menu.Setup()
                 local gui = PlayerGui:FindFirstChild(value)
                 if gui then
                     local origin = buttons[value].origin
-                    local goal = gui.Enabled and origin or origin+HOVER_INCREMENT
-                    tweenHover(buttons[value].instance.Icon,goal)
+                    local goal = gui.Enabled and origin or origin+Ui.HOVER_INCREMENT
+                    Ui.HoverTween(buttons[value].instance.Icon,goal)
                     toggleUi(gui)
                 end
             end

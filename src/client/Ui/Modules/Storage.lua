@@ -7,7 +7,11 @@ local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
 
-local Gui = PlayerGui:WaitForChild("Storage")
+-- Ui Modules
+local Ui = require(script.Parent.Parent.UiUtility)
+
+-- Ui Elements
+local Gui = Ui.StorageGui
 local MainFrame = Gui:WaitForChild("MainFrame")
 local ItemsFrame = MainFrame:WaitForChild("ItemsFrame")
 local TypeSelectorsFrame = MainFrame:WaitForChild("TypeSelectors")
@@ -16,14 +20,12 @@ local Shared = ReplicatedStorage.Shared
 local Packages = ReplicatedStorage.Packages
 
 -- Modules --
-local UiUtility = require(Shared.UiUtility)
 local ItemInfo = require(Shared.Items.ItemInfo)
 local AssetsDealer = require(Shared.AssetsDealer)
 local ClientPlacement = require(Shared.Plots.ClientPlacement)
-local ClientPlayerData = require(script.Parent.Parent.Data.ClientPlayerData)
-
+local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
+ 
 -- Constants --
-local TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Sine)
 local ORIGIN = MainFrame.Position
 local TYPE_SELECTORS = {
     TypeSelectorsFrame.Dropper;
@@ -31,8 +33,8 @@ local TYPE_SELECTORS = {
     TypeSelectorsFrame.Upgrader;
     TypeSelectorsFrame.Forge;
 }
-local TYPE_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)
-local TYPE_SELECTED_COLOR = Color3.fromRGB(255, 255, 255)
+local POP_TWEENINFO = TweenInfo.new(.15,Enum.EasingStyle.Bounce,Enum.EasingDirection.Out,0,true)
+local TYPE_SELECTORS_ORIGNAL_SIZE = TypeSelectorsFrame:GetChildren()[2].Size
 
 -- Variables --
 local ItemTemplate = nil
@@ -44,16 +46,21 @@ local ItemUtility = require(Shared.Items.ItemUtility)
 
 -- Functions
 local function tweenPopup(goal)
-    local tween = TweenService:Create(MainFrame,TWEEN_INFO,{Position = goal})
+    local tween = TweenService:Create(MainFrame,Ui.MENU_TWEEN_INFO,{Position = goal})
     tween:Play()
 end
-local function tweenTypeSelector(button,goal)
-    local tween = TweenService:Create(button,TWEEN_INFO,{ImageColor3 = goal})
-    tween:Play()
+local function tweenTypeSelector(button,isSelected)
+    local goal = isSelected and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR
+    local colorTween = TweenService:Create(button,Ui.MENU_TWEEN_INFO,{ImageColor3 = goal})
+    colorTween:Play()
+    if isSelected then
+        local popTween = TweenService:Create(button,POP_TWEENINFO,{Size = TYPE_SELECTORS_ORIGNAL_SIZE + UDim2.fromOffset(2,2)})
+        popTween:Play()
+    end
 end
 
 local function updateItems()
-    UiUtility.ClearFrame(ItemsFrame)
+    Ui.ClearFrame(ItemsFrame)
     trove:Clean()
     for id,count in pairs(ClientPlayerData.GetKey("Storage")) do
         --print(id.." - x"..count)
@@ -77,7 +84,7 @@ end
 local function updateTypeSelectors()
     for _,typeSelector in pairs(TYPE_SELECTORS) do
         local isSelectedType = typeSelector.Name == CurrentType
-        tweenTypeSelector(typeSelector,isSelectedType and TYPE_SELECTED_COLOR or TYPE_UNSELECTED_COLOR)
+        tweenTypeSelector(typeSelector,isSelectedType)
     end
 end
 
@@ -93,7 +100,7 @@ end
 function Storage.Close()
     MainFrame.Position = ORIGIN
     tweenPopup(ORIGIN+UDim2.fromScale(0.5,0))
-    task.wait(TWEEN_INFO.Time)
+    task.wait(Ui.MENU_TWEEN_INFO.Time)
     Gui.Enabled = false
 end
 

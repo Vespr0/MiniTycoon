@@ -7,6 +7,7 @@ return {
     OldWasher = {ID=4,Directory="Upgraders/OldWasher"};
     -- Grade One:
     UraniumMine = {ID=10,Directory="Droppers/GradeOne/UraniumMine"};
+    UraniumLazur = {ID=11,Directory="Droppers/GradeOne/UraniumLazur"};
     -- Misc:
     IceBelt = {ID=9999,Directory="Belts/Misc/IceBelt"};
 }

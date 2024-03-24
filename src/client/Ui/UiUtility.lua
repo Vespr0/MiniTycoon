@@ -1,28 +1,40 @@
-local UiUtility = {}
+local Ui = {}
 
+-- Services
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
 local Player = Players.LocalPlayer
 
+-- Variables
 local PlayerGui = Player.PlayerGui
 local ScreenSize = PlayerGui:FindFirstChildOfClass("ScreenGui").AbsoluteSize
 
-function UiUtility.GetDeviceType()
+Ui.StorageGui = PlayerGui:WaitForChild("Storage")
+Ui.StorageMainFrame = Ui.StorageGui:WaitForChild("MainFrame")
+Ui.ShopGui = PlayerGui:WaitForChild("Shop")
+Ui.ShopMainFrame = Ui.ShopGui:WaitForChild("MainFrame")
+
+-- Constants
+Ui.BUTTON_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)
+Ui.BUTTON_SELECTED_COLOR = Color3.fromRGB(255, 255, 255)
+Ui.HOVER_INCREMENT = UDim2.fromOffset(5,0)
+Ui.MENU_TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Sine)
+
+-- Functions
+function Ui.GetDeviceType()
 	if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled and not UserInputService.MouseEnabled
 		and not UserInputService.GamepadEnabled and not GuiService:IsTenFootInterface() then
 		return "MOBILE"
 	end
 	return "PC"
 end
-
 local DeviceType = Instance.new("StringValue"); DeviceType.Parent = Player
 DeviceType.Name = "DeviceType"
-DeviceType.Value = UiUtility.GetDeviceType()
+DeviceType.Value = Ui.GetDeviceType()
 
-function UiUtility.ClearFrame(frame)
+function Ui.ClearFrame(frame)
 	for _,uiElement:GuiBase2d in pairs(frame:GetChildren()) do
 		if not uiElement:IsA("UIGridLayout") and not uiElement:IsA("UIListLayout") then
 			uiElement:Destroy()
@@ -30,13 +42,13 @@ function UiUtility.ClearFrame(frame)
 	end
 end
 
-function UiUtility.GetUiElementsOverCursor()
+function Ui.GetUiElementsOverCursor()
 	local mousePos = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
 	local GuiObjects = PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 	return GuiObjects
 end
 
-function UiUtility.IsAGuiBase2D(instance)
+function Ui.IsAGuiBase2D(instance)
     local classes = {
         "Frame";
         "ImageButton";
@@ -52,8 +64,9 @@ function UiUtility.IsAGuiBase2D(instance)
     return false
 end
 
-function UiUtility.Setup()
-	
+function Ui.HoverTween(button,goal)
+    local tween = TweenService:Create(button,Ui.MENU_TWEEN_INFO,{Position = goal})
+    tween:Play()
 end
 
-return UiUtility
+return Ui

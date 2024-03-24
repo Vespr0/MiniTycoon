@@ -18,7 +18,7 @@ local TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Bounce,Enum.EasingDirectio
 local HOVER_INCREMENT = UDim2.fromOffset(0,3)
 
 -- Modules --
-local ClientPlayerData = require(script.Parent.Parent.Data.ClientPlayerData)
+local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 
 -- Functions --
 local function tweenBounce()

@@ -45,6 +45,10 @@ function ClientPlacement.IsPlacing()
 end
 
 function ClientPlacement.StartPlacing(name,model,moving)
+    if isPlacing then
+        warn("Client is already placing or moving.")
+        return
+    end
     -- Update placement status.
     isPlacing = true
     ClientPlacement.PlacementStatusUpdated:Fire(isPlacing)
@@ -147,8 +151,9 @@ function ClientPlacement.StartPlacing(name,model,moving)
         -- when rotating a model. This happens because with lerp, the item will be rotated smoothly and that implies a transition 
         -- that has intervals that may touch other models (especially near 45 degrees, because of the rombus like shape).
         -- These frames wouldn't exist without lerping, because clean angles (multiples of 90) fit well in the square grid.
-        local angle = Vector3.new(Camera.CFrame - Camera.CFrame.Position)
-        local angleY = math.deg(angle.Y)
+        --local angle = Vector3.new(modelRoot.CFrame - modelRoot.CFrame.Position)
+        local angleY = modelRoot.Orientation.Y--math.deg(angle.Y)
+        print(angleY.."="..angleY%90)
         if angleY%90 == 0 then
             switchHighlight(validPlacement)
         end
@@ -157,7 +162,11 @@ function ClientPlacement.StartPlacing(name,model,moving)
     -- Input --
     trove:Connect(UserInputService.InputBegan,function(input, gameProcessedEvent)
         if gameProcessedEvent then return end
-        if validPlacement and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if not validPlacement then
+                print("bruh moment")
+                return
+            end
             placeItem()
         end
         if input.KeyCode == Enum.KeyCode.R then
