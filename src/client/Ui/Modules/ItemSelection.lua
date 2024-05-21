@@ -31,7 +31,7 @@ local ItemUtility = require(Shared.Items.ItemUtility)
 -- Variables --
 local CurrentllySelectedItem = nil
 local CurrentllyHoveredItem = nil
-repeat task.wait(.2) until Player:GetAttribute("Plot")
+repeat task.wait(.2) until Player:GetAttribute("Plot") and PlacementUtility.GetClientPlot()
 local Plot = PlacementUtility.GetClientPlot()
 
 -- Constants --

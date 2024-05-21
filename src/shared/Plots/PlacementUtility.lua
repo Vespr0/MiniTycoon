@@ -64,7 +64,7 @@ function PlacementUtility.isPlacementValid(plot,model,overlapParams)
         local bias = Vector3.new(.2,.2,.2)
         local collidingParts = workspace:GetPartBoundsInBox(hitPart.CFrame,hitPart.Size-bias,overlapParams)
         for _,part in collidingParts do
-            if part.Parent.Name == "Hitbox" then warn("hit ",part) return false end
+            if part.Parent.Name == "Hitbox" then return false end
         end
     end
     local raycastParams = RaycastParams.new()
@@ -75,7 +75,6 @@ function PlacementUtility.isPlacementValid(plot,model,overlapParams)
             local raycast = workspace:Raycast(edge.WorldPosition,-Vector3.yAxis*1000,raycastParams)
             local isEdgeOnPlot = raycast and raycast.Instance
             if not isEdgeOnPlot then
-                warn("sussy baka - lpos: ",edge.Position)
                 return false
             end
         end

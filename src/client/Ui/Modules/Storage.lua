@@ -33,7 +33,7 @@ local TYPE_SELECTORS = {
     TypeSelectorsFrame.Upgrader;
     TypeSelectorsFrame.Forge;
 }
-local POP_TWEENINFO = TweenInfo.new(.15,Enum.EasingStyle.Bounce,Enum.EasingDirection.Out,0,true)
+local POP_TWEENINFO = TweenInfo.new(.15,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0,true)
 local TYPE_SELECTORS_ORIGNAL_SIZE = TypeSelectorsFrame:GetChildren()[2].Size
 
 -- Variables --
@@ -54,7 +54,7 @@ local function tweenTypeSelector(button,isSelected)
     local colorTween = TweenService:Create(button,Ui.MENU_TWEEN_INFO,{ImageColor3 = goal})
     colorTween:Play()
     if isSelected then
-        local popTween = TweenService:Create(button,POP_TWEENINFO,{Size = TYPE_SELECTORS_ORIGNAL_SIZE + UDim2.fromOffset(2,2)})
+        local popTween = TweenService:Create(button,POP_TWEENINFO,{Size = TYPE_SELECTORS_ORIGNAL_SIZE + UDim2.fromOffset(4,4)})
         popTween:Play()
     end
 end

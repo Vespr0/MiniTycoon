@@ -25,9 +25,21 @@ local function tweenBounce()
     local tween = TweenService:Create(MoneyLabel,TWEEN_INFO,{Position = MoneyLabel.Position+HOVER_INCREMENT})
     tween:Play()
 end
+local function formatCash(value)
+    local chars = string.split(tostring(value), "")
+    local string = ""
+    for i,c in pairs(chars) do
+        if i % 3 == 0 and i ~= #chars then
+            string ..= "."
+            continue    
+        end
+        string ..= chars[i]
+    end
+    return "$"..string
+end
 local function update(value)
     tweenBounce()
-    MoneyLabel.Text = "$"..value
+    MoneyLabel.Text = formatCash(value)
 end
 
 function Cash.Setup()

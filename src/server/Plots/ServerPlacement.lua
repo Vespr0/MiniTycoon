@@ -79,6 +79,7 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
         local model = item.Model:Clone()
         model.Parent = plot.Items
         model.Name = name
+        model:SetAttribute("ItemType",type)
         local yAngle = math.rad(math.clamp(yRotation,0,360))
         model:PivotTo(CFrame.new(position)*CFrame.Angles(0,yAngle,0))
 
@@ -111,13 +112,14 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
                 end;
                 Belt = function()
                     model.Belt:SetAttribute("Speed",config.BeltSpeed or 1)
-                    model.Belt:SetAttribute("Slipperiness",config.BeltSlipperiness or 0)
+                    model.Belt:SetAttribute("Slipperiness",config.BeltSlipperiness or 10)
                 end;
                 Forge = function()
                     model.Seller:SetAttribute("SellMultiplier",config.SellMultiplier)
                 end;
                 Upgrader = function()
-
+                    model.Upgrader:SetAttribute("BoostType",config.BoostType or "Additive")
+                    model.Upgrader:SetAttribute("BoostValue",config.BoostValue or 1) 
                 end;
             }
             task.defer(placementFunctions[type])

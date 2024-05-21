@@ -28,8 +28,9 @@ function PlotManager.SetPlayerPlot(player,name)
 	local plot = Plots:FindFirstChild(name)
 	if not plot then
 		error("Couldn't find any Plot named "..name..errorString)
-	end
-	plot:SetAttribute("Owner",player.UserId)
+	end	
+	plot:SetAttribute("OwnerID",player.UserId)
+	plot:SetAttribute("DropCounter",0)
 	task.spawn(function()
 		repeat task.wait(.2)
         until player.Character
@@ -48,7 +49,7 @@ function PlotManager.ClearPlayerPlot(player)
 		if not plot then
 			error("Couldn't find any Plot named "..plotName.Value..errorString)
 		end
-		plot:SetAttribute("Owner",0)
+		plot:SetAttribute("OwnerID",0)
 		plot.Items:ClearAllChildren()
 	end
 end
@@ -60,7 +61,7 @@ local function setupPlotFolders()
 		local TilesFolder = Instance.new("Folder"); TilesFolder.Parent = folder; TilesFolder.Name = "Tiles";
 		local DropsFolder = Instance.new("Folder"); DropsFolder.Parent = folder; DropsFolder.Name = "Drops";
 		-- Attributes --
-		folder:SetAttribute("Owner",0)
+		folder:SetAttribute("OwnerID",0)
 		-- Values --
 		local PartsValue = Instance.new("IntValue"); PartsValue.Parent = folder; PartsValue.Name = "Parts";
 	end

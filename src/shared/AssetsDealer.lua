@@ -3,10 +3,14 @@ local AssetsDealer = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 
-local function error(key,arg1)
+local function error(key,arg1,arg2)
+	arg1 = arg1 or "nil"
+	arg2 = arg2 or "nil"
 	local errors = {
 		invalidRoot = "No Root folder called ``"..arg1.."`` exists.";
 		invalidDirectory = "Couldn't find any object at ``"..arg1.."``";
+		invalidName = "No asset called ``"..arg1.."`` exists in ``"..arg2.."``";
+		missingParameter = "Missing parameter ``"..arg1.."``";
 	}
 	return errors[key]
 end
@@ -28,10 +32,33 @@ function AssetsDealer.GetAssetFromDirectory(rootFolderName,directory,asClone)
 			return (asClone and current:Clone()) or current
 		end
 		error("invalidDirectory",directory)
+		return nil
+	else
+		error("invalidRoot",rootFolderName)
+		return nil
+	end
+end
+
+function AssetsDealer.GetAssetFromName(rootFolderName,name,asClone)
+	local rootFolder = ReplicatedStorage.Assets:FindFirstChild(rootFolderName)
+	local asset = nil
+	if rootFolder then
+		for _,descendant in pairs(rootFolder:GetDescendants()) do
+			if descendant.Name == name then
+				asset = descendant
+			end
+		end
 	else
 		error("invalidRoot",rootFolderName)
 	end
+	if asset then
+		return (asClone and asset:Clone()) or asset
+	else
+		error("invalidName",name,rootFolderName)
+	end
+	return nil
 end
+
 
 function AssetsDealer.GetItem(directory)
 	return AssetsDealer.GetAssetFromDirectory("Items",directory,false)
@@ -41,8 +68,11 @@ function AssetsDealer.GetTile(directory)
 	return AssetsDealer.GetAssetFromDirectory("Tiles",directory,true)
 end
 
-function AssetsDealer.GetMesh(directory)
-	return AssetsDealer.GetAssetFromDirectory("Meshes",directory,true)
+function AssetsDealer.GetMesh(name)
+	if not name then
+		error("missingParameter",name)
+	end
+	return AssetsDealer.GetAssetFromName("Meshes",name,true)
 end
 
 function AssetsDealer.GetSound(directory)

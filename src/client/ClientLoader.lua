@@ -46,6 +46,8 @@ function ClientLoader.Start()
 	local folders = {
 		script.Parent.Data;
 		script.Parent.Ui.Modules;
+		script.Parent.Items.Modules;
+		script.Parent.FX;
 	}
 	for i,folder in folders do
 		for _,module in pairs(folder:GetChildren()) do

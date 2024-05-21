@@ -55,12 +55,11 @@ local cashQueue = {
     -- [player.UserId] = {amount,amount...}
 }
 function PlayerDataAccess.AddCashToQueue(player,amount)
-    warn("OK")
     if not cashQueue[player.UserId] then
         cashQueue[player.UserId] = {}
     end
     table.insert(cashQueue[player.UserId],amount)
-    print(cashQueue[player.UserId],amount)
+    -- print(cashQueue[player.UserId],amount)
 end
 
 function PlayerDataAccess.GiveCash(player,amount)

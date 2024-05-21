@@ -64,9 +64,10 @@ function PlayerDataManager.Setup()
         end)]]
         -- Replication.
         PlayerDataReplication.SetupPlayer(player)
-        PlayerDataAccess.GiveStorageItems(player,1,1)
         PlayerDataAccess.GiveStorageItems(player,4,1)
+        PlayerDataAccess.GiveStorageItems(player,10,1)
         PlayerDataAccess.GiveStorageItems(player,11,1)
+        PlayerDataAccess.GiveStorageItems(player,3,1)
         player:SetAttribute("DataLoaded",true)
     end)
     Players.PlayerRemoving:Connect(function(player)

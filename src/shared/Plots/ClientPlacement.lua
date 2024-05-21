@@ -153,7 +153,6 @@ function ClientPlacement.StartPlacing(name,model,moving)
         -- These frames wouldn't exist without lerping, because clean angles (multiples of 90) fit well in the square grid.
         --local angle = Vector3.new(modelRoot.CFrame - modelRoot.CFrame.Position)
         local angleY = modelRoot.Orientation.Y--math.deg(angle.Y)
-        print(angleY.."="..angleY%90)
         if angleY%90 == 0 then
             switchHighlight(validPlacement)
         end
@@ -164,7 +163,6 @@ function ClientPlacement.StartPlacing(name,model,moving)
         if gameProcessedEvent then return end
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             if not validPlacement then
-                print("bruh moment")
                 return
             end
             placeItem()
