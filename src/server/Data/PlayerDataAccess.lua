@@ -143,7 +143,7 @@ function PlayerDataAccess.GiveStorageItems(player,itemID,amount)
     else
         dataStore.Value.Storage[itemID] += amount
     end
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Storage"),itemID,dataStore.Value.Storage[itemID]+amount)
+    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Storage"),itemID,dataStore.Value.Storage[itemID])
 end
 
 function PlayerDataAccess.ConsumeStorageItems(player,itemID,amount)
