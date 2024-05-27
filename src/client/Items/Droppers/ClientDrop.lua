@@ -37,14 +37,14 @@ function ClientDrop.new(properties,params)
         if partExists and meshExists then
             drop:step()
         else
-            drop:destroy()
+            drop:destroy(drop.instance:GetAttribute("Sold"))
         end
     end)
 
     return drop
 end
 
-function ClientDrop:destroy()
+function ClientDrop:destroy(sold: boolean)
     self.connection:Disconnect()
     self.mesh:Destroy()
 end

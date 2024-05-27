@@ -16,7 +16,7 @@ local OffersUi = require(script.Parent.Offers)
 
 -- Ui Elements 
 local Gui = Ui.ShopGui
-local MainFrame = Ui.ShopMainFrame
+local MainFrame = Gui:WaitForChild("MainFrame")
 local OffersFrame = MainFrame:WaitForChild("OffersFrame")
 local FragumFrame = MainFrame:WaitForChild("FragumFrame")
 local SectionSelectors = MainFrame:WaitForChild("SectionSelectors")

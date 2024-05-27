@@ -134,13 +134,13 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
     end
 end
 
-local function checkItemPrimaryPart(item)
+local function checkItemPrimaryPart(item,folder)
     if not item.PrimaryPart then
         local root = item:FindFirstChild("Root")
         if root then
             item.PrimaryPart = root
         else
-            warn("CRITICAL: "..item.Name.."'s model doesn't have a primary part, and there is no part named 'Root'.")
+            warn("CRITICAL: "..folder.Name.."'s model doesn't have a primary part, and there is no part named 'Root'.")
         end
     end
 end
@@ -179,7 +179,7 @@ local function setupItems()
             local folder = item.Parent
             if folder:IsA("Folder") then
                 -- It's an item:
-                checkItemPrimaryPart(item)
+                checkItemPrimaryPart(item,folder)
 
                 local anyEdge = item.PrimaryPart:FindFirstChild("Edge")
                 if not anyEdge then

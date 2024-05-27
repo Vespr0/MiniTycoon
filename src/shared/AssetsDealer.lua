@@ -94,6 +94,10 @@ function AssetsDealer.GetAnimation(directory)
 	return AssetsDealer.GetAssetFromDirectory("Animations",directory,false)
 end
 
+function AssetsDealer.GetLootbox(name)
+	return AssetsDealer.GetAssetFromName("Lootboxes", name, true)
+end
+
 function AssetsDealer.GetTexture(directory)
 	local part = AssetsDealer.GetAssetFromDirectory("Textures",directory,false)
 	return (part and part.Decal and part.Decal.Texture) or nil

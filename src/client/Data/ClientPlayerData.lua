@@ -41,7 +41,6 @@ ClientPlayerData.CashUpdate = Signal.new()
 
 function ClientPlayerData.Setup()
     PlayerDataUpdateBridge:Connect(function(data)
-        print(data)
         local functions = {
             Storage = function(id,count)
                 if not ClientData.Storage[id] then

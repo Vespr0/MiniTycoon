@@ -11,10 +11,10 @@ local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
 local ScreenSize = PlayerGui:FindFirstChildOfClass("ScreenGui").AbsoluteSize
 
+-- Ui Elements
 Ui.StorageGui = PlayerGui:WaitForChild("Storage")
-Ui.StorageMainFrame = Ui.StorageGui:WaitForChild("MainFrame")
 Ui.ShopGui = PlayerGui:WaitForChild("Shop")
-Ui.ShopMainFrame = Ui.ShopGui:WaitForChild("MainFrame")
+Ui.UnboxingGui = PlayerGui:WaitForChild("Unboxing")
 
 -- Constants
 Ui.BUTTON_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)

@@ -14,7 +14,7 @@ local Packages = ReplicatedStorage.Packages
 local Ui = require(script.Parent.Parent.UiUtility)
 
 -- Ui Elements
-local OffersFrame = Ui.ShopMainFrame:WaitForChild("OffersFrame")
+local OffersFrame = Ui.ShopGui:WaitForChild("MainFrame"):WaitForChild("OffersFrame")
 
 -- Modules --
 local ItemInfo = require(Shared.Items.ItemInfo)

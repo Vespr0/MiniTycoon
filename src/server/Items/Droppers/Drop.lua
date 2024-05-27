@@ -72,7 +72,6 @@ function Drop:getValue()
 end
 
 function Drop:sell(sellMultiplier)
-    warn("cha ching")
     self.sold:Fire(sellMultiplier)
     self:destroy()
 end
@@ -103,7 +102,6 @@ function Drop:getForge()
     if raycast then
         local sellMultiplier = raycast.Instance:GetAttribute("SellMultiplier")
         if sellMultiplier then
-            warn(raycast.Instance.Name,raycast.Instance.Parent.Name,sellMultiplier)
             self:sell(sellMultiplier)
             return
         end
@@ -184,9 +182,8 @@ function Drop:startLoop()
             local goal = 1/sizeBias/densityBias
             local traveledTooLittle = distanceTraveledLastSecond and distanceTraveledLastSecond < goal
 
-            warn(goal)
             if traveledTooLittle then
-                warn("Traveled "..distanceTraveledLastSecond.." had to travel more than "..goal)
+                -- warn("Traveled "..distanceTraveledLastSecond.." had to travel more than "..goal)
                 self.beltlessTime += 1
             else
                 self.beltlessTime = 0
@@ -218,7 +215,7 @@ function Drop:step(deltaTime)
     self.instance.AssemblyLinearVelocity = velocity
 
     if self.beltlessTime > 3 then
-        warn("Part expired")
+        -- warn("Part expired")
         self:destroy()
     end
 end
