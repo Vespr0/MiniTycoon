@@ -145,7 +145,7 @@ function ItemSelection.Setup()
         end
 
         -- Moving
-        if input.KeyCode == Enum.KeyCode.B then
+        if input.KeyCode == Enum.KeyCode.V then
             if CurrentllySelectedItem then
                 local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
                 ClientPlacement.StartPlacing(nil,item,true)
@@ -153,7 +153,7 @@ function ItemSelection.Setup()
         end
 
         -- Storing
-        if input.KeyCode == Enum.KeyCode.V then
+        if input.KeyCode == Enum.KeyCode.B then
             if CurrentllySelectedItem then
                 deposit(CurrentllySelectedItem:GetAttribute("LocalID"))
                 unSelect()

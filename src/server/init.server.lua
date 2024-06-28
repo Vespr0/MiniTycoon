@@ -5,8 +5,9 @@ local Server = ServerScriptService:WaitForChild("Server")
 -- Load assets --
 workspace:WaitForChild("Assets").Parent = ReplicatedStorage
 -- Load modules --
-require(Server.Data.PlayerDataManager).Setup()
-require(Server.Data.PlayerDataStore).Setup()
 require(Server.Plots.PlotManager).Setup()
 require(Server.Plots.ServerPlacement).Setup()
 require(Server.PlayerManager).Setup()
+require(Server.Data.PlayerDataStore).Setup()
+require(Server.Data.PlayerDataManager).Setup()
+require(Server.Services.ShopManager).Setup()

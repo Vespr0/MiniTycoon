@@ -71,6 +71,16 @@ function Menu.Setup()
                     local goal = gui.Enabled and origin or origin+Ui.HOVER_INCREMENT
                     Ui.HoverTween(buttons[value].instance.Icon,goal)
                     toggleUi(gui)
+
+                    -- Close all other guis
+                    for _,otherValue in pairs(keyCodes) do
+                        if otherValue == value then continue end
+                        local otherGui = PlayerGui:FindFirstChild(otherValue)
+                        if otherGui and otherGui.Enabled == true then
+                            Ui.HoverTween(buttons[otherValue].instance.Icon,origin)
+                            toggleUi(otherGui)
+                        end
+                    end
                 end
             end
         end

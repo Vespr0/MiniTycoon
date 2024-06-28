@@ -34,22 +34,26 @@ function Dropper.new(params)
 
     -- Drop --
     local connection
-    connection = Events.DropReplication.OnClientEvent:Connect(function(r_ownerID,r_localID,r_partID)
+    connection = Events.DropReplication.OnClientEvent:Connect(function(r_ownerID,r_localID,r_partID,sold,forgeName)
+        if sold then return end
         if r_ownerID ~= dropper.Plot:GetAttribute("OwnerID") then return end
 
+        -- TODO: checking Local ID may be useless
         local sameItem = r_localID == dropper.model:GetAttribute("LocalID")
         if not sameItem then return end
 
         local part = nil
         local attempts = 0
         repeat 
+            if attempts > 0 then
+                RunService.RenderStepped:Wait()
+            end
             part = PlotUtility.GetPart(dropper.Plot,r_partID)
-            RunService.RenderStepped:Wait()
             attempts += 1
         until part or attempts > 5
 
         if part then
-            dropper:drop(part)
+            dropper:drop(part,r_partID)
         end
     end)
 
@@ -68,7 +72,7 @@ function Dropper:exists()
     return self.model and self.model.Parent
 end
 
-function Dropper:drop(part)
+function Dropper:drop(part,partID)
     -- Poof effect
     TweenService:Create(self.dropperPart,TweenInfo.new(.3,Enum.EasingStyle.Bounce,Enum.EasingDirection.In,0,true),{
         Size = self.dropperPart.Size * 1.2
@@ -80,7 +84,10 @@ function Dropper:drop(part)
     })
 
     self.clientDrop = ClientDrop.new(self.dropPropieties,{
-        Instance = part,
+        instance = part,
+        plot = self.Plot,
+        localID = self.localID,
+        partID = partID
     })
 end
 

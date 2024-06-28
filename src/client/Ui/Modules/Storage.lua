@@ -32,6 +32,7 @@ local TYPE_SELECTORS = {
     TypeSelectorsFrame.Belt;
     TypeSelectorsFrame.Upgrader;
     TypeSelectorsFrame.Forge;
+    TypeSelectorsFrame.Decor;
 }
 local POP_TWEENINFO = TweenInfo.new(.15,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0,true)
 local TYPE_SELECTORS_ORIGNAL_SIZE = TypeSelectorsFrame:GetChildren()[2].Size
@@ -53,23 +54,25 @@ local function tweenTypeSelector(button,isSelected)
     local goal = isSelected and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR
     local colorTween = TweenService:Create(button,Ui.MENU_TWEEN_INFO,{ImageColor3 = goal})
     colorTween:Play()
-    if isSelected then
-        local popTween = TweenService:Create(button,POP_TWEENINFO,{Size = TYPE_SELECTORS_ORIGNAL_SIZE + UDim2.fromOffset(4,4)})
-        popTween:Play()
-    end
+    -- if isSelected then
+    --     local popTween = TweenService:Create(button,POP_TWEENINFO,{Size = TYPE_SELECTORS_ORIGNAL_SIZE + UDim2.fromOffset(4,4)})
+    --     popTween:Play()
+    -- end
 end
 
 local function updateItems()
     Ui.ClearFrame(ItemsFrame)
     trove:Clean()
-    for id,count in pairs(ClientPlayerData.GetKey("Storage")) do
-        --print(id.." - x"..count)
-        local itemName,itemInfo = ItemUtility.GetItemFromID(id)
+    for itemName,count in pairs(ClientPlayerData.GetKey("Storage")) do
         -- Item.
-        local item = AssetsDealer.GetItem(itemInfo.Directory)
+        local item = AssetsDealer.GetItem(itemName)
+        if not item then
+            warn("Item not found with name: "..itemName)
+            continue
+        end
+
         local config = require(item.config)
         local type = config.Type
-        --print(type.."/"..CurrentType)
         if type ~= CurrentType then continue end
         -- Ui item.
         local uiItem = ItemTemplate:Clone()

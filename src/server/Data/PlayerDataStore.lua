@@ -19,18 +19,33 @@ local ServerPlayerData = ServerStorage.ServerPlayerData
 
 local dataTemplate = {
     -- Numbers --
-    Level = 0;
+    Level = 1;
     Exp = 0;
     Cash = 0;
     -- Tables --
     Storage = {
         -- 1 dropper, 5 belts and 1 forge.
-        [1] = 1;
-        [2] = 5;
-        [3] = 1;
+        CoalMine = 1;
+        OldBelt = 5;
+        OldForge = 1;
     };
     PlacedItems = {
     };
+    -- Session --
+    Session = { 
+        FirstPlayed = nil;
+        LastPlayed = nil;
+        TimePlayed = 0;
+    };
+    -- Services --
+    Services = {
+        Offers = nil;
+        OffersExpiration = nil;
+    };
+    -- Stats --
+    Stats = {
+        OffersBought = 0;
+    }
 }
 
 local function stateChanged(state,dataStore)

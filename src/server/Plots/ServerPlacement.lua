@@ -16,7 +16,7 @@ local PlotUtility = require(Shared.Plots.PlotUtility)
 -- Classes --
 local ServerDropper = require(Server.Items.Droppers.ServerDropper)
 local PlayerDataManager = require(Server.Data.PlayerDataManager)
-local PlayerDataAccess = require(Server.Data.PlayerDataAccess)
+local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 
 local errors = {
     -- Arguments.
@@ -65,22 +65,20 @@ function ServerPlacement.DisableQueries(model)
     end
 end
 
-function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filteredModel,ignoreValidation)
-    local name,entry = ItemUtility.GetItemFromID(itemID)
-
-    if entry then
+function ServerPlacement.PlaceItem(player,position,itemName,yRotation,localID,filteredModel,ignoreValidation)
+    if itemName then
         -- Get item info.
         local plot = PlotUtility.GetPlotFromPlayer(player)
-        local item = AssetsDealer.GetItem(entry.Directory)
+        local item = AssetsDealer.GetItem(itemName)
         local config = require(item.config)
         local type = config.Type
 
         -- Place the model.
         local model = item.Model:Clone()
         model.Parent = plot.Items
-        model.Name = name
+        model.Name = itemName
         model:SetAttribute("ItemType",type)
-        local yAngle = math.rad(math.clamp(yRotation,0,360))
+        local yAngle = math.rad(math.min(yRotation,360))
         model:PivotTo(CFrame.new(position)*CFrame.Angles(0,yAngle,0))
 
         -- Variables
@@ -96,7 +94,7 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
                 localID = findAvaiableItemLocalID(plot.Items)
             end
             model:SetAttribute("LocalID",localID)
-            model:SetAttribute("ID",itemID)
+            model:SetAttribute("ItemName",itemName)
             ServerPlacement.DisableQueries(model)
 
             -- Instanciate classes.
@@ -121,16 +119,20 @@ function ServerPlacement.PlaceItem(player,position,itemID,yRotation,localID,filt
                     model.Upgrader:SetAttribute("BoostType",config.BoostType or "Additive")
                     model.Upgrader:SetAttribute("BoostValue",config.BoostValue or 1) 
                 end;
+                -- Decor = function()
+                -- end;
             }
-            task.defer(placementFunctions[type])
+            if placementFunctions[type] then
+                task.defer(placementFunctions[type])
+            end
             return true,localID
         else
             model:Destroy()
-            local str = " position:"..tostring(position).." yRotation:"..tostring(yRotation).." itemID:"..tostring(item)
+            local str = " position:"..tostring(position).." yRotation:"..tostring(yRotation).." itemName:"..itemName
             return false,string.gsub(errors.InvalidPositionAndRotation,"&a",str)
         end
     else
-        return false,string.gsub(errors.ItemNameDoesntExist,"&a",itemID)
+        return false,string.gsub(errors.ItemNameDoesntExist,"&a",itemName)
     end
 end
 
@@ -171,6 +173,11 @@ local function generateDefaultEdges(item)
     end
 end
 
+local BELT_TRESHOLD = 0.2
+local function setupBelt(belt)
+    belt.Size = Vector3.new(belt.Size.X+BELT_TRESHOLD,belt.Size.Y,belt.Size.Z+BELT_TRESHOLD)
+end
+
 local function setupItems()
     -- Missing primary part:
     local descendants = ReplicatedStorage.Assets:GetDescendants()
@@ -185,29 +192,34 @@ local function setupItems()
                 if not anyEdge then
                     generateDefaultEdges(item)
                 end
+
+                local belt = item:FindFirstChild("Belt")
+                if belt then
+                    setupBelt(belt)
+                end
             end
         end
     end
 end
 
 function ServerPlacement.Setup()
-    Events.Place.OnServerInvoke = function(player,itemID,position,yRotation)
+    Events.Place.OnServerInvoke = function(player,itemName,position,yRotation)
         local actionTag = " > Events.Place"
         local playerTag = " #"..player.UserId
 
         if typeof(position) ~= "Vector3" then warn(string.gsub(errors.InvalidArgumentType,"&a","position")..playerTag..actionTag); return false end
         if typeof(yRotation) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","yRotation")..playerTag..actionTag); return false end
-        if typeof(itemID) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","itemID")..playerTag..actionTag); return false end
+        if typeof(itemName) ~= "string" then warn(string.gsub(errors.InvalidArgumentType,"&a","itemName")..playerTag..actionTag); return false end
 
-        local storageItem = PlayerDataAccess.GetStorageItem(player,itemID)
+        local storageItem = ItemsAccess.GetStorageItem(player,itemName)
         if not storageItem then warn(errors.PlayerDoesntHaveStorageItem..playerTag..actionTag); return false end
 
-        local success,arg1 = ServerPlacement.PlaceItem(player,position,itemID,yRotation)
+        local success,arg1 = ServerPlacement.PlaceItem(player,position,itemName,yRotation)
 
         if not success then warn("Error from player placement request : ``"..arg1.."``"..playerTag..actionTag); return false end
 
-        PlayerDataAccess.RegisterPlacedItem(player,arg1,position,itemID,yRotation)
-        PlayerDataAccess.ConsumeStorageItems(player,itemID,1)
+        ItemsAccess.RegisterPlacedItem(player,arg1,position,itemName,yRotation)
+        ItemsAccess.ConsumeStorageItems(player,itemName,1)
         return true
     end
     Events.Move.OnServerInvoke = function(player,localID,position,yRotation)
@@ -216,40 +228,40 @@ function ServerPlacement.Setup()
 
         if typeof(position) ~= "Vector3" then warn(string.gsub(errors.InvalidArgumentType,"&a","position")..playerTag..actionTag); return false end
         if typeof(yRotation) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","yRotation")..playerTag..actionTag); return false end
-        if typeof(localID) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","itemID")..playerTag..actionTag); return false end
+        if typeof(localID) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","localID")..playerTag..actionTag); return false end
 
         local plot = PlotUtility.GetPlotFromPlayer(player)
         local placedModel = PlacementUtility.GetItemFromLocalID(plot.Items,localID)
-        local placedItem = PlayerDataAccess.GetPlacedItem(player,localID)
-        if not placedModel then warn(errors.PlayerDoesntHavePlacedItemToMove..playerTag..actionTag); return false end
-        if not placedItem then warn(errors.PlayerDoesntHavePlacedItemInDatastoreToMove..playerTag..actionTag); return false end
-        local placedItemID = placedItem[4]
+        local placedItem = ItemsAccess.GetPlacedItem(player,localID)
+        if not placedModel then warn(string.gsub(errors.PlayerDoesntHavePlacedItemToMove,"&a",tostring(localID))..playerTag..actionTag); return false end
+        if not placedItem then warn(string.gsub(errors.PlayerDoesntHavePlacedItemInDatastoreToMove,"&a",tostring(localID))..playerTag..actionTag); return false end
+        local placedItemName = placedItem[4]
 
         -- Move.
-        local success,arg1 = ServerPlacement.PlaceItem(player,position,placedItemID,yRotation,localID,placedModel)
+        local success,arg1 = ServerPlacement.PlaceItem(player,position,placedItemName,yRotation,localID,placedModel)
         if not success then warn("Error from player placement request : ``"..arg1.."``"..playerTag..actionTag); return false end
 
-        PlayerDataAccess.RegisterPlacedItem(player,localID,position,placedItemID,yRotation)
+        ItemsAccess.RegisterPlacedItem(player,localID,position,placedItemName,yRotation)
         placedModel:Destroy()
-        --PlayerDataAccess.ConsumeStorageItems(player,placedItemID,1)
+        --ItemsAccess.ConsumeStorageItems(player,placedItemName,1)
         return true
     end
     Events.Deposit.OnServerInvoke = function(player,localID)
         local actionTag = " > Events.Deposit"
         local playerTag = " #"..player.UserId
 
-        if typeof(localID) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","itemID")..playerTag..actionTag); return false end
+        if typeof(localID) ~= "number" then warn(string.gsub(errors.InvalidArgumentType,"&a","localID")..playerTag..actionTag); return false end
 
         local plot = PlotUtility.GetPlotFromPlayer(player)
         local placedModel = PlacementUtility.GetItemFromLocalID(plot.Items,localID)
-        local placedItem = PlayerDataAccess.GetPlacedItem(player,localID)
+        local placedItem = ItemsAccess.GetPlacedItem(player,localID)
         if not placedModel then warn(errors.PlayerDoesntHavePlacedItemToStore..playerTag..actionTag); return false end
         if not placedItem then warn(errors.PlayerDoesntHavePlacedItemToStore..playerTag..actionTag); return false end
-        local placedItemID = placedItem[4]
+        local placedItemName = placedItem[4]
 
         placedModel:Destroy()
-        PlayerDataAccess.RemovePlacedItem(player,localID)
-        PlayerDataAccess.GiveStorageItems(player,placedItemID,1)
+        ItemsAccess.RemovePlacedItem(player,localID)
+        ItemsAccess.GiveStorageItems(player,placedItemName,1)
         return true
     end
 

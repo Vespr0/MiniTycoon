@@ -3,6 +3,10 @@ local Cash = {}
 -- Services --
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Folders --
+local Shared = ReplicatedStorage.Shared
 
 -- LocalPlayer --
 local Player = Players.LocalPlayer
@@ -15,31 +19,21 @@ local MoneyLabel = MainFrame:WaitForChild("MoneyLabel")
 
 -- Constants --
 local TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Bounce,Enum.EasingDirection.InOut,0,true)
-local HOVER_INCREMENT = UDim2.fromOffset(0,3)
+local HOVER_INCREMENT = UDim2.fromOffset(0,2)
 
 -- Modules --
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
+local CashUtility = require(Shared.Utility.Cash)
 
 -- Functions --
 local function tweenBounce()
     local tween = TweenService:Create(MoneyLabel,TWEEN_INFO,{Position = MoneyLabel.Position+HOVER_INCREMENT})
     tween:Play()
 end
-local function formatCash(value)
-    local chars = string.split(tostring(value), "")
-    local string = ""
-    for i,c in pairs(chars) do
-        if i % 3 == 0 and i ~= #chars then
-            string ..= "."
-            continue    
-        end
-        string ..= chars[i]
-    end
-    return "$"..string
-end
+
 local function update(value)
     tweenBounce()
-    MoneyLabel.Text = formatCash(value)
+    MoneyLabel.Text = CashUtility.Format(value,true)
 end
 
 function Cash.Setup()

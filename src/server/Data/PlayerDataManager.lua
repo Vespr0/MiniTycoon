@@ -22,11 +22,11 @@ local PlayerDataReplication = require(Server.Data.PlayerDataReplication)
 local PlayerDataAccess = require(Server.Data.PlayerDataAccess)
 
 -- Variables --
-local templateKeys = {
-    "Cash";
-    "Level";
-    "Exp";
-}
+-- local templateKeys = {
+--     "Cash";
+--     "Level";
+--     "Exp";
+-- }
 
 -- Functions --
 --[[local function loadData(state,dataStore,dataFolder)
@@ -64,10 +64,6 @@ function PlayerDataManager.Setup()
         end)]]
         -- Replication.
         PlayerDataReplication.SetupPlayer(player)
-        PlayerDataAccess.GiveStorageItems(player,4,1)
-        PlayerDataAccess.GiveStorageItems(player,10,1)
-        PlayerDataAccess.GiveStorageItems(player,11,1)
-        PlayerDataAccess.GiveStorageItems(player,3,1)
         player:SetAttribute("DataLoaded",true)
     end)
     Players.PlayerRemoving:Connect(function(player)

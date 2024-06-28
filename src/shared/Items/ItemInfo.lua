@@ -1,13 +1,31 @@
--- TODO: Directories should be automaticlly routed
+local Rarities = {
+    Common = {
+        DisplayName = "Common";
+        Color = Color3.fromRGB(255, 255, 255);
+        StrokeColor = Color3.fromRGB(22, 22, 22);
+    };
+    Rare = {
+        DisplayName = "Rare";
+        Color = Color3.fromRGB(139, 189, 255);
+        StrokeColor = Color3.fromRGB(37, 46, 66);
+    };
+    Collectors = {
+        DisplayName = "Collector's";
+        Color = Color3.fromRGB(255, 50, 85);
+        StrokeColor = Color3.fromRGB(50, 0, 0);
+    };
+    Unusual = {
+        DisplayName = "Unusual";
+        Color = Color3.fromRGB(201, 64, 255);
+        StrokeColor = Color3.fromRGB(47, 36, 65);
+    };
+    Admin = {
+        DisplayName = "Admin";
+        Color = Color3.fromRGB(10, 50, 255);
+        StrokeColor = Color3.fromRGB(0, 0, 0);
+    };
+}
+
 return {
-    -- Starters.
-    CoalMine = {ID=1,Directory="Droppers/CoalMine"};
-    OldBelt = {ID=2,Directory="Belts/OldBelt"};
-    OldForge = {ID=3,Directory="Forges/OldForge"};
-    OldWasher = {ID=4,Directory="Upgraders/OldWasher"};
-    -- Grade One:
-    UraniumMine = {ID=10,Directory="Droppers/GradeOne/UraniumMine"};
-    UraniumLazur = {ID=11,Directory="Droppers/GradeOne/UraniumLazur"};
-    -- Misc:
-    IceBelt = {ID=9999,Directory="Belts/Misc/IceBelt"};
+    Rarities = Rarities;
 }

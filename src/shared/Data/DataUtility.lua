@@ -5,9 +5,15 @@ local DATA_TYPES = {
     Full = 1;
     Storage = 2;
     Cash = 3;
-    Level = 4;
-    Exp = 5;
+    -- Level = 4;
+    -- Exp = 5;
     PlacedItem = 6;
+    Leveling = 7;
+    FirstPlayed = 8;
+    LastPlayed = 9;
+    TimePlayed = 10;
+    OffersInfo = 11;
+    SingleOffer = 12;
 }
 local DATA_KEYS = {
     "Cash";"Level";"Exp"
@@ -22,14 +28,16 @@ Data scopes:
 
 2023:
 
-25 Sep - ?? ?? ["Player#T0"];
+25 Sep - 25 Jun ["Player#T00"];
 
 2024
+
+25 Jun - ?? ?? ["Player#0"];
 
 --]]
 
 local DATA_SCOPES = {
-    Player = "Player#T00";
+    Player = "Player#0";
 }
 
 function DataUtility.GetTypeFromId(id)

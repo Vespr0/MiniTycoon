@@ -2,14 +2,15 @@ local PlayerDataAccess = {}
 
 -- Services --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerStorage = game:GetService("ServerStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
 -- Folders --
 local Shared = ReplicatedStorage.Shared
+local Server = ServerScriptService.Server
 local Packages = ReplicatedStorage.Packages
-local ServerPlayerData = ServerStorage:WaitForChild("ServerPlayerData")
+local DataAccessModules = script.Parent.DataAccessModules
 
 -- Modules --
 local DataStoreModule = require(Packages.suphisdatastoremodule)
@@ -20,12 +21,18 @@ local Signal = require(Packages.signal)
 PlayerDataAccess.PlayerDataChanged = Signal.new()
 
 -- Constants --
-local ERRORS = {
+PlayerDataAccess.Errors = {
     accessAttemptFailedNil = "📋 Trying to access datastore, but it is nil.";
     accessAttemptFailedClosed = "📋 Trying to access datastore, but it is closed.";
-    accessFailed = "📋 Failed to access datastore."
+    accessFailed = "📋 Failed to access datastore.";
+    invalidParameters = "📋 Invalid parameter, %q is nil";
 }
-local CASH_QUEUE_DELAY = 0.3
+local ERRORS = PlayerDataAccess.Errors
+
+-- Variables --
+PlayerDataAccess.DataUtility = DataUtility
+
+-- Local Functions --
 
 local function isDataStoreAccessible(dataStore)
     if dataStore == nil then
@@ -38,172 +45,64 @@ local function isDataStoreAccessible(dataStore)
     return true
 end
 
-local function accessDataStore(name,key,r)
-    if r <= 0 then return end
+-- Functions --
+
+function PlayerDataAccess.GetParameters(...)
+    local args = {...}
+    local returnedArgs = {}
+    -- The first one is always the PlayerDataAccess table.
+    
+    for i,v in args do
+        --if typeof(v) ~= "table" then
+            returnedArgs[i] = v;
+        --end
+        if v == nil then 
+            error(string.format(ERRORS.invalidParameters,i)); 
+        end
+    end
+    if #returnedArgs > 0 then
+        return returnedArgs
+    end
+
+    return nil
+end
+
+function PlayerDataAccess.AccessDataStore(name,key,r)
+    r = r or 5
+    if r <= 0 then 
+        error(ERRORS.accessFailed.."#"..key);    
+    return end
     local dataStore = DataStoreModule.find(name or DataUtility.GetDataScope("Player"),key)
     local success,error = isDataStoreAccessible(dataStore)
     if not success then
-        warn(error.." Retrying...")
-        task.wait(.5)
-        accessDataStore(name,key,r-1)
-        return
+        warn(error.." ...Retrying...")
+        task.wait(1)
+        return PlayerDataAccess.AccessDataStore(name,key,r-1)
     end
     return dataStore
 end
 
-local cashQueue = {
-    -- [player.UserId] = {amount,amount...}
-}
-function PlayerDataAccess.AddCashToQueue(player,amount)
-    if not cashQueue[player.UserId] then
-        cashQueue[player.UserId] = {}
-    end
-    table.insert(cashQueue[player.UserId],amount)
-    -- print(cashQueue[player.UserId],amount)
-end
+function PlayerDataAccess.GetFull(...)
+    local args = PlayerDataAccess.GetParameters(...)
+    if not args then return end
 
-function PlayerDataAccess.GiveCash(player,amount)
-    --local dataFolder = ServerPlayerData[player.UserId]
-    local dataStore = accessDataStore(nil,player.UserId,3)
+    local player = args[1]
+
+    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
-    -- Value.
-    --dataFolder.Cash.Value += amount
-    -- Database entry.
-    dataStore.Value.Cash += amount
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Cash"),dataStore.Value.Cash)
-end
-
--- Placed Items.
-
---[[
-    Placed item standard:
-
-    [localID]:
-        [1] = positionX;
-        [2] = positionY;
-        [3] = postiionZ;
-        [4] = itemID;
-        [5] = yRotation;
---]]
-function PlayerDataAccess.GetFull(player)
-    local dataStore = accessDataStore(nil,player.UserId,4)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
     return dataStore.Value
-end
-
-function PlayerDataAccess.GetPlacedItems(player)
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    return dataStore.Value.PlacedItems
-end
-
-function PlayerDataAccess.GetPlacedItem(player,localID)
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    -- Getting the placed item from the item's localID.
-    return dataStore.Value.PlacedItems[localID]
-end
-
-function PlayerDataAccess.RegisterPlacedItem(player,localID,localPosition,itemID,yRotation)
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    -- Database entry.
-    local data = {[1] = localPosition.X,[2] = localPosition.Y,[3] = localPosition.Z,[4] = itemID,[5] = yRotation}
-    dataStore.Value.PlacedItems[localID] = data
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("PlacedItem"),localID,data)
-end
-
-function PlayerDataAccess.RemovePlacedItem(player,localID)
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    -- Setting database entry to nil to remove it.
-    dataStore.Value.PlacedItems[localID] = nil
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("PlacedItem"),localID,nil)
-end
-
--- Storage Items.
-
---[[
-    storage item standard:
-
-    [id] = amount
---]]
-function PlayerDataAccess.GiveStorageItems(player,itemID,amount)
-    --local dataFolder = ServerPlayerData[player.UserId]
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
---[[    -- Value.
-    local item = Instance.new("IntValue")
-    item.Name = itemID
-    item.Value = amount
-    item.Parent = dataFolder.Storage]]
-    -- Database entry.
-    if not dataStore.Value.Storage[itemID] then
-        dataStore.Value.Storage[itemID] = amount
-    else
-        dataStore.Value.Storage[itemID] += amount
-    end
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Storage"),itemID,dataStore.Value.Storage[itemID])
-end
-
-function PlayerDataAccess.ConsumeStorageItems(player,itemID,amount)
-    --local dataFolder = ServerPlayerData[player.UserId]
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    -- Setting database entry to nil to remove it.
-    --local item = dataFolder.Storage:FindFirstChild(itemID)
-    local count = dataStore.Value.Storage[itemID]
-    if amount >= count then
-        -- Value.
-        --item:Destroy()
-        -- Database entry.
-        dataStore.Value.Storage[itemID] = nil
-        PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Storage"),itemID,-1)
-    else
-        -- Value.
-        --item.Value -= amount
-        -- Database entry.
-        dataStore.Value.Storage[itemID] = count-amount
-        PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Storage"),itemID,count-amount)
-    end
-end
-
-function PlayerDataAccess.GetStorageItem(player,itemID)
-    local dataStore = accessDataStore(nil,player.UserId,3)
-    if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
-    -- Getting the storage item from item's ID.
-    return dataStore.Value.Storage[itemID]
 end
 
 -- Setup --
 function PlayerDataAccess.Setup()
-    local function erasePlayer(player)
-        if cashQueue[player.UserId] then
-            for k in pairs(cashQueue[player.UserId]) do
-                cashQueue[player.UserId][k] = nil
+    for _,dataAccessModule in pairs(DataAccessModules:GetChildren()) do
+        if dataAccessModule:IsA("ModuleScript") then
+            local module = require(dataAccessModule)
+            if module.Setup then
+                module.Setup()
             end
         end
     end
-    Players.PlayerRemoving:Connect(function(player)
-        erasePlayer(player)
-    end)
-    -- Cash queue.
-    task.defer(function()
-       while true do
-            task.wait(CASH_QUEUE_DELAY)
-            for userId,playerCashQueue in cashQueue do
-                if #playerCashQueue < 1 then continue end
-                local player = Players:GetPlayerByUserId(userId)
-                if not player then continue end
-                local amount = 0
-                for index,value in pairs(playerCashQueue) do
-                    amount += value
-                    table.remove(playerCashQueue,index)
-                end
-                PlayerDataAccess.GiveCash(player,amount)
-            end
-        end
-    end)
 end
 
 return PlayerDataAccess

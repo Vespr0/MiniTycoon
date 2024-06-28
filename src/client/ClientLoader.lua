@@ -45,14 +45,19 @@ function ClientLoader.Start()
 	ClientLoader.SetProgress(0)
 	local folders = {
 		script.Parent.Data;
-		script.Parent.Ui.Modules;
 		script.Parent.Items.Modules;
 		script.Parent.FX;
+		script.Parent.Ui.Modules;
 	}
 	for i,folder in folders do
 		for _,module in pairs(folder:GetChildren()) do
 			if not module:IsA("ModuleScript") then continue end
-		    require(module).Setup()
+		    local required = require(module)
+			if required.Setup then
+				required.Setup()
+			else
+				warn("Module "..module.Name.." does not have a Setup function")
+			end
 			task.wait(1/4)
 		end
 		ClientLoader.SetProgress(i/#folders)

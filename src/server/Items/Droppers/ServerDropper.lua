@@ -9,7 +9,7 @@ local Server = ServerScriptService.Server
 local Events = ReplicatedStorage.Events
 
 local Drop = require(Server.Items.Droppers.Drop)
-local PlayerDataAccess = require(Server.Data.PlayerDataAccess)
+local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 
 function Dropper.new(params)
     local dropper = setmetatable({}, Dropper)
@@ -44,18 +44,22 @@ function Dropper:exists()
 end
 
 function Dropper:drop()
-    local drop = Drop.new(self.dropPropieties,{plot = self.plot,origin = self.dropperPart.Position})
+    local partID = self.plot:GetAttribute("DropCounter") + 1
+    self.plot:SetAttribute("DropCounter",partID)
     self.plot.Parts.Value += 1
 
-    local partID = self.plot:GetAttribute("DropCounter") + 1
-    drop.instance:SetAttribute("PartID",partID)
-    self.plot:SetAttribute("DropCounter",partID)
+    local drop = Drop.new(self.dropPropieties,{
+        plot = self.plot,origin = self.dropperPart.Position,
+        localID = self.localID,
+        ownerID = self.plot:GetAttribute("OwnerID"),
+        partID = partID,
+    })
 
     Events.DropReplication:FireAllClients(self.owner.UserId,self.localID,partID)
 
     local connection
-    connection = drop.sold:Connect(function(sellMultiplier)
-        PlayerDataAccess.AddCashToQueue(self.owner,drop:getValue()*sellMultiplier)
+    connection = drop.sold:Connect(function(sellMultiplier,forgeName)
+        CashAccess.AddCashToQueue(self.owner,drop:getValue()*sellMultiplier)
         connection:Disconnect()
     end)
 end

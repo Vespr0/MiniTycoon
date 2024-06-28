@@ -44,7 +44,7 @@ function ClientPlacement.IsPlacing()
     return isPlacing
 end
 
-function ClientPlacement.StartPlacing(name,model,moving)
+function ClientPlacement.StartPlacing(itemName,model,moving)
     if isPlacing then
         warn("Client is already placing or moving.")
         return
@@ -66,12 +66,8 @@ function ClientPlacement.StartPlacing(name,model,moving)
     end
 
     -- Item.
-    local item
-    if not model then
-        item = AssetsDealer.GetItem(ItemInfo[name].Directory)
-    else
-        item = ItemUtility.GetItemFromID(model:GetAttribute("ID"))
-    end
+    local item = AssetsDealer.GetItem(itemName)
+
     --local config = require(item.config)
 
     -- Model.
@@ -129,7 +125,7 @@ function ClientPlacement.StartPlacing(name,model,moving)
             end
             return result
         else
-            return Events.Place:InvokeServer(ItemInfo[name].ID,goalCFrame.Position,yRotation)
+            return Events.Place:InvokeServer(itemName,goalCFrame.Position,yRotation)
         end
     end
 

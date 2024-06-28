@@ -3,16 +3,16 @@ local AssetsDealer = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 
-local function error(key,arg1,arg2)
-	arg1 = arg1 or "nil"
-	arg2 = arg2 or "nil"
+local function xerror(key,arg1,arg2)
+	arg1 = tostring(arg1) or "nil"
+	arg2 = tostring(arg2) or "nil"
 	local errors = {
 		invalidRoot = "No Root folder called ``"..arg1.."`` exists.";
 		invalidDirectory = "Couldn't find any object at ``"..arg1.."``";
 		invalidName = "No asset called ``"..arg1.."`` exists in ``"..arg2.."``";
 		missingParameter = "Missing parameter ``"..arg1.."``";
 	}
-	return errors[key]
+	warn(errors[key])
 end
 
 function AssetsDealer.GetAssetFromDirectory(rootFolderName,directory,asClone)
@@ -27,14 +27,14 @@ function AssetsDealer.GetAssetFromDirectory(rootFolderName,directory,asClone)
 				end
 			end
 			if not current then
-				error("invalidDirectory",directory)
+				xerror("invalidDirectory",directory)
 			end
 			return (asClone and current:Clone()) or current
 		end
-		error("invalidDirectory",directory)
+		xerror("invalidDirectory",directory)
 		return nil
 	else
-		error("invalidRoot",rootFolderName)
+		xerror("invalidRoot",rootFolderName)
 		return nil
 	end
 end
@@ -49,19 +49,19 @@ function AssetsDealer.GetAssetFromName(rootFolderName,name,asClone)
 			end
 		end
 	else
-		error("invalidRoot",rootFolderName)
+		xerror("invalidRoot",rootFolderName)
 	end
 	if asset then
 		return (asClone and asset:Clone()) or asset
 	else
-		error("invalidName",name,rootFolderName)
+		xerror("invalidName",name,rootFolderName)
 	end
 	return nil
 end
 
 
-function AssetsDealer.GetItem(directory)
-	return AssetsDealer.GetAssetFromDirectory("Items",directory,false)
+function AssetsDealer.GetItem(name)
+	return AssetsDealer.GetAssetFromName("Items",name,false)
 end
 
 function AssetsDealer.GetTile(directory)

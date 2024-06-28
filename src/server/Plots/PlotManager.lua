@@ -45,9 +45,9 @@ function PlotManager.ClearPlayerPlot(player)
 	end
 	local plotName = player:GetAttribute("Plot")
 	if plotName then
-		local plot = Plots:FindFirstChild(plotName.Value)
+		local plot = Plots:FindFirstChild(plotName)
 		if not plot then
-			error("Couldn't find any Plot named "..plotName.Value..errorString)
+			error("Couldn't find any Plot named "..plotName..errorString)
 		end
 		plot:SetAttribute("OwnerID",0)
 		plot.Items:ClearAllChildren()
