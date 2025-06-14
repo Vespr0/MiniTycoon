@@ -40,7 +40,6 @@ local UTILITY_POOL = {
 local SPECIAL_POOL = {
     --["SmallTree"] = 1;
     ["Obamna"] = 20;
-    ["Xale"] = 100;
 }
 
 local function getRandom(weights)
@@ -59,8 +58,6 @@ local function getPrice(score,factor,amount)
         differenceFactor = math.abs(difference)/factor 
         differenceMultiplier = 1 + differenceFactor
     end
-
-    warn(score,factor,differenceMultiplier)
 
     local amountFactor = (1+amount/10) -- The more items the player has , the more a duplicate should cost.
     local delta = math.round(factor*100 * differenceMultiplier * amountFactor)
