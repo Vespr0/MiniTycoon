@@ -14,6 +14,21 @@ local Plots = workspace:WaitForChild("Plots")
 local AssetsDealer = require(Shared.AssetsDealer)
 local PlotLoader = require(Server.Plots.PlotLoader)
 local PlotUtility = require(Shared.Plots.PlotUtility)
+local PlotAccess = require(Server.Data.DataAccessModules.PlotAccess)
+
+local UpgradeFunctions = {
+	PlotLevel = function(player)
+		local currentPlotLevel = PlotAccess.GetLevel(player)
+		local newPlotLevel = currentPlotLevel+1
+		
+		PlotAccess.SetLevel(player,newPlotLevel)
+		PlotLoader.Resize(player)
+	end,
+}
+
+function PlotManager.Upgrade(player,name,...)
+	UpgradeFunctions[name](player,...)
+end
 
 function PlotManager.SetPlayerPlot(player,name)
 	local errorString = ", no Plot was assigned."
@@ -73,6 +88,9 @@ function PlotManager.Setup()
 		task.defer(function()
 			PlotManager.SetPlayerPlot(player,PlotUtility.FindAvaiablePlot())
 			repeat task.wait(.2) until player:GetAttribute("DataLoaded")
+			if game:GetService("RunService"):IsStudio() then
+				PlotAccess.SetLevel(player,1)
+			end
 			PlotLoader.Load(player)
 		end)
     end

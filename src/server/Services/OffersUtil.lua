@@ -13,6 +13,8 @@ local ItemInfo = require(Shared.Items.ItemInfo)
 local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local ItemUtility = require(Shared.Items.ItemUtility)
 
+local RANDOM = Random.new()
+
 -- local function getAllItemsCount()
 --     local x = 0
 --     for _,_ in pairs(ItemInfo.IDs) do
@@ -24,23 +26,45 @@ local ItemUtility = require(Shared.Items.ItemUtility)
 -- local allItemsCount = getAllItemsCount()
 
 local ITEMS_POOL = {
-    ["CoalMine"] = 1;
-    ["AzuriteExtractor"] = 5;
-    ["CrocoiteExtractor"] = 5;
-    ["UraniumMine"] = 10;
-    ["UraniumLazur"] = 20;
-    ["BreadOven"] = 40;
+	-- Basic
+	["CoalMine"] = {1,1};
+
+	-- Common
+	["LargeCoalMine"] = {1,0.1};
+	
+	["AzuriteExtractor"] = {5,1};
+    ["CrocoiteExtractor"] = {5,1};
+    ["UraniumLazur"] = {10,1};
+    ["BreadOven"] = {10,.2};
 }
 
 local UTILITY_POOL = {
-    ["OldBelt"] = 1;
-    ["IceBelt"] = 100;
+	-- Basic
+	["OldBelt"] = {1,1};
+	
+	-- Common
+    ["IceBelt"] = {1,.1};
 }
 
 local SPECIAL_POOL = {
-    --["SmallTree"] = 1;
-    ["Obamna"] = 20;
+    ["SmallTree"] = {1,1};
 }
+
+local function isItemPresentInInventory(player,itemName)
+	local amount = 0
+	-- Storage
+	local storageItemAmount = ItemsAccess.GetStorageItem(player,itemName)
+	if storageItemAmount then amount += storageItemAmount end
+	-- Placed
+	local placedItems = ItemsAccess.GetPlacedItems(player)
+	if not placedItems then return end
+	for _,item in pairs(placedItems) do
+		if item[4] == itemName then
+			amount += 1
+		end
+	end
+	return amount
+end
 
 local function getRandom(weights)
     return weights[math.random(1,#weights)]
@@ -60,32 +84,22 @@ local function getPrice(score,factor,amount)
     end
 
     local amountFactor = (1+amount/10) -- The more items the player has , the more a duplicate should cost.
-    local delta = math.round(factor*100 * differenceMultiplier * amountFactor)
+    local delta = math.round(factor*50 * differenceMultiplier * amountFactor)
     return math.abs(delta)
 end
 
-local function isItemPresentInInventory(player,itemName)
-    local amount = 0
-    -- Storage
-    local storageItemAmount = ItemsAccess.GetStorageItem(player,itemName)
-    if storageItemAmount then amount += storageItemAmount end
-    -- Placed
-    local placedItems = ItemsAccess.GetPlacedItems(player)
-    if not placedItems then return end
-    for _,item in pairs(placedItems) do
-        if item[4] == itemName then
-            amount += 1
-        end
-    end
-    return amount
-end
-
-local function getWeightsNumber(score,factor,amount)
+local function getWeightsNumber(score,factor,luckFactor,amount)
     local diff = score-factor
     if diff <= 0 then
         return 0 
-    end
-    return math.clamp(((score/factor)*10)/(amount+1),0,50)
+	end
+	
+	local weights = ((score/factor)*10)/(amount+1)
+	local lucky = RANDOM:NextNumber() <= luckFactor
+	
+	if not lucky then return 0 end
+	
+	return math.clamp(weights,0,50)
 end
 
 local function generateWeights(player,score,pool)
@@ -93,16 +107,19 @@ local function generateWeights(player,score,pool)
     score *= randomMultiplier
 
     local weights = {}
-    for itemName,factor in pairs(pool) do
+	for itemName,factors in pairs(pool) do
+		local factor = factors[1]
+		local luckFactor = factors[2]
+		
         local amount = isItemPresentInInventory(player,itemName)
-        local weightsNumber = getWeightsNumber(score,factor,amount)
+		local weightsNumber = getWeightsNumber(score,factor,luckFactor,amount)
 
         while weightsNumber > 0 do
             table.insert(weights,{ItemName = itemName,Price = getPrice(score,factor,amount)})
             weightsNumber -= 1
         end
     end
-    warn(weights)
+    --warn(weights)
     return weights
 end
 
@@ -138,20 +155,18 @@ function OffersUtil.GenerateOffers(player)
 
     local level,_ = LevelingAccess.Get(player)
     --local offersBought = StatsAccess.GetStat(player,"OffersBought")
-
-    local score = level --+ offersBought*5
-
+    local score = level --+ offersBought
     local offers = {}
 
-    -- 4 ITEMS
-    local itemOffers = generateOffers(player,score,4,ITEMS_POOL)
+    -- 5 ITEMS
+    local itemOffers = generateOffers(player,score,5,ITEMS_POOL)
     if itemOffers then
         for _,offer in pairs(itemOffers) do
             table.insert(offers,offer)
         end
     end
-    -- 1 UTILITY
-    local utilityOffers = generateOffers(player,score,1,UTILITY_POOL)
+    -- 2 UTILITY
+    local utilityOffers = generateOffers(player,score,2,UTILITY_POOL)
     if utilityOffers then
         for _,offer in pairs(utilityOffers) do
             table.insert(offers,offer)
@@ -163,8 +178,7 @@ function OffersUtil.GenerateOffers(player)
         for _,offer in pairs(specialOffers) do
             table.insert(offers,offer)
         end
-    end
-
+	end
 
     return offers
 end

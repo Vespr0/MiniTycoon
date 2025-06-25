@@ -129,7 +129,7 @@ end
 
 
 local function update()
-    local clientData = ClientPlayerData.Get()
+    local clientData = ClientPlayerData.Data
 
     createGUI(clientData)
 end

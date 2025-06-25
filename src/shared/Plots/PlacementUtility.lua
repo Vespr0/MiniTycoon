@@ -47,19 +47,31 @@ function PlacementUtility.SnapPositionToGrid(position,gridSize,ignoreY)
 end
 
 function PlacementUtility.GetItemFromLocalID(folder,localID)
-    for _,item in pairs(folder:GetChildren()) do
+    for _,item in folder:GetChildren() do
         local attribute = item:GetAttribute("LocalID")
         if attribute and attribute == localID then
             return item
         end
-    end
+	end
+	warn(`Couldn't find item with localID "{localID}" in folder "{folder.Name}".`)
     return false
+end
+
+function PlacementUtility.WaitForItemFromLocalID(folder,localID,waitTime)
+	local model, timeout
+	local start = os.clock()
+	repeat
+		timeout = (os.clock()-start) > (waitTime or 1)
+		model = PlacementUtility.GetItemFromLocalID(folder,localID)
+		RunService.RenderStepped:Wait()	
+	until model or timeout
+	return model
 end
 
 function PlacementUtility.isPlacementValid(plot,model,overlapParams)
     local hitbox = model.Hitbox
     local root = model.PrimaryPart
-    for _,hitPart in pairs(hitbox:GetChildren()) do
+    for _,hitPart in hitbox:GetChildren() do
         -- Add a bias, because touching counts even if they are not overllaping, witch makes placing droppers on the tiles impossible.
         local bias = Vector3.new(.2,.2,.2)
         local collidingParts = workspace:GetPartBoundsInBox(hitPart.CFrame,hitPart.Size-bias,overlapParams)
@@ -70,7 +82,7 @@ function PlacementUtility.isPlacementValid(plot,model,overlapParams)
     local raycastParams = RaycastParams.new()
     raycastParams.FilterType = Enum.RaycastFilterType.Include
     raycastParams.FilterDescendantsInstances = {plot.Root}
-    for _,edge in pairs(model.PrimaryPart:GetChildren()) do
+    for _,edge in model.PrimaryPart:GetChildren() do
         if edge.Name == "Edge" then
             local raycast = workspace:Raycast(edge.WorldPosition,-Vector3.yAxis*1000,raycastParams)
             local isEdgeOnPlot = raycast and raycast.Instance

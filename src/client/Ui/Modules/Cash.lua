@@ -23,7 +23,7 @@ local HOVER_INCREMENT = UDim2.fromOffset(0,2)
 
 -- Modules --
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
-local CashUtility = require(Shared.Utility.Cash)
+local CashUtility = require(Shared.Utility.CashUtility)
 
 -- Functions --
 local function tweenBounce()
@@ -33,12 +33,15 @@ end
 
 local function update(value)
     tweenBounce()
-    MoneyLabel.Text = CashUtility.Format(value,true)
+    MoneyLabel.Text = CashUtility.Format(value,{
+        fullNumber = true,
+        decimals = 2
+    })
 end
 
 function Cash.Setup()
     -- Setup label --
-    update(ClientPlayerData.GetKey("Cash"))
+    update(ClientPlayerData.Data.Cash)
     ClientPlayerData.CashUpdate:Connect(function(value)
         update(value)
     end)

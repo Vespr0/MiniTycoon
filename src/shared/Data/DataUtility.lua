@@ -1,20 +1,5 @@
 local DataUtility = {}
 
--- Constants --
-local DATA_TYPES = {
-    Full = 1;
-    Storage = 2;
-    Cash = 3;
-    -- Level = 4;
-    -- Exp = 5;
-    PlacedItem = 6;
-    Leveling = 7;
-    FirstPlayed = 8;
-    LastPlayed = 9;
-    TimePlayed = 10;
-    OffersInfo = 11;
-    SingleOffer = 12;
-}
 local DATA_KEYS = {
     "Cash";"Level";"Exp"
 }
@@ -39,19 +24,6 @@ Data scopes:
 local DATA_SCOPES = {
     Player = "Player#0";
 }
-
-function DataUtility.GetTypeFromId(id)
-    for typeName,dataId in DATA_TYPES do
-        if dataId == id then
-            return typeName
-        end
-    end
-    return nil
-end
-
-function DataUtility.GetTypeId(name)
-    return DATA_TYPES[name]
-end
 
 function DataUtility.GetDataScope(name)
     return DATA_SCOPES[name]

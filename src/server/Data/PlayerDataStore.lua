@@ -3,34 +3,30 @@ local PlayerDataStore = {}
 -- Services --
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DataStoreService = game:GetService("DataStoreService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerStorage = game:GetService("ServerStorage")
-
 -- Folders --
 local Shared = ReplicatedStorage.Shared
 local Packages = ReplicatedStorage.Packages
-
 -- Modules --
 local DataStoreModule = require(Packages.suphisdatastoremodule)
 local DataUtility = require(Shared.Data.DataUtility)
 
-local ServerPlayerData = ServerStorage.ServerPlayerData
-
 local dataTemplate = {
-    -- Numbers --
+    -- Basic Data --
     Level = 1;
     Exp = 0;
-    Cash = 0;
-    -- Tables --
+    Cash = 50;
+    -- Items --
     Storage = {
         -- 1 dropper, 5 belts and 1 forge.
         CoalMine = 1;
         OldBelt = 5;
         OldForge = 1;
     };
-    PlacedItems = {
-    };
+	PlacedItems = {};
+	-- Plot --
+	Plot = {
+		PlotLevel = 1;
+	};
     -- Session --
     Session = { 
         FirstPlayed = nil;
@@ -49,10 +45,8 @@ local dataTemplate = {
 }
 
 local function stateChanged(state,dataStore)
-    --print("The datastore's state is "..tostring(dataStore.State))
     while dataStore.State == false do
-        if dataStore:Open(dataTemplate) ~= "Success" then warn("Failed to open datastore, retrying..."); task.wait(6) end
-        --print("The datastore's state is "..tostring(dataStore.State))
+        if dataStore:Open(dataTemplate) ~= "Success" then warn("Failed to open player datastore, retrying..."); task.wait(6) end
     end
 end
 

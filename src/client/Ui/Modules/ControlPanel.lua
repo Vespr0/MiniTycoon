@@ -1,4 +1,4 @@
-local Shop = {}
+local ControlPanel = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,10 +12,10 @@ local Packages = ReplicatedStorage.Packages
 
 -- Ui Modules
 local Ui = require(script.Parent.Parent.UiUtility)
-local OffersUi = require(script.Parent.Offers)
+local UpgradesUi = require(script.Parent.Upgrades)
 
 -- Ui Elements 
-local Gui = Ui.ShopGui
+local Gui = Ui.ControlPanelGui
 local MainFrame = Gui:WaitForChild("MainFrame")
 
 -- Modules --
@@ -26,8 +26,8 @@ local SelectorsClass = require(script.Parent.Util.SelectorsClass)
 
 local Selectors = SelectorsClass.new(
 	MainFrame,
-	{"Offers","Lootboxes","Stocks"},
-	{Offers = OffersUi}
+	{"Upgrades","Settings"},
+	{Upgrades = UpgradesUi}
 )
 
 -- Variables --
@@ -35,24 +35,25 @@ local trove = require(Packages.trove).new()
 local CurrentSection
 
 -- Module Functions
-function Shop.Open()
-    Gui.Enabled = true
+function ControlPanel.Open()
+	Gui.Enabled = true
 	MainFrame.Position = Selectors.origin+UDim2.fromScale(0,1)
 	Tween.Popup(MainFrame,Selectors.origin)
 end
 
-function Shop.Close()
+function ControlPanel.Close()
 	MainFrame.Position = Selectors.origin
 	Tween.Popup(MainFrame,Selectors.origin+UDim2.fromScale(0,1))
-    task.wait(Ui.MENU_TWEEN_INFO.Time)
-    Gui.Enabled = false
+	task.wait(Ui.MENU_TWEEN_INFO.Time)
+	Gui.Enabled = false
 end
 
-function Shop.Setup()
-    Gui.Enabled = false
-
+function ControlPanel.Setup()
+	Gui.Enabled = false
+	MainFrame.Visible = true
+	
 	warn(`Shop has been setup`)
-	Selectors:switch("Offers")
+	Selectors:switch("Upgrades")
 end
 
-return Shop
+return ControlPanel

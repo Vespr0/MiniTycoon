@@ -8,18 +8,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 
 -- Modules --
-local PlayerDataAccess = require(script.Parent.Parent.PlayerDataAccess)
-local DataUtility = PlayerDataAccess.DataUtility
+local DataAccess = require(script.Parent.Parent.DataAccess)
+local DataUtility = DataAccess.DataUtility
 
 local function setSessionVariable(player,variable,value)
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     dataStore.Value.Session[variable] = value or os.time()
 end
 
 local function hasPlayerPlayedBefore(player)
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     local firstPlayed = dataStore.Value.Session["FirstPlayed"]
@@ -27,47 +27,41 @@ local function hasPlayerPlayedBefore(player)
 end
 
 function SessionAccess.SetFirstPlayed(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
-
-    local player = args[1]
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
 
     setSessionVariable(player,"FirstPlayed")
     warn(player.UserId.." first played: "..os.date("%c"))
 
     -- Update
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("FirstPlayed"),os.time())
+    DataAccess.PlayerDataChanged:Fire(player,"FirstPlayed",os.time())
 end
 
 function SessionAccess.SetLastPlayed(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
-
-    local player = args[1]
-
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
+	
     setSessionVariable(player,"LastPlayed")
-    warn(player.UserId.." last played: "..os.date("%c"))
+    --warn(player.UserId.." last played: "..os.date("%c"))
 
     -- Update
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("LastPlayed"),os.time())
+    DataAccess.PlayerDataChanged:Fire(player,"LastPlayed",os.time())
 end
 
 function SessionAccess.UpdateTotalPlayTime(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
 
-    local player = args[1]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     local addedPlayTime = os.time() - dataStore.Value.Session["LastPlayed"] 
 
     dataStore.Value.Session["TimePlayed"] += addedPlayTime
-    warn("Total Play Time: "..dataStore.Value.Session["TimePlayed"].. ". It was incremented by "..addedPlayTime)
+    --warn("Total Play Time: "..dataStore.Value.Session["TimePlayed"].. ". It was incremented by "..addedPlayTime)
 
     -- Update
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("TimePlayed"),addedPlayTime)
+    DataAccess.PlayerDataChanged:Fire(player,"TimePlayed",addedPlayTime)
 end
 
 function SessionAccess.Setup()

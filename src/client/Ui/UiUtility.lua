@@ -2,6 +2,7 @@ local Ui = {}
 
 -- Services
 local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -12,6 +13,8 @@ local PlayerGui = Player.PlayerGui
 local ScreenSize = PlayerGui:FindFirstChildOfClass("ScreenGui").AbsoluteSize
 
 -- Ui Elements
+Ui.PlayerGui = PlayerGui
+Ui.ControlPanelGui = PlayerGui:WaitForChild("ControlPanel")
 Ui.StorageGui = PlayerGui:WaitForChild("Storage")
 Ui.ShopGui = PlayerGui:WaitForChild("Shop")
 Ui.UnboxingGui = PlayerGui:WaitForChild("Unboxing")
@@ -21,6 +24,9 @@ Ui.BUTTON_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)
 Ui.BUTTON_SELECTED_COLOR = Color3.fromRGB(255, 255, 255)
 Ui.HOVER_INCREMENT = UDim2.fromOffset(5,0)
 Ui.MENU_TWEEN_INFO = TweenInfo.new(.15,Enum.EasingStyle.Sine)
+
+-- Modules 
+local SoundManager = require(ReplicatedStorage.Shared.Sound.SoundManager)
 
 -- Functions
 function Ui.GetDeviceType()
@@ -62,6 +68,10 @@ function Ui.IsAGuiBase2D(instance)
         end
     end
     return false
+end
+
+function Ui.PlaySound(directory)
+	SoundManager.PlaySound("Ui/"..directory,nil,1)
 end
 
 function Ui.HoverTween(button,goal)

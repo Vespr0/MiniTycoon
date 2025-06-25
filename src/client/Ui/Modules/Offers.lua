@@ -33,11 +33,14 @@ local Timer = OffersFrame:WaitForChild("Timer")
 -- Modules --
 local ItemInfo = require(Shared.Items.ItemInfo)
 local AssetsDealer = require(Shared.AssetsDealer)
-local ClientPlacement = require(Shared.Plots.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local DataUtility = require(Shared.Data.DataUtility)
-local CashUtility = require(Shared.Utility.Cash)
+local CashUtility = require(Shared.Utility.CashUtility)
+local Tween = require(script.Parent.Util.Tween)
+local Colors = require(script.Parent.Util.Colors)
+local Trove = require(Packages.trove)
 
 -- Constants --
 
@@ -47,7 +50,6 @@ local currentExpiration
 local currentOffers
 local currentViewports = {}
 
-
 -- Local Functions
 function get()
     local data = Events.Offers:InvokeServer("Get")
@@ -56,7 +58,11 @@ function get()
     currentOffers = data.offers
 end
 
-local currentInsightBuyConnection = nil
+local currentInsightTrove = nil
+
+local function canAfford(price)
+	return ClientPlayerData.Data.Cash >= price
+end
 
 local function closeInsight()
     local preview = InsightFrame:FindFirstChild("Preview")
@@ -65,19 +71,20 @@ local function closeInsight()
     InsightFrame.Description.Text = ""
     InsightFrame.Rarity.Text = ""
     InsightFrame.Buy.Price.Text = ""
-    InsightFrame.Buy.Visible = false
-    if currentInsightBuyConnection then
-        currentInsightBuyConnection:Disconnect()
-    end
+	InsightFrame.Buy.Visible = false
+	
+	-- Destroy trove if it exists
+	if currentInsightTrove then currentInsightTrove:Destroy() end
 end
 
 local function buyOffer(offerID,price,itemName)
+	Ui.PlaySound("Purchase")
+	
     local success,error = Events.Offers:InvokeServer("Buy",{offerID = offerID})
     if not success then warn(error) return end
-
-    closeInsight()
+	
     ClientPlayerData.Read({
-        type = DataUtility.GetTypeFromId("SingleOffer");
+		type = "SingleOffer";
         arg1 = offerID;
         arg2 = {
             ItemName = itemName;
@@ -87,13 +94,13 @@ local function buyOffer(offerID,price,itemName)
     })
 
     OffersContainer[offerID].Sold.Visible = true
+	closeInsight()	
 end
 
 local function insight(itemName, name, config, price, offerID, rarityInfo)
-    if currentInsightBuyConnection then
-        currentInsightBuyConnection:Disconnect()
-    end
-
+	-- Destroy trove if it exists
+	if currentInsightTrove then currentInsightTrove:Destroy() end
+	
     if InsightFrame:FindFirstChild("Preview") then
         InsightFrame.Preview:Destroy()
     end
@@ -108,12 +115,29 @@ local function insight(itemName, name, config, price, offerID, rarityInfo)
     insightViewport.Name = "Preview"
     insightViewport.Parent = InsightFrame
     -- Price 
-    InsightFrame.Buy.Price.Text = "BUY: " ..CashUtility.Format(price)
+    InsightFrame.Buy.Price.Text = CashUtility.Format(price,{
+        fullNumber = false,
+        decimals = 0
+    })
     -- Buy
-    InsightFrame.Buy.Visible = true
-    currentInsightBuyConnection = InsightFrame.Buy.MouseButton1Click:Connect(function()
-        buyOffer(offerID,price,itemName)
-    end)
+	InsightFrame.Buy.Visible = true
+	
+	local buyButton = InsightFrame.Buy
+	
+	currentInsightTrove = Trove.new()
+	
+	currentInsightTrove:Add(RunService.RenderStepped:Connect(function()
+		InsightFrame.Buy.FakeButton.BackgroundColor3 = canAfford(price) and Colors.Buttons.Green or Colors.Buttons.Red
+	end))
+	
+	currentInsightTrove:Add(buyButton.MouseButton1Click:Connect(function()
+		if canAfford(price) then
+			Tween.ButtonPush(buyButton)
+			buyOffer(offerID,price,itemName)
+		else
+			Ui.PlaySound("Error")
+		end
+    end))
 end 
 
 local function checkExpiration()
@@ -158,7 +182,10 @@ local function updateContainer()
         item.Sold.Visible = bought
 
         -- Price 
-        item:WaitForChild("Price").Text = CashUtility.Format(price)
+        item:WaitForChild("Price").Text = CashUtility.Format(price,{
+            fullNumber = false,
+            decimals = 0
+        })
 
         local viewport = ViewportUtil.GenerateItemViewport(itemName)
         viewport.Parent = item
@@ -195,7 +222,7 @@ end
 
 local function update()
     local expired,diff = checkExpiration()
-    OffersFrame.Visible = not expired
+    MainFrame:WaitForChild("Shadow").Visible = expired
     Timer.Text = "Offers reset in: "..Time.GetFullTimeString(diff)
 
     -- Spin
@@ -224,7 +251,6 @@ function Offers.Setup()
         end
         update()
     end)
-    OffersFrame.Visible = true
 end
 
 return Offers

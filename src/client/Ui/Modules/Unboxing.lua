@@ -8,8 +8,7 @@ local AssetsDealer = require(Shared.AssetsDealer)
 
 -- Modules
 local Ui = require(script.Parent.Parent.UiUtility)
-local SpringModule = require(Shared.Utility.Spring)
-local BoxClass = require(script.Parent.Util.Box)
+local BoxClass = require(script.Parent.Util.BoxClass)
 
 -- Ui Elements 
 local Gui = Ui.UnboxingGui
@@ -27,12 +26,14 @@ function Unboxing.OpenLootbox(name)
 
     
     task.spawn(function()
-        task.wait(10)
+        task.wait(6)
 
-        while true do
+        for i = 1,3 do
             box:pop()
             task.wait(2)
-        end
+		end
+		
+		box:close()
     end)
 end
 

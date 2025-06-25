@@ -17,7 +17,7 @@ local Camera = workspace.Camera
 
 -- Modules --
 local PlacementUtility = require(Shared.Plots.PlacementUtility)
-local ClientPlacement = require(Shared.Plots.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local PlotUtility = require(Shared.Plots.PlotUtility)
 
@@ -34,8 +34,14 @@ ReplicationFunctions = {}
 ReplicationFunctions.Dropper = function(args)
     local localID = args.localID
 
-    local item = PlacementUtility.GetItemFromLocalID(Plot.Items,localID)
-
+    local item
+    local time = 0
+    -- Wait for item to be replicated
+    while not item and time < 5 do
+        item = PlacementUtility.GetItemFromLocalID(Plot.Items,localID)
+        time += task.wait(0.1)
+    end
+    
     if not item then
         error("Trying to get replicated item from localID but got nil.")
         return

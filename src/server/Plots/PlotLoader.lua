@@ -10,30 +10,31 @@ local PlotUtility = require(Shared.Plots.PlotUtility)
 local AssetsDealer = require(ReplicatedStorage.Shared.AssetsDealer)
 local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local ServerPlacement = require(Server.Plots.ServerPlacement)
+local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
+local PlotAccess = require(Server.Data.DataAccessModules.PlotAccess)
+local TilingManager = require(Server.Plots.TilingManager)
 
+local function getPlotInfo(player)
+	local playerTag = "#"..player.UserId
+	local plot = PlotUtility.GetPlotFromPlayer(player)
+	local root = plot:WaitForChild("Root")
+	local plotLevel = PlotAccess.GetLevel(player)
+	
+	return plot,root,playerTag,plotLevel
+end
+
+-- Resize the plot, this is fired once a plot upgrade is purchased.
+function PlotLoader.Resize(player)
+	local plot,root,_,plotLevel = getPlotInfo(player)
+	TilingManager.LoadRootAndTiles(plot,root,plotLevel)
+end
+
+-- Resize the plot and load the items, this should be fired when the player joins for the first time.
 function PlotLoader.Load(player)
-    local playerTag = "#"..player.UserId
-    local plot = PlotUtility.GetPlotFromPlayer(player)
-    local root = plot:WaitForChild("Root")
+	local plot,root,playerTag,plotLevel = getPlotInfo(player)
 
-    local plotSize = 2 -- Change this
-    local tileSize = 8-- DONT CHANGE
-
-    local actualPlotWidth = plotSize*tileSize
-    root.Transparency = 1
-    root.Size = Vector3.new(actualPlotWidth,1,actualPlotWidth)
-    local origin = root.Position - Vector3.new(actualPlotWidth/2+tileSize/2,0,actualPlotWidth/2+tileSize/2)
-
-    -- Load tiles.
-    for x = 1,actualPlotWidth/tileSize do
-        for y = 1,actualPlotWidth/tileSize do
-            local asset = AssetsDealer.GetTile("Green")
-            local tile = asset.Model :: Model
-            tile.Parent = plot.Tiles
-            tile:PivotTo(CFrame.new(origin+Vector3.new(x*tileSize,0,y*tileSize)))
-            asset:Destroy()
-        end
-    end
+	TilingManager.LoadRootAndTiles(plot,root,plotLevel)
+   
     -- Load items.
     local playerPlacedItems = ItemsAccess.GetPlacedItems(player)
     if not playerPlacedItems then return end

@@ -3,6 +3,7 @@ local ShopManager = {}
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Server = ServerScriptService:WaitForChild("Server")
 local Events = ReplicatedStorage.Events
@@ -16,10 +17,11 @@ local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 local LevelingAccess = require(Server.Data.DataAccessModules.LevelingAccess)
 local OffersUtil = require(script.Parent.OffersUtil)
 
+local IsStudio = RunService:IsStudio()
 
 local MINUTE = 60
 local HOUR = MINUTE*60
-local OFFER_DURATION = MINUTE*5
+local OFFER_DURATION = IsStudio and MINUTE or MINUTE*5
 
 local function getOfferFromItem(offers,itemName)
     for i = 1,#offers do

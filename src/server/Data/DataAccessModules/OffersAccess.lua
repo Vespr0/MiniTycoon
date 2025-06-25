@@ -8,16 +8,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 
 -- Modules --
-local PlayerDataAccess = require(script.Parent.Parent.PlayerDataAccess)
-local DataUtility = PlayerDataAccess.DataUtility
+local DataAccess = require(script.Parent.Parent.DataAccess)
+local DataUtility = DataAccess.DataUtility
 
 function OffersAccess.GetOffers(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
 
-    local player = args[1]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     local offers = dataStore.Value.Services.Offers
@@ -29,14 +27,10 @@ function OffersAccess.GetOffers(...)
 end
 
 function OffersAccess.SetOffers(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player, offers, expiration = DataAccess.GetParameters(...)
+	if not (player and offers and expiration) then return end
 
-    local player = args[1]
-    local offers = args[2]
-    local expiration = args[3]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     dataStore.Value.Services.Offers = offers
@@ -45,19 +39,16 @@ function OffersAccess.SetOffers(...)
     --print(player.UserId.." offers updated as ",offers)
 
     -- Update
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("OffersInfo"),{Offers = offers,Expiration = expiration})
+    DataAccess.PlayerDataChanged:Fire("OffersInfo",{Offers = offers,Expiration = expiration})
 
     return offers
 end
 
 function OffersAccess.MarkOfferAsBought(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player, offerID = DataAccess.GetParameters(...)
+	if not (player and offerID) then return end
 
-    local player = args[1]
-    local offerID = args[2]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     local offers = dataStore.Value.Services.Offers
@@ -73,7 +64,7 @@ function OffersAccess.MarkOfferAsBought(...)
 end
 
 function OffersAccess.WipeAllOffers(player)
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     local offers = dataStore.Value.Services.Offers

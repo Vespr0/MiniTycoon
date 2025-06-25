@@ -18,7 +18,8 @@ local Signal = require(Packages.signal)
 
 -- Variables --
 local PlayerDataUpdateBridge = BridgeNet2.ClientBridge("PlayerDataUpdate")
-local ClientData = {
+
+ClientPlayerData.Data = {
     Cash = 0;
     Level = 0;
     Exp = 0;
@@ -29,26 +30,18 @@ local ClientData = {
         FirstPlayed = 0;
         LastPlayed = 0;
         TimePlayed = 0;
-    };
+	};
+	-- Plot --
+	Plot = {
+		PlotLevel = 1;
+	};
     -- Services --
     Services = {
         Offers = nil;
         OffersExpiration = nil;
-    }
+	}
+	
 }
-
--- Functions --
-function ClientPlayerData.Get()
-    return ClientData
-end
-
-function ClientPlayerData.GetKey(key)
-    return ClientData[key]
-end
-
-function ClientPlayerData.SetKey(key,value)
-    ClientData[key] = value
-end
 
 -- Signals.
 ClientPlayerData.DataStorageUpdate = Signal.new()
@@ -58,49 +51,52 @@ ClientPlayerData.LevelingUpdate = Signal.new()
 function ClientPlayerData.Read(data)
     local functions = {
         Storage = function(itemName,count)
-            if not ClientData.Storage[itemName] then
-                ClientData.Storage[itemName] = count
+			if not ClientPlayerData.Data.Storage[itemName] then
+				ClientPlayerData.Data.Storage[itemName] = count
             else
                 if count == -1 then
-                    ClientData.Storage[itemName] = nil
+					ClientPlayerData.Data.Storage[itemName] = nil
                 else
-                    ClientData.Storage[itemName] = count
+					ClientPlayerData.Data.Storage[itemName] = count
                 end
             end
         end;
         Cash = function(count)
-            ClientData.Cash = count
+			ClientPlayerData.Data.Cash = count
             ClientPlayerData.CashUpdate:Fire(count)
         end;
         Leveling = function(exp,level)
-            ClientData.Exp = exp
-            ClientData.Level = level
+			ClientPlayerData.Data.Exp = exp
+			ClientPlayerData.Data.Level = level
             ClientPlayerData.LevelingUpdate:Fire(exp,level)
         end;
         FirstPlayed = function(time)
-            ClientData.Session.FirstPlayed = time
+			ClientPlayerData.Data.Session.FirstPlayed = time
         end;
         LastPlayed = function(time)
-            ClientData.Session.LastPlayed = time
+			ClientPlayerData.Data.Session.LastPlayed = time
         end;
         TimePlayed = function(time)
-            ClientData.Session.TimePlayed = time
+			ClientPlayerData.Data.Session.TimePlayed = time
         end;
         OffersInfo = function(info)
-            ClientData.Services.Offers = info.Offers
-            ClientData.Services.OffersExpiration = info.Expiration
+			ClientPlayerData.Data.Services.Offers = info.Offers
+			ClientPlayerData.Data.Services.OffersExpiration = info.Expiration
         end;
         -- Single --
         SingleOffer = function(offerID,offer)
-            ClientData.Services.Offers[offerID] = offer
-        end
+			ClientPlayerData.Data.Services.Offers[offerID] = offer
+		end;
+		-- Plot
+		Plot = function(name,value)
+			ClientPlayerData.Data.Plot[name] = value
+		end;
     }
-    local type = DataUtility.GetTypeFromId(data.type)
-    if type then
+	if data.type then
         local arg1 = data.arg1
         local arg2 = data.arg2
 
-        if type == "Full" then
+		if data.type == "Full" then
             print(arg1)
             -- In this context, arg1 is the content.
             functions["Cash"](arg1.Cash)
@@ -108,7 +104,11 @@ function ClientPlayerData.Read(data)
             -- TODO: Maybe session could be sent as one array just like Leveling?
             functions["FirstPlayed"](arg1.Session.FirstPlayed)
             functions["LastPlayed"](arg1.Session.LastPlayed)
-            functions["TimePlayed"](arg1.Session.TimePlayed)
+			functions["TimePlayed"](arg1.Session.TimePlayed)
+			
+			for name,value in arg1.Plot do
+				functions["Plot"](name,value)
+			end
             
             local services = arg1.Services
             functions["OffersInfo"]({Offers = services.Offers, Expiration = services.OffersExpiration})
@@ -117,7 +117,7 @@ function ClientPlayerData.Read(data)
                 functions["Storage"](itemName,count)
             end
         else
-            functions[type](arg1,arg2)
+			functions[data.type](arg1,arg2)
         end
         ClientPlayerData.DataStorageUpdate:Fire(data)
     end

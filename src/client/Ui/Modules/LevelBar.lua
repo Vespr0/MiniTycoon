@@ -40,7 +40,7 @@ end
 
 function LevelBar.Setup()
     -- Setup label --
-    update(ClientPlayerData.GetKey("Cash"),ClientPlayerData.GetKey("Level"))
+	update(ClientPlayerData.Data.Cash,ClientPlayerData.Data.Level)
     ClientPlayerData.LevelingUpdate:Connect(function(exp: number,level: number)
         update(exp,level)
     end)

@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 -- Folders --
 local Shared = ReplicatedStorage.Shared
@@ -21,11 +22,12 @@ local Camera = workspace.Camera
 -- Gui elements --
 local Gui = PlayerGui:WaitForChild("ItemSelection")
 local MainFrame = Gui:WaitForChild("MainFrame")
-local SubFrame = MainFrame:WaitForChild("SubFrame")
+local Container = MainFrame:WaitForChild("Container")
+local Background = MainFrame:WaitForChild("Background")
 
 -- Modules --
 local PlacementUtility = require(Shared.Plots.PlacementUtility)
-local ClientPlacement = require(Shared.Plots.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
 local ItemUtility = require(Shared.Items.ItemUtility)
 
 -- Variables --
@@ -37,18 +39,36 @@ local Plot = PlacementUtility.GetClientPlot()
 -- Constants --
 local HOVER_HIGHLIGHT = Instance.new("Highlight");HOVER_HIGHLIGHT.Parent = Nodes.Visuals
 local SELECTION_HIGHLIGHT = Instance.new("Highlight");SELECTION_HIGHLIGHT.Parent = Nodes.Visuals
-HOVER_HIGHLIGHT.FillTransparency = 0.7
-HOVER_HIGHLIGHT.OutlineTransparency = 1
-SELECTION_HIGHLIGHT.FillTransparency = 0.7
-SELECTION_HIGHLIGHT.OutlineTransparency = 1
+
+HOVER_HIGHLIGHT.FillTransparency = 1
+HOVER_HIGHLIGHT.OutlineTransparency = 0
+
+SELECTION_HIGHLIGHT.FillColor = Color3.fromRGB(255, 255, 255)
+SELECTION_HIGHLIGHT.FillTransparency = 0.9
+SELECTION_HIGHLIGHT.OutlineTransparency = 0
+
 local RAYCAST_PARAMS = RaycastParams.new()
 RAYCAST_PARAMS.FilterType = Enum.RaycastFilterType.Include
 RAYCAST_PARAMS.FilterDescendantsInstances = {Plot}
 
 -- Functions --
+local function fadeUpAnimation()
+	Container.Position = UDim2.fromScale(.5,.5)
+	Background.Position = UDim2.fromScale(.5,.5)
+	
+	local tweenInfo = TweenInfo.new(.2,Enum.EasingStyle.Sine)
+	local tween1 = TweenService:Create(Container,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
+	local tween2 = TweenService:Create(Background,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
+	
+	tween1:Play()
+	tween2:Play()
+end
+
 local function moveGui(item)
-    local vector,onScreen = Camera:WorldToScreenPoint(item.PrimaryPart.Position)
-    if not onScreen then return end
+    local vector,onScreen = Camera:WorldToScreenPoint(item.PrimaryPart.Position+Vector3.yAxis*2)
+	if not onScreen then MainFrame.Visible = false return end
+	
+	MainFrame.Visible = true
 	MainFrame.Position = UDim2.fromOffset(vector.X,vector.Y)
 end
 
@@ -61,16 +81,16 @@ local function getItemFromPart(part)
     return nil
 end
 
+local function toggleSelectionHighlight(bool)
+	SELECTION_HIGHLIGHT.Enabled = bool
+end
+
 local function updateSelectionHighlight(item)
-    HOVER_HIGHLIGHT.Adornee = item
+	SELECTION_HIGHLIGHT.Adornee = item
 end
 
 local function updateHoverHighlight(item)
     HOVER_HIGHLIGHT.Adornee = item
-end
-
-local function toggleSelectionHighlight(bool)
-    SELECTION_HIGHLIGHT.Enabled = bool
 end
 
 local function toggleHoverHighlight(bool)
@@ -93,15 +113,17 @@ end
 local function select(item)
     Gui.Enabled = true
     local config = ItemUtility.GetItemConfig(item.Name)
-    SubFrame.ItemNameLabel.Text = config.DisplayName
-    updateSelectionHighlight(item)
+	Container.ItemNameLabel.Text = config.DisplayName
+	updateSelectionHighlight(item)
+	toggleSelectionHighlight(true) 
+	fadeUpAnimation()
     CurrentllySelectedItem = item
 end
 
 local function unSelect()
-    Gui.Enabled = false
+	Gui.Enabled = false
+	toggleSelectionHighlight(false)
     CurrentllySelectedItem = nil
-    toggleSelectionHighlight(false)
 end
 
 local function update()
@@ -123,12 +145,23 @@ local function update()
     unHover()
 end
 
-local function deposit(localID)
-    Events.Deposit:InvokeServer(localID)
+local function move()
+	if not CurrentllySelectedItem then return end
+	local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
+	ClientPlacement.StartPlacing(nil,item,true)
+	unSelect()
+end
+
+local function deposit()
+	if not CurrentllySelectedItem then return end
+	Events.Deposit:InvokeServer(CurrentllySelectedItem:GetAttribute("LocalID"))
+	unSelect()
 end
 
 function ItemSelection.Setup()
-    RunService.RenderStepped:Connect(update)
+	RunService.RenderStepped:Connect(update)
+	
+	MainFrame.Visible = false
 
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         if gameProcessedEvent then return end
@@ -144,20 +177,14 @@ function ItemSelection.Setup()
             end
         end
 
-        -- Moving
+        -- Move
         if input.KeyCode == Enum.KeyCode.V then
-            if CurrentllySelectedItem then
-                local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
-                ClientPlacement.StartPlacing(nil,item,true)
-            end
+			move()
         end
 
-        -- Storing
-        if input.KeyCode == Enum.KeyCode.B then
-            if CurrentllySelectedItem then
-                deposit(CurrentllySelectedItem:GetAttribute("LocalID"))
-                unSelect()
-            end
+        -- Deposit
+		if input.KeyCode == Enum.KeyCode.B then
+			deposit()
         end
     end)
 end

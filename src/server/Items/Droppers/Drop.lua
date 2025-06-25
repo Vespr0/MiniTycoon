@@ -31,7 +31,7 @@ function Drop.new(propieties,params)
     local heightBias = Vector3.yAxis* (drop.size.Y * (propieties.heightBias or 0))
     drop.instance:PivotTo(CFrame.new(params.origin+heightBias))
     drop.instance:SetNetworkOwner(nil)
-    drop.instance.Transparency = RunService:IsStudio() and 0.5 or 1
+	drop.instance.Transparency = --[[RunService:IsStudio() and 0.5 or]] 1
     drop.instance.Color = propieties.color or Color3.new(.4,0,.4) -- 404 color not found lol
 
     drop.instance:SetAttribute("PartID",drop.partID)
@@ -87,7 +87,6 @@ end
 
 function Drop:sell(sellMultiplier,forgeName)
     self.sold:Fire(sellMultiplier,forgeName)
-    print("halo")
     Events.DropReplication:FireAllClients(self.ownerID,self.localID,self.partID,true,forgeName)
     self:destroy()
 end

@@ -1,4 +1,4 @@
-local PlayerDataAccess = {}
+local DataAccess = {}
 
 -- Services --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,19 +18,19 @@ local DataUtility = require(Shared.Data.DataUtility)
 local Signal = require(Packages.signal)
 
 -- Signals
-PlayerDataAccess.PlayerDataChanged = Signal.new()
+DataAccess.PlayerDataChanged = Signal.new()
 
 -- Constants --
-PlayerDataAccess.Errors = {
+DataAccess.Errors = {
     accessAttemptFailedNil = "📋 Trying to access datastore, but it is nil.";
     accessAttemptFailedClosed = "📋 Trying to access datastore, but it is closed.";
     accessFailed = "📋 Failed to access datastore.";
     invalidParameters = "📋 Invalid parameter, %q is nil";
 }
-local ERRORS = PlayerDataAccess.Errors
+local ERRORS = DataAccess.Errors
 
 -- Variables --
-PlayerDataAccess.DataUtility = DataUtility
+DataAccess.DataUtility = DataUtility
 
 -- Local Functions --
 
@@ -47,10 +47,10 @@ end
 
 -- Functions --
 
-function PlayerDataAccess.GetParameters(...)
+function DataAccess.GetParameters(...)
     local args = {...}
     local returnedArgs = {}
-    -- The first one is always the PlayerDataAccess table.
+    -- The first one is always the DataAccess table.
     
     for i,v in args do
         --if typeof(v) ~= "table" then
@@ -61,13 +61,13 @@ function PlayerDataAccess.GetParameters(...)
         end
     end
     if #returnedArgs > 0 then
-        return returnedArgs
+        return table.unpack(returnedArgs)
     end
 
     return nil
 end
 
-function PlayerDataAccess.AccessDataStore(name,key,r)
+function DataAccess.AccessDataStore(name,key,r)
     r = r or 5
     if r <= 0 then 
         error(ERRORS.accessFailed.."#"..key);    
@@ -77,24 +77,22 @@ function PlayerDataAccess.AccessDataStore(name,key,r)
     if not success then
         warn(error.." ...Retrying...")
         task.wait(1)
-        return PlayerDataAccess.AccessDataStore(name,key,r-1)
+        return DataAccess.AccessDataStore(name,key,r-1)
     end
     return dataStore
 end
 
-function PlayerDataAccess.GetFull(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+function DataAccess.GetFull(...)
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
 
-    local player = args[1]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
     return dataStore.Value
 end
 
 -- Setup --
-function PlayerDataAccess.Setup()
+function DataAccess.Setup()
     for _,dataAccessModule in pairs(DataAccessModules:GetChildren()) do
         if dataAccessModule:IsA("ModuleScript") then
             local module = require(dataAccessModule)
@@ -105,4 +103,4 @@ function PlayerDataAccess.Setup()
     end
 end
 
-return PlayerDataAccess
+return DataAccess

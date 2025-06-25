@@ -2,6 +2,20 @@ local PlotUtility = {}
 
 local Plots = workspace:WaitForChild("Plots")
 
+PlotUtility.Upgrades = {
+	PlotLevel = {
+		DisplayName = "Plot Level";
+		Description = "Expands your plot";
+		MaxValue = 5;
+	}	
+}
+
+PlotUtility.UpgradeCosts = {
+	PlotLevel = function(currentPlotLevel)
+		return math.round(((currentPlotLevel * 100)^2)/10)
+	end,
+}
+
 function PlotUtility.GetPlotFromPlayer(player)
 	if not player then
 		error("Player is missing or nil.")

@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 -- Folders --
 local _Shared = ReplicatedStorage.Shared
@@ -11,6 +12,9 @@ local _Packages = ReplicatedStorage.Packages
 local Events = ReplicatedStorage.Events
 local _Plots = workspace:WaitForChild("Plots")
 local Nodes = workspace:WaitForChild("Nodes")
+
+-- Ui Utility
+local Ui = require(script.Parent.Parent.Ui.UiUtility)
 
 -- Modules --
 local Shared = ReplicatedStorage.Shared
@@ -20,6 +24,7 @@ local PlacementUtility = require(Shared.Plots.PlacementUtility)
 local ItemInfo = require(Shared.Items.ItemInfo)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local Signal = require(Packages.signal)
+local SpringModule = require(Shared.Utility.Spring)
 
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
@@ -40,15 +45,41 @@ ClientPlacement.PlacementFinished = Signal.new()
 
 -- Functions --
 
+local function animatePlacement(model: Model)
+	if not model or typeof(model) ~= "Instance" then return warn("Error animating placement, model isn't valid.") end
+	
+	Ui.PlaySound("Place")
+	
+	local s = 1
+	local function step(factor: number)
+		s += factor
+		model:ScaleTo(s)
+		RunService.RenderStepped:Wait()
+	end
+	for i = 1,5 do
+		step(-0.01)
+	end
+	for i = 1,8 do
+		step(0.01)
+	end
+	for i = 1,3 do
+		step(-0.01)
+	end
+end
+
 function ClientPlacement.IsPlacing()
     return isPlacing
 end
 
 function ClientPlacement.StartPlacing(itemName,model,moving)
     if isPlacing then
-        warn("Client is already placing or moving.")
+		error(`Already placing or moving.`)
         return
-    end
+	end
+	if not itemName and not model then
+		error(`either itemName or model must not be nil.`)
+		return
+	end
     -- Update placement status.
     isPlacing = true
     ClientPlacement.PlacementStatusUpdated:Fire(isPlacing)
@@ -122,12 +153,15 @@ function ClientPlacement.StartPlacing(itemName,model,moving)
             local result = Events.Move:InvokeServer(localID,goalCFrame.Position,yRotation)
             if not result then
                 originalModel.Parent = plot.Items
-            end
-            return result
-        else
-            return Events.Place:InvokeServer(itemName,goalCFrame.Position,yRotation)
-        end
-    end
+			end
+			animatePlacement(PlacementUtility.WaitForItemFromLocalID(plot.Items,localID))
+			return result	
+		else
+			local localID = Events.Place:InvokeServer(itemName,goalCFrame.Position,yRotation)
+			animatePlacement(PlacementUtility.WaitForItemFromLocalID(plot.Items,localID))	
+			return localID		
+		end		
+	end
 
     -- Lerping
     local frame = 0

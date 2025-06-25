@@ -19,7 +19,7 @@ local DataUtility = require(Shared.Data.DataUtility)
 --local Trove = require(Packages.trove)
 local BridgeNet2 = require(Packages.BridgeNet2)
 local PlayerDataReplication = require(Server.Data.PlayerDataReplication)
-local PlayerDataAccess = require(Server.Data.PlayerDataAccess)
+local DataAccess = require(Server.Data.DataAccess)
 
 -- Variables --
 -- local templateKeys = {
@@ -48,7 +48,7 @@ end]]
 -- Setup --
 function PlayerDataManager.Setup()
     PlayerDataReplication.Setup()
-    PlayerDataAccess.Setup()
+    DataAccess.Setup()
     Players.PlayerAdded:Connect(function(player)
         --[[local dataFolder = DataUtility.CreateDataFolder()
         dataFolder.Parent = ServerPlayerData

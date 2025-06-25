@@ -5,8 +5,8 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 -- Modules --
-local PlayerDataAccess = require(script.Parent.Parent.PlayerDataAccess)
-local DataUtility = PlayerDataAccess.DataUtility
+local DataAccess = require(script.Parent.Parent.DataAccess)
+local DataUtility = DataAccess.DataUtility
 local LevelingAccess = require(script.Parent.LevelingAccess)
 
 -- Constants -- 
@@ -18,16 +18,13 @@ local cashQueue = {
 }
 
 local function updateClientCash(player,amount)
-    PlayerDataAccess.PlayerDataChanged:Fire(player,DataUtility.GetTypeId("Cash"),amount)
+    DataAccess.PlayerDataChanged:Fire(player,"Cash",amount)
 end
 
 function CashAccess.AddCashToQueue(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
-
-    local player = args[1]
-    local amount = args[2]
-
+    local player, amount = DataAccess.GetParameters(...)
+	if not (player and amount) then return end
+	
     if not cashQueue[player.UserId] then
         cashQueue[player.UserId] = {}
     end
@@ -35,14 +32,10 @@ function CashAccess.AddCashToQueue(...)
 end
 
 function CashAccess.GiveCash(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player, amount, expGain = DataAccess.GetParameters(...)
+	if not (player and amount) then return end
 
-    local player = args[1]
-    local amount = args[2]
-    local expGain = args[3]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     -- Set values.
@@ -57,13 +50,10 @@ function CashAccess.GiveCash(...)
 end
 
 function CashAccess.TakeCash(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player, amount = DataAccess.GetParameters(...)
+	if not (player and amount) then return end
 
-    local player = args[1]
-    local amount = args[2]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
 
     -- Set values.
@@ -73,12 +63,10 @@ function CashAccess.TakeCash(...)
 end
 
 function CashAccess.GetCash(...)
-    local args = PlayerDataAccess.GetParameters(...)
-    if not args then return end
+	local player = DataAccess.GetParameters(...)
+	if not player then return end
 
-    local player = args[1]
-
-    local dataStore = PlayerDataAccess.AccessDataStore(nil,player.UserId)
+    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then return end
     return dataStore.Value.Cash
 end
@@ -110,8 +98,9 @@ function CashAccess.Setup()
         end
     end
     Players.PlayerRemoving:Connect(function(player)
-        if RunService:IsStudio() then
-            CashAccess.GiveCash(player,10^3,false)
+		if RunService:IsStudio() then
+			print("test")
+            CashAccess.GiveCash(player,10^6)
         end
         erasePlayer(player)
     end)

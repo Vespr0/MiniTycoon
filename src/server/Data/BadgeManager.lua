@@ -17,7 +17,7 @@ function BadgeManager.Award(player,name,r)
     r = r or 4
     if r < 0 then
         return
-    end
+end
 
     local badgeId = BADGES[name]
     assert(badgeId,`Badge not found`)
@@ -34,6 +34,9 @@ function BadgeManager.Award(player,name,r)
                     task.wait(3)
                     BadgeService.AwardBadge(player,name,r-1)
                 end)
+            else
+                -- Badge awarded successfully
+                print(`Badge "{name}" awarded to {player.Name} (Could've been already awarded)`)
             end
         end 
     else

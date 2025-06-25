@@ -61,7 +61,12 @@ end
 
 
 function AssetsDealer.GetItem(name)
-	return AssetsDealer.GetAssetFromName("Items",name,false)
+	local item = AssetsDealer.GetAssetFromName("Items",name,false)
+	if not item then
+		warn(`Item not found with name "{name}"`)
+		item = AssetsDealer.GetItem("Missing")
+	end
+	return item
 end
 
 function AssetsDealer.GetTile(directory)

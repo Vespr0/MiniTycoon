@@ -214,13 +214,13 @@ function ServerPlacement.Setup()
         local storageItem = ItemsAccess.GetStorageItem(player,itemName)
         if not storageItem then warn(errors.PlayerDoesntHaveStorageItem..playerTag..actionTag); return false end
 
-        local success,arg1 = ServerPlacement.PlaceItem(player,position,itemName,yRotation)
+        local success,localID = ServerPlacement.PlaceItem(player,position,itemName,yRotation)
 
-        if not success then warn("Error from player placement request : ``"..arg1.."``"..playerTag..actionTag); return false end
+		if not success then warn("Error from player placement request : ``"..localID.."``"..playerTag..actionTag); return false end
 
-        ItemsAccess.RegisterPlacedItem(player,arg1,position,itemName,yRotation)
+		ItemsAccess.RegisterPlacedItem(player,localID,position,itemName,yRotation)
         ItemsAccess.ConsumeStorageItems(player,itemName,1)
-        return true
+		return localID
     end
     Events.Move.OnServerInvoke = function(player,localID,position,yRotation)
         local actionTag = " > Events.Move"

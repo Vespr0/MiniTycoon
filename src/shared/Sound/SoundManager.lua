@@ -37,11 +37,7 @@ function SoundManager.PlaySound(directory,arg2,pitch)
 		end
 		--warn(Sound.PlaybackSpeed)
 		
-		if arg2 then
-			Sound.Parent = SoundPart			
-		else
-			Sound.Parent = workspace.Nodes.Sounds
-		end
+		Sound.Parent = arg2 and SoundPart or workspace.Nodes.Sounds		
 		Sound:Play()
 		wait(Sound.TimeLength-.1)
 		local Fading = TweenService:Create(Sound,TweenInfo.new(.1,Enum.EasingStyle.Sine),{Volume = 0})

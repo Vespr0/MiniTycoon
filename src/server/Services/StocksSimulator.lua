@@ -52,28 +52,28 @@ local function updateMarket()
 end
 
 function StocksSimulator.Setup()
-	-- Update market prices
-	printMarket()
+	---- Update market prices
+	--printMarket()
 	
-	updateMarket()
-	-- Assuming you want to update the market every 60 seconds
-	local updateInterval = 10
-	local timeElapsed = 0
+	--updateMarket()
+	---- Assuming you want to update the market every 60 seconds
+	--local updateInterval = 10
+	--local timeElapsed = 0
 	
-	-- Simulate selling minerals
-	sellMineral("Coal", 1000)
-	sellMineral("Iron", 1000)
-	sellMineral("Diamond", 5)
+	---- Simulate selling minerals
+	--sellMineral("Coal", 1000)
+	--sellMineral("Iron", 1000)
+	--sellMineral("Diamond", 5)
 	
-	RunService.Heartbeat:Connect(function(deltaTime)
-		timeElapsed = timeElapsed + deltaTime
+	--RunService.Heartbeat:Connect(function(deltaTime)
+	--	timeElapsed = timeElapsed + deltaTime
 
-		if timeElapsed >= updateInterval then
-			updateMarket()
-			printMarket()
-		timeElapsed = 0
-		end
-	end)
+	--	if timeElapsed >= updateInterval then
+	--		updateMarket()
+	--		printMarket()
+	--	timeElapsed = 0
+	--	end
+	--end)
 end
 
 return StocksSimulator

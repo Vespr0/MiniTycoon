@@ -21,7 +21,7 @@ warn(ItemInfo)
 -- end
 
 function ItemUtility.GetItemConfig(name)
-    local item = AssetsDealer.GetItem(name)
+	local item = AssetsDealer.GetItem(name)
     return require(item.config)
 end
 

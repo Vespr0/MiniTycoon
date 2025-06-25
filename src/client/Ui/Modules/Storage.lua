@@ -22,18 +22,19 @@ local Packages = ReplicatedStorage.Packages
 -- Modules --
 local ItemInfo = require(Shared.Items.ItemInfo)
 local AssetsDealer = require(Shared.AssetsDealer)
-local ClientPlacement = require(Shared.Plots.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
- 
+
 -- Constants --
 local ORIGIN = MainFrame.Position
 local TYPE_SELECTORS = {
-    TypeSelectorsFrame.Dropper;
-    TypeSelectorsFrame.Belt;
-    TypeSelectorsFrame.Upgrader;
-    TypeSelectorsFrame.Forge;
-    TypeSelectorsFrame.Decor;
+	TypeSelectorsFrame:WaitForChild("Dropper");
+	TypeSelectorsFrame:WaitForChild("Belt");
+	TypeSelectorsFrame:WaitForChild("Upgrader");
+	TypeSelectorsFrame:WaitForChild("Forge");
+	TypeSelectorsFrame:WaitForChild("Decor");
 }
+
 local POP_TWEENINFO = TweenInfo.new(.15,Enum.EasingStyle.Sine,Enum.EasingDirection.Out,0,true)
 local TYPE_SELECTORS_ORIGNAL_SIZE = TypeSelectorsFrame:GetChildren()[2].Size
 
@@ -63,13 +64,9 @@ end
 local function updateItems()
     Ui.ClearFrame(ItemsFrame)
     trove:Clean()
-    for itemName,count in pairs(ClientPlayerData.GetKey("Storage")) do
+    for itemName,count in pairs(ClientPlayerData.Data.Storage) do
         -- Item.
         local item = AssetsDealer.GetItem(itemName)
-        if not item then
-            warn("Item not found with name: "..itemName)
-            continue
-        end
 
         local config = require(item.config)
         local type = config.Type
@@ -78,7 +75,7 @@ local function updateItems()
         local uiItem = ItemTemplate:Clone()
         uiItem.Parent = ItemsFrame
         uiItem.ItemCount.Text = "x"..count
-        uiItem.ItemName.Text = config.DisplayName
+		uiItem.ItemName.Text = `{config.DisplayName} ({itemName})`
         trove:Connect(uiItem.MouseButton1Click,function()
             ClientPlacement.StartPlacing(itemName)
         end)
@@ -109,11 +106,12 @@ end
 
 function Storage.Setup()
     Gui.Enabled = false
-    ItemTemplate = ItemsFrame.ItemTemplate:Clone()
+	ItemTemplate = ItemsFrame:WaitForChild("ItemTemplate"):Clone()
     ItemsFrame.ItemTemplate:Destroy()
 
     for _,typeSelector in pairs(TYPE_SELECTORS) do
-        typeSelector.MouseButton1Click:Connect(function()
+		typeSelector.MouseButton1Click:Connect(function()
+			Ui.PlaySound("Click")
             CurrentType = typeSelector.Name
             updateTypeSelectors()
             updateItems()

@@ -1,7 +1,7 @@
 local LevelingUtil = {}
 
-function LevelingUtil.GetExpForLevel(level)
-    return (level^1.5 / 2) * 100 + 100
+function LevelingUtil.GetExpForLevel(goalLevel)
+	return (goalLevel^1.5 / 2) * 100 + 100
 end
 
 function LevelingUtil.GetLevelAndExpFromExpGain(startingLevel,originalExp,gainedExp)

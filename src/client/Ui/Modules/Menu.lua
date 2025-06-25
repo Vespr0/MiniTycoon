@@ -59,8 +59,16 @@ function Menu.Setup()
     -- Shortcuts --
     local keyCodes = {
         E = "Storage";
-        F = "Shop";
-    }
+		F = "Shop";
+		G = "ControlPanel"
+	}
+	
+	local function switch(icon,position,gui)
+		--Ui.PlaySound("Open") TODO: Find a nice sound
+		Ui.HoverTween(icon,position)
+		toggleUi(gui)
+	end
+	
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         if gameProcessedEvent then return end
         for key,value in keyCodes do
@@ -69,16 +77,14 @@ function Menu.Setup()
                 if gui then
                     local origin = buttons[value].origin
                     local goal = gui.Enabled and origin or origin+Ui.HOVER_INCREMENT
-                    Ui.HoverTween(buttons[value].instance.Icon,goal)
-                    toggleUi(gui)
+					switch(buttons[value].instance.Icon,goal,gui)
 
                     -- Close all other guis
                     for _,otherValue in pairs(keyCodes) do
                         if otherValue == value then continue end
                         local otherGui = PlayerGui:FindFirstChild(otherValue)
                         if otherGui and otherGui.Enabled == true then
-                            Ui.HoverTween(buttons[otherValue].instance.Icon,origin)
-                            toggleUi(otherGui)
+							switch(buttons[otherValue].instance.Icon,origin,otherGui)
                         end
                     end
                 end

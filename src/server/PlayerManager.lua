@@ -1,4 +1,5 @@
 local PlayerManager = {}
+local BadgeManager = require(script.Parent.Data.BadgeManager)
 
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
@@ -34,6 +35,7 @@ function PlayerManager.Setup()
     -- When a player joins.
     Players.PlayerAdded:Connect(function(player)
         setupPlayer(player)
+        BadgeManager.Award(player, "Welcome")
     end)
     -- When a player leaves.
     Players.PlayerRemoving:Connect(function(player)
