@@ -18,6 +18,7 @@ Ui.ControlPanelGui = PlayerGui:WaitForChild("ControlPanel")
 Ui.StorageGui = PlayerGui:WaitForChild("Storage")
 Ui.ShopGui = PlayerGui:WaitForChild("Shop")
 Ui.UnboxingGui = PlayerGui:WaitForChild("Unboxing")
+Ui.IndexGui = PlayerGui:WaitForChild("Index")
 
 -- Constants
 Ui.BUTTON_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)

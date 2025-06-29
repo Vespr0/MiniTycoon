@@ -2,6 +2,7 @@ local PlotLoader = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Server = ServerScriptService:WaitForChild("Server")
@@ -26,15 +27,18 @@ end
 -- Resize the plot, this is fired once a plot upgrade is purchased.
 function PlotLoader.Resize(player)
 	local plot,root,_,plotLevel = getPlotInfo(player)
-	TilingManager.LoadRootAndTiles(plot,root,plotLevel)
+
+    TilingManager.ResizeRoot(root, plotLevel)
+	-- TilingManager.GenerateTiling(player.UserId,root,plot.Name,plotLevel)
 end
 
 -- Resize the plot and load the items, this should be fired when the player joins for the first time.
 function PlotLoader.Load(player)
 	local plot,root,playerTag,plotLevel = getPlotInfo(player)
 
-	TilingManager.LoadRootAndTiles(plot,root,plotLevel)
-   
+    TilingManager.ResizeRoot(root, plotLevel)
+    TilingManager.GenerateTiling(player.UserId,root,plot.Name,plotLevel)
+
     -- Load items.
     local playerPlacedItems = ItemsAccess.GetPlacedItems(player)
     if not playerPlacedItems then return end

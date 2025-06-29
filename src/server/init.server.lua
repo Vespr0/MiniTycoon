@@ -9,6 +9,7 @@ workspace:WaitForChild("Assets").Parent = ReplicatedStorage
 -- Setup Plots and Placement
 require(Server.Plots.PlotManager).Setup()
 require(Server.Plots.ServerPlacement).Setup()
+require(Server.Plots.TilingManager).Setup()
 
 -- Setup Data
 require(Server.PlayerManager).Setup()

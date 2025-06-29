@@ -16,6 +16,14 @@ local Events = ReplicatedStorage:WaitForChild("Events")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 
+local FOLDERS = {
+	script.Parent.Data;
+	script.Parent.Items.Modules;
+	script.Parent.FX;
+	script.Parent.Ui.Modules;
+	script.Parent.Plots;
+}
+
 function ClientLoader.SetProgress(percentage)
 	percentage = math.clamp(percentage,0,1)
 	local tween = TweenService:Create(ProgressBar,TweenInfo.new(.4),{Size = UDim2.fromScale(percentage,1)})
@@ -43,24 +51,17 @@ function ClientLoader.Start()
     -- Modules --
 	Context.Text = "Loading Modules"
 	ClientLoader.SetProgress(0)
-	local folders = {
-		script.Parent.Data;
-		script.Parent.Items.Modules;
-		script.Parent.FX;
-		script.Parent.Ui.Modules;
-	}
-	for i,folder in folders do
+
+	for i,folder in FOLDERS do
 		for _,module in pairs(folder:GetChildren()) do
 			if not module:IsA("ModuleScript") then continue end
 		    local required = require(module)
 			if required.Setup then
 				required.Setup()
-			else
-				warn("Module "..module.Name.." does not have a Setup function")
 			end
 			task.wait(1/4)
 		end
-		ClientLoader.SetProgress(i/#folders)
+		ClientLoader.SetProgress(i/#FOLDERS)
 	end
 	ClientLoader.SetProgress(1)
 	task.wait(1/2)

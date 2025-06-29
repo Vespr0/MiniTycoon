@@ -1,27 +1,48 @@
 local TilingManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Events = ReplicatedStorage.Events
+
+local ReplicateTiling = Events.ReplicateTiling
+
+local TilingUtility = require(ReplicatedStorage.Shared.Plots.TilingUtility)
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
-local AssetsDealer = require(ReplicatedStorage.Shared.AssetsDealer)
+
+TilingManager.TilingInfo = {} 
+
+function TilingManager.ResizeRoot(root: BasePart, plotLevel: number)
+    local actualPlotWidth = TilingUtility.GetActualPlotWidth(plotLevel)
+    root.Size = Vector3.new(actualPlotWidth, 1, actualPlotWidth)
+end
 
 --- Loads and tiles the plot root with tiles.
-function TilingManager.LoadRootAndTiles(plot, root, plotLevel)
-	local tileSize = GameConfig.TileSize
-	local actualPlotWidth = plotLevel*10
-	root.Transparency = 1
-	root.Size = Vector3.new(actualPlotWidth, 1, actualPlotWidth)
-	local origin = root.Position - Vector3.new(actualPlotWidth/2 + tileSize/2, 0, actualPlotWidth/2 + tileSize/2)
+function TilingManager.GenerateTiling(userID: number, root: BasePart, plotName: string, plotLevel: number)
+    local seed = userID;
 
-	for x = 1, actualPlotWidth / tileSize do
-		for y = 1, actualPlotWidth / tileSize do
-			local asset = AssetsDealer.GetTile("Grass")
-			local tile = asset.Model :: Model
-			tile.Parent = plot.Tiles
-            print(tileSize)
-			tile:PivotTo(CFrame.new(origin + Vector3.new(x * tileSize, 0, y * tileSize)))
-			asset:Destroy()
-		end
-	end
+    warn(seed)
+    ReplicateTiling:FireAllClients(plotName, seed)
+
+    TilingManager.TilingInfo[plotName] = {
+        tiles = TilingUtility.GenerateTiles(TilingUtility.MaxPlotWidth/GameConfig.TileSize, seed),
+        seed = seed,
+        root = root,
+    }
+end
+
+function TilingManager.Setup()
+    -- Replicate existing tiling info to players when they join.
+    Players.PlayerAdded:Connect(function(player)
+        for _,plot in workspace.Plots:GetChildren() do
+            if plot:GetAttribute("OwnerID") ~= 0 then
+                local info = TilingManager.TilingInfo[plot.Name]
+
+                local seed = info.seed
+                warn(seed)
+                ReplicateTiling:FireClient(player, plot.Name, seed)
+            end
+        end
+    end)
 end
 
 return TilingManager

@@ -59,9 +59,10 @@ function Menu.Setup()
     -- Shortcuts --
     local keyCodes = {
         E = "Storage";
-		F = "Shop";
-		G = "ControlPanel"
-	}
+        F = "Shop";
+        G = "ControlPanel";
+        H = "Index"; -- Added Index module to menu shortcuts
+    }
 	
 	local function switch(icon,position,gui)
 		--Ui.PlaySound("Open") TODO: Find a nice sound
