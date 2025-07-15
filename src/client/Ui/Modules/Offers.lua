@@ -1,5 +1,6 @@
 local Offers = {}
 
+-- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -16,17 +17,16 @@ local Events = ReplicatedStorage.Events
 local Ui = require(script.Parent.Parent.UiUtility)
 local Time = require(Shared.Utility.Time)
 local ViewportUtil = require(script.Parent.Util.Viewport)
+local Insight = require(script.Parent.InsightFrame)
+local PopupUi = require(script.Parent.Popup)
 
 -- Ui Elements
 local MainFrame = Ui.ShopGui:WaitForChild("MainFrame")
 local OffersFrame = MainFrame:WaitForChild("OffersFrame")
 local OffersContainer = OffersFrame:WaitForChild("OffersContainer")
 local ItemTemplate = OffersContainer:WaitForChild("ItemTemplate")
-local InsightFrame = MainFrame:WaitForChild("InsightFrame")
-local Preview = InsightFrame:WaitForChild("Preview")
 local ViewportGradient = OffersFrame:WaitForChild("ViewportGradient")
 ViewportGradient.Parent = script
-Preview.Parent = script
 ItemTemplate.Parent = script
 local Timer = OffersFrame:WaitForChild("Timer")
 
@@ -46,7 +46,7 @@ local Trove = require(Packages.trove)
 
 -- Variables --
 local trove = require(Packages.trove).new()
-local currentExpiration 
+local currentExpiration
 local currentOffers
 local currentViewports = {}
 
@@ -58,33 +58,20 @@ function get()
     currentOffers = data.offers
 end
 
-local currentInsightTrove = nil
+-- local currentInsightTrove = nil -- Moved to InsightFrame.lua
 
-local function canAfford(price)
-	return ClientPlayerData.Data.Cash >= price
-end
-
-local function closeInsight()
-    local preview = InsightFrame:FindFirstChild("Preview")
-    if preview then preview:Destroy() end
-    InsightFrame.Title.Text = "(Select an offer)"
-    InsightFrame.Description.Text = ""
-    InsightFrame.Rarity.Text = ""
-    InsightFrame.Buy.Price.Text = ""
-	InsightFrame.Buy.Visible = false
-	
-	-- Destroy trove if it exists
-	if currentInsightTrove then currentInsightTrove:Destroy() end
-end
+-- local function canAfford(price) -- Moved to InsightFrame.lua
+-- 	return ClientPlayerData.Data.Cash >= price
+-- end
 
 local function buyOffer(offerID,price,itemName)
-	Ui.PlaySound("Purchase")
-	
+    Ui.PlaySound("Purchase")
+
     local success,error = Events.Offers:InvokeServer("Buy",{offerID = offerID})
     if not success then warn(error) return end
-	
+
     ClientPlayerData.Read({
-		type = "SingleOffer";
+        type = "SingleOffer";
         arg1 = offerID;
         arg2 = {
             ItemName = itemName;
@@ -94,51 +81,12 @@ local function buyOffer(offerID,price,itemName)
     })
 
     OffersContainer[offerID].Sold.Visible = true
-	closeInsight()	
+    Insight.Close() -- Use the new Close function
+
+    local itemConfig = ItemUtility.GetItemConfig(itemName)
+    local message =  PopupUi.GenerateItemPurchaseMessage(itemName, price, itemConfig)
+    PopupUi.Enqueue(itemName, message, 1)
 end
-
-local function insight(itemName, name, config, price, offerID, rarityInfo)
-	-- Destroy trove if it exists
-	if currentInsightTrove then currentInsightTrove:Destroy() end
-	
-    if InsightFrame:FindFirstChild("Preview") then
-        InsightFrame.Preview:Destroy()
-    end
-    InsightFrame.Title.Text = config.DisplayName
-    InsightFrame.Description.Text = config.Description or '<font transparency="0.5"> This item has no description. </font>'
-    local rarity = config.Rarity or "Common"
-    InsightFrame.Rarity.Text = string.upper(rarity)
-    InsightFrame.Rarity.TextColor3 = rarityInfo.Color
-    InsightFrame.Rarity.UIStroke.Color = rarityInfo.StrokeColor
-
-    local insightViewport = ViewportUtil.GenerateItemViewport(name,Preview)
-    insightViewport.Name = "Preview"
-    insightViewport.Parent = InsightFrame
-    -- Price 
-    InsightFrame.Buy.Price.Text = CashUtility.Format(price,{
-        fullNumber = false,
-        decimals = 0
-    })
-    -- Buy
-	InsightFrame.Buy.Visible = true
-	
-	local buyButton = InsightFrame.Buy
-	
-	currentInsightTrove = Trove.new()
-	
-	currentInsightTrove:Add(RunService.RenderStepped:Connect(function()
-		InsightFrame.Buy.FakeButton.BackgroundColor3 = canAfford(price) and Colors.Buttons.Green or Colors.Buttons.Red
-	end))
-	
-	currentInsightTrove:Add(buyButton.MouseButton1Click:Connect(function()
-		if canAfford(price) then
-			Tween.ButtonPush(buyButton)
-			buyOffer(offerID,price,itemName)
-		else
-			Ui.PlaySound("Error")
-		end
-    end))
-end 
 
 local function checkExpiration()
     local diff = os.difftime(currentExpiration,workspace:GetServerTimeNow())
@@ -153,9 +101,9 @@ local function updateContainer()
             offer:Destroy()
         end
     end
-    currentViewports = {} -- TODO: is this a memory leak? 
+    currentViewports = {} -- TODO: is this a memory leak? (Yes, if the viewports aren't destroyed when the offers are removed)
 
-    if not currentOffers or not next(currentOffers) then return end 
+    if not currentOffers or not next(currentOffers) then return end
 
     for offerID,offer in pairs(currentOffers) do
         local itemName = offer.ItemName
@@ -172,32 +120,31 @@ local function updateContainer()
 
         -- ItemName
         local itemNameLabel = item:WaitForChild("ItemName")
-        local rarity = config.Rarity or "Common"
-        local rarityInfo = ItemInfo.Rarities[rarity]
-        itemNameLabel.Text = config.DisplayName     
-        itemNameLabel.TextColor3 = rarityInfo.Color
-        itemNameLabel.UIStroke.Color = rarityInfo.StrokeColor
-        
+        itemNameLabel.Text = config.DisplayName or itemName
+
         -- Bought
         item.Sold.Visible = bought
 
-        -- Price 
+        -- Price
         item:WaitForChild("Price").Text = CashUtility.Format(price,{
             fullNumber = false,
             decimals = 0
         })
 
-        local viewport = ViewportUtil.GenerateItemViewport(itemName)
+        local viewport = ViewportUtil.CreateItemViewport(itemName)
         viewport.Parent = item
-        viewport.ZIndex = 3
 
         table.insert(currentViewports,viewport)
 
         local gradient = ViewportGradient:Clone()
         gradient.Parent = viewport
 
+        local rarity = config.Rarity or "Common"
         item.MouseButton1Click:Connect(function()
-            insight(itemName, itemName, config, price, offerID, rarityInfo)
+            -- Call the new InsightFrame.Open function
+            Insight.Open(config, itemName, price, nil, rarity, function()
+                buyOffer(offerID, price, itemName) -- Pass the Offers-specific buy logic as a callback
+            end)
         end)
     end
 end
@@ -211,7 +158,7 @@ function Offers.Reload()
 end
 
 local function spin()
-    local preview = InsightFrame:FindFirstChild("Preview")
+    local preview = Insight.Preview
     if not preview then return end
 
     local model = preview:FindFirstChildWhichIsA("Model")
@@ -232,15 +179,19 @@ end
 -- Module Functions
 function Offers.Open()
     OffersFrame.Visible = true
+    -- Optionally close Insight when opening OffersFrame
+    Insight.Close()
 end
 
 function Offers.Close()
     OffersFrame.Visible = false
+    -- Optionally close Insight when closing OffersFrame
+    Insight.Close()
 end
 
-function Offers.Setup()    
+function Offers.Setup()
     Offers.Reload()
-    closeInsight()
+    Insight.Close() -- Use the new Close function
     local paused = false
     RunService.RenderStepped:Connect(function()
         if checkExpiration() then

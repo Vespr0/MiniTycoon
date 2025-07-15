@@ -7,8 +7,6 @@ local Shared = ReplicatedStorage.Shared
 local AssetsDealer = require(Shared.AssetsDealer)
 local ItemInfo = require(Shared.Items.ItemInfo)
 
-warn(ItemInfo)
-
 -- function ItemUtility.GetItemFromID(ID)
 --     ID = tonumber(ID)
 --     for name,id in pairs(ItemInfo.IDs) do

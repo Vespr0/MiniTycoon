@@ -44,9 +44,17 @@ ClientPlayerData.Data = {
 }
 
 -- Signals.
-ClientPlayerData.DataStorageUpdate = Signal.new()
+ClientPlayerData.DataUpdate = Signal.new()
+-- Cash
 ClientPlayerData.CashUpdate = Signal.new()
-ClientPlayerData.LevelingUpdate = Signal.new()
+-- Leveling
+ClientPlayerData.ExpUpdate = Signal.new()
+ClientPlayerData.LevelUpdate = Signal.new()
+-- Storage
+ClientPlayerData.StorageUpdate = Signal.new()
+
+ClientPlayerData.DataSynched = false
+ClientPlayerData.DataSynchedEvent = Signal.new()
 
 function ClientPlayerData.Read(data)
     local functions = {
@@ -60,6 +68,7 @@ function ClientPlayerData.Read(data)
 					ClientPlayerData.Data.Storage[itemName] = count
                 end
             end
+            ClientPlayerData.StorageUpdate:Fire(itemName,count)
         end;
         Cash = function(count)
 			ClientPlayerData.Data.Cash = count
@@ -67,8 +76,11 @@ function ClientPlayerData.Read(data)
         end;
         Leveling = function(exp,level)
 			ClientPlayerData.Data.Exp = exp
+            if level ~= ClientPlayerData.Data.Level then
+                ClientPlayerData.LevelUpdate:Fire(level)
+            end
 			ClientPlayerData.Data.Level = level
-            ClientPlayerData.LevelingUpdate:Fire(exp,level)
+            ClientPlayerData.ExpUpdate:Fire(exp,level)
         end;
         FirstPlayed = function(time)
 			ClientPlayerData.Data.Session.FirstPlayed = time
@@ -116,10 +128,15 @@ function ClientPlayerData.Read(data)
             for itemName,count in arg1.Storage do
                 functions["Storage"](itemName,count)
             end
+
+            if not ClientPlayerData.DataSynched then
+                ClientPlayerData.DataSynchedEvent:Fire()
+            end
+            ClientPlayerData.DataSynched = true
         else
 			functions[data.type](arg1,arg2)
         end
-        ClientPlayerData.DataStorageUpdate:Fire(data)
+        ClientPlayerData.DataUpdate:Fire(data)
     end
 end
 

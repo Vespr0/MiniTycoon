@@ -5,26 +5,29 @@ local Players = game:GetService("Players")
 local Events = ReplicatedStorage.Events
 
 local ReplicateTiling = Events.ReplicateTiling
+local ReplicateBorder = Events.ReplicateBorder
 
 local TilingUtility = require(ReplicatedStorage.Shared.Plots.TilingUtility)
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
+local PlotUtility = require(ReplicatedStorage.Shared.Plots.PlotUtility)
 
 TilingManager.TilingInfo = {} 
 
-function TilingManager.ResizeRoot(root: BasePart, plotLevel: number)
+function TilingManager.Resize(root: BasePart, plotLevel: number)
     local actualPlotWidth = TilingUtility.GetActualPlotWidth(plotLevel)
     root.Size = Vector3.new(actualPlotWidth, 1, actualPlotWidth)
+
+    ReplicateBorder:FireAllClients(root)
 end
 
 --- Loads and tiles the plot root with tiles.
 function TilingManager.GenerateTiling(userID: number, root: BasePart, plotName: string, plotLevel: number)
     local seed = userID;
 
-    warn(seed)
     ReplicateTiling:FireAllClients(plotName, seed)
 
     TilingManager.TilingInfo[plotName] = {
-        tiles = TilingUtility.GenerateTiles(TilingUtility.MaxPlotWidth/GameConfig.TileSize, seed),
+        tiles = TilingUtility.GenerateTiles(PlotUtility.MaxPlotWidth/GameConfig.TileSize, seed),
         seed = seed,
         root = root,
     }
@@ -38,8 +41,8 @@ function TilingManager.Setup()
                 local info = TilingManager.TilingInfo[plot.Name]
 
                 local seed = info.seed
-                warn(seed)
                 ReplicateTiling:FireClient(player, plot.Name, seed)
+                ReplicateBorder:FireClient(player, info.root)
             end
         end
     end)

@@ -1,4 +1,4 @@
-local ShopManager = {}
+local OffersManager = {}
 
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -128,8 +128,8 @@ local function readOffersRequest(player,type,args)
     return false,"Invalid request type."
 end
 
-function ShopManager.Setup()
+function OffersManager.Setup()
 	Events.Offers.OnServerInvoke = readOffersRequest
 end
 
-return ShopManager
+return OffersManager

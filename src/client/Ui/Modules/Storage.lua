@@ -9,6 +9,7 @@ local PlayerGui = Player.PlayerGui
 
 -- Ui Modules
 local Ui = require(script.Parent.Parent.UiUtility)
+local ViewportUtil = require(script.Parent.Util.Viewport)
 
 -- Ui Elements
 local Gui = Ui.StorageGui
@@ -76,6 +77,10 @@ local function updateItems()
         uiItem.Parent = ItemsFrame
         uiItem.ItemCount.Text = "x"..count
 		uiItem.ItemName.Text = `{config.DisplayName} ({itemName})`
+
+        local viewport = ViewportUtil.CreateItemViewport(itemName)
+        viewport.Parent = uiItem
+
         trove:Connect(uiItem.MouseButton1Click,function()
             ClientPlacement.StartPlacing(itemName)
         end)
@@ -118,7 +123,7 @@ function Storage.Setup()
         end)
     end
 
-    ClientPlayerData.DataStorageUpdate:Connect(function()
+    ClientPlayerData.StorageUpdate:Connect(function()
         updateItems()
     end)
 end

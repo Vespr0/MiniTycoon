@@ -1,0 +1,107 @@
+local ShopInfo = {}
+
+local function getInfoFromItemName(itemName)
+    for category, items in ShopInfo.Items do
+        if items[itemName] then
+            return items[itemName]
+        end
+    end
+    return nil
+end
+
+function ShopInfo.GetItemShopInfo(itemName)
+    local info = getInfoFromItemName(itemName)
+    if not info then
+        warn("Shop info not found for item: " .. itemName)
+        return nil
+    end
+
+    local price = info.price
+    if not price or type(price) ~= "number" or price < 0 then
+        warn("Invalid or missing price for item: " .. itemName)
+        return nil
+    end
+    local levelRequirement = info.levelRequirement
+    if not levelRequirement or type(levelRequirement) ~= "number" then
+        warn("Invalid or missing level requirement for item: " .. itemName)
+        return nil
+    end
+
+    return info
+end
+
+ShopInfo.Items = {
+
+    -- Droppers
+    Dropper = {
+        CoalMine = {
+            price = 40,
+            levelRequirement = 1,
+            inMarket = true,
+        },
+
+        IronMine = {
+            price = 60,
+            levelRequirement = 2,
+            inMarket = true,
+        },
+
+        LargeCoalMine = {
+            price = 100,
+            levelRequirement = 3,
+            inMarket = true,
+        },
+
+        QuartzMine = {
+            price = 1000,
+            levelRequirement = 40,
+            inMarket = false, -- Not in market, just offers
+        },
+
+        UraniumLazur = {
+            price = 1500,
+            levelRequirement = 70,
+            inMarket = false, 
+        },
+    },
+
+    -- Conveyor Belts
+    Belt = {
+        OldBelt = {
+            price = 20,
+            levelRequirement = 1,
+            inMarket = true,
+        },
+
+        IceBelt = {
+            price = 100,
+            levelRequirement = 1,
+            inMarket = false, 
+        }
+    },
+
+    -- Upgraders
+    Upgrader = {
+
+    },
+
+    -- Forge
+    Forge = {
+        OldForge = {
+            price = 100,
+            levelRequirement = 1,
+            inMarket = true,
+        },
+    },
+
+    -- Decorations
+    Decor = {
+        SmallTree = {
+            price = 20,
+            levelRequirement = 1,
+            inMarket = false, -- Not in market, just offers
+        },
+    }
+}
+
+return ShopInfo

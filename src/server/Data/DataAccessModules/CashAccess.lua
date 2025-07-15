@@ -99,8 +99,9 @@ function CashAccess.Setup()
     end
     Players.PlayerRemoving:Connect(function(player)
 		if RunService:IsStudio() then
-			print("test")
-            CashAccess.GiveCash(player,10^6)
+            -- Reset cash
+            CashAccess.GiveCash(player, 1000, true)
+            -- CashAccess.TakeCash(player,CashAccess.GetCash(player))
         end
         erasePlayer(player)
     end)

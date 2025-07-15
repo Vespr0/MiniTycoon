@@ -1,3 +1,4 @@
+
 local OffersUtil = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,138 +13,149 @@ local StatsAccess = require(Server.Data.DataAccessModules.StatsAccess)
 local ItemInfo = require(Shared.Items.ItemInfo)
 local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local ItemUtility = require(Shared.Items.ItemUtility)
+local ShopInfo = require(Shared.Services.ShopInfo)
 
-local RANDOM = Random.new()
+local CurrentRandom = nil
 
--- local function getAllItemsCount()
---     local x = 0
---     for _,_ in pairs(ItemInfo.IDs) do
---         x += 1
---     end
---     return x
--- end
+local OFFER_DISCOUNT_MIN = 0.2 -- Minimum discount off market price
+local OFFER_DISCOUNT_MAX = 0.4 -- Maximum discount off market price
+local RANDOM_VARIATION = OFFER_DISCOUNT_MIN/2    -- Random variation
 
--- local allItemsCount = getAllItemsCount()
-
-local ITEMS_POOL = {
-	-- Basic
-	["CoalMine"] = {1,1};
-
-	-- Common
-	["LargeCoalMine"] = {1,0.1};
-	
-	["AzuriteExtractor"] = {5,1};
-    ["CrocoiteExtractor"] = {5,1};
-    ["UraniumLazur"] = {10,1};
-    ["BreadOven"] = {10,.2};
-}
-
-local UTILITY_POOL = {
-	-- Basic
-	["OldBelt"] = {1,1};
-	
-	-- Common
-    ["IceBelt"] = {1,.1};
-}
-
-local SPECIAL_POOL = {
-    ["SmallTree"] = {1,1};
-}
-
-local function isItemPresentInInventory(player,itemName)
-	local amount = 0
-	-- Storage
-	local storageItemAmount = ItemsAccess.GetStorageItem(player,itemName)
-	if storageItemAmount then amount += storageItemAmount end
-	-- Placed
-	local placedItems = ItemsAccess.GetPlacedItems(player)
-	if not placedItems then return end
-	for _,item in pairs(placedItems) do
-		if item[4] == itemName then
-			amount += 1
-		end
-	end
-	return amount
-end
-
-local function getRandom(weights)
-    return weights[math.random(1,#weights)]
-end
-
-local function getPrice(score,factor,amount)
-    local difference = score-factor
-    local differenceFactor
-
-    local differenceMultiplier 
-    if difference > 0 then
-        differenceFactor = factor/score
-        differenceMultiplier = 1 - differenceFactor
-    else
-        differenceFactor = math.abs(difference)/factor 
-        differenceMultiplier = 1 + differenceFactor
-    end
-
-    local amountFactor = (1+amount/10) -- The more items the player has , the more a duplicate should cost.
-    local delta = math.round(factor*50 * differenceMultiplier * amountFactor)
-    return math.abs(delta)
-end
-
-local function getWeightsNumber(score,factor,luckFactor,amount)
-    local diff = score-factor
-    if diff <= 0 then
-        return 0 
-	end
-	
-	local weights = ((score/factor)*10)/(amount+1)
-	local lucky = RANDOM:NextNumber() <= luckFactor
-	
-	if not lucky then return 0 end
-	
-	return math.clamp(weights,0,50)
-end
-
-local function generateWeights(player,score,pool)
-    local randomMultiplier = (1 + (math.random(0,100)/100)) -- To spice things up the player might get rarer things than normal if lucky enough
-    score *= randomMultiplier
-
-    local weights = {}
-	for itemName,factors in pairs(pool) do
-		local factor = factors[1]
-		local luckFactor = factors[2]
-		
-        local amount = isItemPresentInInventory(player,itemName)
-		local weightsNumber = getWeightsNumber(score,factor,luckFactor,amount)
-
-        while weightsNumber > 0 do
-            table.insert(weights,{ItemName = itemName,Price = getPrice(score,factor,amount)})
-            weightsNumber -= 1
+-- Dynamically build the offers pool from ShopInfo.Items where inOffers is true
+local function getOffersPool()
+    local pool = {}
+    for category, items in ShopInfo.Items do
+        for itemName, info in items do
+            warn(info)
+            if info.inOffers then
+                warn("AAAAAAAAAA")
+                pool[itemName] = {
+                    levelRequirement = info.levelRequirement or 1,
+                    luckFactor = info.luckFactor or 1,
+                    category = category
+                }
+            end
         end
     end
-    --warn(weights)
+    return pool
+end
+
+local function isItemPresentInInventory(player,itemName)
+    local amount = 0
+    -- Storage
+    local storageItemAmount = ItemsAccess.GetStorageItem(player,itemName)
+    if storageItemAmount then amount += storageItemAmount end
+    -- Placed
+    local placedItems = ItemsAccess.GetPlacedItems(player)
+    if not placedItems then return end
+    for _,item in pairs(placedItems) do
+        if item[4] == itemName then
+            amount += 1
+        end
+    end
+    return amount
+end
+
+local function calculateOfferPrice(basePrice, level, amount)
+    -- Always apply a discount to market price
+    local discount = CurrentRandom:NextNumber(OFFER_DISCOUNT_MIN, OFFER_DISCOUNT_MAX)
+    local offerPrice = basePrice * (1 - discount)
+
+    -- Add some randomness (e.g., +/- RANDOM_VARIATION)
+    local randomVariation = CurrentRandom:NextNumber(1 - RANDOM_VARIATION, 1 + RANDOM_VARIATION)
+    offerPrice = offerPrice * randomVariation
+
+    -- Ensure offer price is always less than market price, at least 1
+    offerPrice = math.floor(math.clamp(offerPrice, 1, basePrice - 1))
+    return offerPrice
+end
+
+local function getWeightsNumber(level,levelRequirement,luckFactor,amount)
+    -- Allow items where player level >= levelRequirement
+    local diff = level - levelRequirement
+    if diff < 0 then
+        return 0
+    end
+    -- Default luckFactor to 1 if missing
+    luckFactor = luckFactor or 1
+    local weights = (level * 10) / (amount + 1)
+    local lucky = CurrentRandom:NextNumber() <= luckFactor
+    if not lucky then return 0 end
+    return math.clamp(weights, 1, 50) -- always at least 1 if eligible
+end
+
+local function generateWeights(player, level, pool)
+    local randomMultiplier = (1 + (math.random(0,100)/100))
+    level *= randomMultiplier
+
+    local weights = {}
+    for itemName, factors in pool do
+        local levelRequirement = factors.levelRequirement
+        local luckFactor = factors.luckFactor
+
+        -- Item config
+        -- local itemConfig = ItemUtility.GetItemConfig(itemName)
+        -- Shop info
+        local shopInfo = ShopInfo.GetItemShopInfo(itemName)
+        local basePrice = shopInfo.price
+
+        local amount = isItemPresentInInventory(player, itemName)
+        local weight = getWeightsNumber(level, levelRequirement, luckFactor, amount)
+        print(`Generating weights for {itemName}: basePrice: {basePrice} owned: {amount} -  Weight: {weight}`)
+        if weight > 0 then
+            table.insert(weights, {
+                ItemName = itemName,
+                Price = calculateOfferPrice(basePrice, level, amount),
+                Weight = weight,
+                Category = factors.category
+            })
+        end
+    end
     return weights
 end
 
-local function generateOffers(player,score,count,pool)
-    local weights = generateWeights(player,score,pool)
-    if not weights or not next(weights) then warn("Failed to generate weights") return end
-
-    local offers = {}
-
-    local function get(attempts)
-        local random = getRandom(weights)
-        if not random then warn("Failed to get random weight") return end
-
-        if attempts <= 0 then return random end
-        if offers[random.ItemName] then
-            return get(attempts-1)
-        else
-            return random
+local function weightedRandom(weights)
+    local totalWeight = 0
+    for _, entry in ipairs(weights) do
+        totalWeight = totalWeight + entry.Weight
+    end
+    if totalWeight == 0 then return nil end
+    local pick = CurrentRandom:NextNumber(0, totalWeight)
+    local cumulative = 0
+    for _, entry in ipairs(weights) do
+        cumulative = cumulative + entry.Weight
+        if pick <= cumulative then
+            return entry
         end
     end
-    for i = 1,count do
-        local offer = get(3)
+    return weights[#weights] -- fallback
+end
+
+local function generateOffers(player, level, count, pool)
+    CurrentRandom = Random.new(workspace:GetServerTimeNow())
+
+    local weights = generateWeights(player, level, pool)
+    if not weights or not next(weights) then
+        warn("Failed to generate weights")
+        return
+    end
+
+    local offers = {}
+    local picked = {}
+
+    for i = 1, count do
+        -- Remove already picked items from weights
+        local available = {}
+        for _, entry in ipairs(weights) do
+            if not picked[entry.ItemName] then
+                table.insert(available, entry)
+            end
+        end
+        if #available == 0 then break end
+        local offer = weightedRandom(available)
         if offer then
-            table.insert(offers,offer)
+            table.insert(offers, offer)
+            picked[offer.ItemName] = true
         end
     end
 
@@ -154,31 +166,17 @@ function OffersUtil.GenerateOffers(player)
     if not player then warn("Player not specified or nil") return end
 
     local level,_ = LevelingAccess.Get(player)
-    --local offersBought = StatsAccess.GetStat(player,"OffersBought")
-    local score = level --+ offersBought
     local offers = {}
 
-    -- 5 ITEMS
-    local itemOffers = generateOffers(player,score,5,ITEMS_POOL)
-    if itemOffers then
-        for _,offer in pairs(itemOffers) do
-            table.insert(offers,offer)
+    local offersPool = getOffersPool()
+    -- You can adjust the number of offers as needed
+    local offerCount = 6
+    local generatedOffers = generateOffers(player, level, offerCount, offersPool)
+    if generatedOffers then
+        for _, offer in pairs(generatedOffers) do
+            table.insert(offers, offer)
         end
     end
-    -- 2 UTILITY
-    local utilityOffers = generateOffers(player,score,2,UTILITY_POOL)
-    if utilityOffers then
-        for _,offer in pairs(utilityOffers) do
-            table.insert(offers,offer)
-        end
-    end
-    -- 1 SPECIAL
-    local specialOffers = generateOffers(player,score,1,SPECIAL_POOL)
-    if specialOffers then
-        for _,offer in pairs(specialOffers) do
-            table.insert(offers,offer)
-        end
-	end
 
     return offers
 end

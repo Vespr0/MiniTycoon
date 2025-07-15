@@ -43,7 +43,7 @@ function AssetsDealer.GetAssetFromName(rootFolderName,name,asClone)
 	local rootFolder = ReplicatedStorage.Assets:FindFirstChild(rootFolderName)
 	local asset = nil
 	if rootFolder then
-		for _,descendant in pairs(rootFolder:GetDescendants()) do
+		for _,descendant in rootFolder:GetDescendants() do
 			if descendant.Name == name then
 				asset = descendant
 			end
@@ -58,7 +58,6 @@ function AssetsDealer.GetAssetFromName(rootFolderName,name,asClone)
 	end
 	return nil
 end
-
 
 function AssetsDealer.GetItem(name)
 	local item = AssetsDealer.GetAssetFromName("Items",name,false)

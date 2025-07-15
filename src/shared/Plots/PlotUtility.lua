@@ -2,6 +2,8 @@ local PlotUtility = {}
 
 local Plots = workspace:WaitForChild("Plots")
 
+PlotUtility.MaxPlotWidth = 100
+
 PlotUtility.Upgrades = {
 	PlotLevel = {
 		DisplayName = "Plot Level";
@@ -12,7 +14,7 @@ PlotUtility.Upgrades = {
 
 PlotUtility.UpgradeCosts = {
 	PlotLevel = function(currentPlotLevel)
-		return math.round(((currentPlotLevel * 100)^2)/10)
+		return math.round(((currentPlotLevel * 200)^2)/10)
 	end,
 }
 

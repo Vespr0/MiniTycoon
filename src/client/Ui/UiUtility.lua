@@ -13,12 +13,14 @@ local PlayerGui = Player.PlayerGui
 local ScreenSize = PlayerGui:FindFirstChildOfClass("ScreenGui").AbsoluteSize
 
 -- Ui Elements
+Ui.Player = Players.LocalPlayer
 Ui.PlayerGui = PlayerGui
 Ui.ControlPanelGui = PlayerGui:WaitForChild("ControlPanel")
 Ui.StorageGui = PlayerGui:WaitForChild("Storage")
 Ui.ShopGui = PlayerGui:WaitForChild("Shop")
 Ui.UnboxingGui = PlayerGui:WaitForChild("Unboxing")
 Ui.IndexGui = PlayerGui:WaitForChild("Index")
+Ui.PlacementMenuGui = PlayerGui:WaitForChild("PlacementMenu")
 
 -- Constants
 Ui.BUTTON_UNSELECTED_COLOR = Color3.fromRGB(27, 27, 27)
@@ -47,6 +49,10 @@ function Ui.ClearFrame(frame)
 			uiElement:Destroy()
 		end
 	end
+end
+
+function Ui.IsButton(instance)
+    return instance:IsA("ImageButton") or instance:IsA("TextButton")
 end
 
 function Ui.GetUiElementsOverCursor()

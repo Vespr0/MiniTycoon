@@ -142,7 +142,7 @@ local function checkItemPrimaryPart(item,folder)
         if root then
             item.PrimaryPart = root
         else
-            warn("CRITICAL: "..folder.Name.."'s model doesn't have a primary part, and there is no part named 'Root'.")
+            error("CRITICAL: "..folder.Name.."'s model doesn't have a primary part, and there is no part named 'Root'.")
         end
     end
 end

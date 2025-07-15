@@ -1,30 +1,22 @@
+
 local ViewportUtil = {}
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local AssetDealer = require(ReplicatedStorage.Shared.AssetsDealer)
 
-function ViewportUtil.GenerateItemViewport(itemName,templateViewport) 
-    local item = AssetDealer.GetItem(itemName)
-
-    if not item then warn("Item with name "..itemName.." does not exist") return end
-
-    local model = item.Model:Clone()
-    
-    local viewport 
-    if templateViewport then
-        viewport = templateViewport:Clone()
-    else
-        viewport = Instance.new("ViewportFrame")
-        viewport.Size = UDim2.fromScale(1,1)
-        viewport.Position = UDim2.fromScale(0.5,.5)
-        viewport.AnchorPoint = Vector2.new(0.5,0.5)
-        viewport.BackgroundTransparency = 1
-    end
+local function createViewportFrame(zIndex: number?)
+    local viewport = Instance.new("ViewportFrame")
+    viewport.Size = UDim2.fromScale(1,1)
+    viewport.Position = UDim2.fromScale(0.5,0.5)
+    viewport.AnchorPoint = Vector2.new(0.5,0.5)
+    viewport.BackgroundTransparency = 1
     viewport.Ambient = Color3.fromRGB(177, 187, 209)
     viewport.LightColor = Color3.fromRGB(178, 161, 182)
     viewport.LightDirection = Vector3.new(-0.4, -.8, 0)
+    viewport.ZIndex = zIndex or 5
+    return viewport
+end
 
+local function setupModelAndCamera(viewport, model)
     model.Parent = viewport
     local origin = Vector3.new(0,0,0)
     model:PivotTo(CFrame.lookAt(origin, origin+Vector3.xAxis))
@@ -43,8 +35,34 @@ function ViewportUtil.GenerateItemViewport(itemName,templateViewport)
     camera.Parent = viewport
     camera.CFrame = CFrame.lookAt(cameraOrigin, origin+Vector3.yAxis*distanceBias/2)
     camera.FieldOfView = 40
-
     viewport.CurrentCamera = camera
+end
+
+function ViewportUtil.UpdateItemViewport(itemName, viewport)
+    local item = AssetDealer.GetItem(itemName)
+    if not item then warn("Item with name "..itemName.." does not exist") return end
+
+    -- Remove old model and camera if present
+    if viewport:FindFirstChild("Model") then
+        viewport.Model:Destroy()
+    end
+    if viewport:FindFirstChild("Camera") then
+        viewport.Camera:Destroy()
+    end
+
+    viewport.Visible = true
+    
+    local model = item.Model:Clone()
+    setupModelAndCamera(viewport, model)
+    return viewport
+end
+
+function ViewportUtil.CreateItemViewport(itemName, zIndex: number?)
+    local item = AssetDealer.GetItem(itemName)
+    if not item then warn("Item with name "..itemName.." does not exist") return nil end
+    local viewport = createViewportFrame(zIndex)
+    local model = item.Model:Clone()
+    setupModelAndCamera(viewport, model)
     return viewport
 end
 

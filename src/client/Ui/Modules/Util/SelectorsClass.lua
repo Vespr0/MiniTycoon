@@ -1,31 +1,32 @@
+
 local Selectors = {}
 Selectors.__index = Selectors
+
+
+-- Unified section handler: supports {open,close} modules or plain functions
 
 -- Modules
 local Ui = require(script.Parent.Parent.Parent.UiUtility)
 local Tween = require(script.Parent.Tween)
 
-function Selectors.new(mainFrame: Frame,selections,sectionModules)
+
+function Selectors.new(buttonsFrame: Frame, selections, sections)
 	local self = setmetatable({}, Selectors)
-	
-	self.MainFrame = mainFrame
-	self.origin = mainFrame.Position
+
 	self.selections = selections
 	self.currentSelection = selections[1]
-	
-	self.buttonsFrame = mainFrame:WaitForChild("SectionSelectors")
+
 	self.buttons = {}
 	self.frames = {}
-	
-	for _,name in selections do
-		self.buttons[name] = self.buttonsFrame:WaitForChild(name)
-		self.frames[name] = mainFrame:WaitForChild(name.."Frame")
+
+	for _, name in selections do
+		self.buttons[name] = buttonsFrame:WaitForChild(name)
 	end
-	
-	self.modules = sectionModules
-	
+
+	self.sections = sections -- can be {open,close} modules or functions
+
 	self:connectInputs()
-	
+
 	return self
 end
 
@@ -38,29 +39,32 @@ function Selectors:connectInputs()
 	end
 end
 
+
 function Selectors:switch(name)
 	self.currentSelection = name
-	
-	for _,button in self.buttons do
-		local isSelectedType = button.Name == self.currentSelection
-		Tween.Color(button,isSelectedType and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR)
 
-		local name = button.Name
-		
+	for _, button in self.buttons do
+		local isSelectedType = button.Name == self.currentSelection
+		Tween.Color(button, isSelectedType and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR)
+
+		local sectionName = button.Name
+		local section = self.sections and self.sections[sectionName]
+
 		if isSelectedType then
-			if self.modules[name] then
-				self.modules[name].Open()
-			else
-				self.frames[name].Visible = true
-				warn(`No module for "{name}" section.`)
+			if type(section) == "table" and section.Open then
+				section.Open()
+			elseif type(section) == "function" then
+				section()
+			elseif self.frames[sectionName] then
+				self.frames[sectionName].Visible = true
+				warn(`No module/function for "{sectionName}" section.`)
 			end
 		else
-			print(name,false)
-			if self.modules[name] then
-				self.modules[name].Close() -- TODO: this gets fired even when the module is already closed and may cause unintuitive behaivor.
-			else
-				self.frames[name].Visible = false
-				warn(`No module for "{name}" section.`)
+			if type(section) == "table" and section.Close then
+				section.Close()
+			elseif self.frames[sectionName] then
+				self.frames[sectionName].Visible = false
+				warn(`No module/function for "{sectionName}" section.`)
 			end
 		end
 	end

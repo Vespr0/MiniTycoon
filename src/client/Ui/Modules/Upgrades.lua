@@ -27,6 +27,8 @@ local AssetsDealer = require(Shared.AssetsDealer)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local CashUtility = require(Shared.Utility.CashUtility)
 local PlotUtility = require(Shared.Plots.PlotUtility)
+
+local ButtonUtility = require(script.Parent.Util.ButtonUtility)
 local Tween = require(script.Parent.Util.Tween)
 
 -- Constants --
@@ -36,11 +38,11 @@ local trove = require(Packages.trove).new()
 
 -- Module Functions
 function Upgrades.Open()
-    UpgradesFrame.Visible = true
+	UpgradesFrame.Visible = true
 end
 
 function Upgrades.Close()
-    UpgradesFrame.Visible = false
+	UpgradesFrame.Visible = false
 end
 
 function Upgrades.Connect(name,info)
@@ -63,7 +65,11 @@ function Upgrades.Connect(name,info)
 		return getCurrentValue() >= maxValue
 	end
 	local function updateCost()
-		upperFrame.Upgrade.Price.Text = "$ "..PlotUtility.UpgradeCosts[name](getCurrentValue())
+		local cashString = CashUtility.Format(PlotUtility.UpgradeCosts[name](getCurrentValue()), {
+			fullNumber = false,
+			decimals = 0,
+		})
+		upperFrame.Upgrade.Price.Text = cashString
 	end
 	local function updateMaxxed()
 		button:WaitForChild("Maxxed").Visible = isMaxxed()
@@ -88,33 +94,56 @@ function Upgrades.Connect(name,info)
 		upperFrame.UpgradeName.Text = info.DisplayName.." : "..getCurrentValue()
 	end
 	
+
+	-- Color the button green/red depending on affordability
+	local function updateButtonColor()
+		local canAfford = ClientPlayerData.Data.Cash >= PlotUtility.UpgradeCosts[name](getCurrentValue())
+		ButtonUtility.SetButtonState(button, canAfford)
+	end
+
+	-- Connect to RenderStepped for real-time color update (like Offers)
+	local renderConn = RunService.RenderStepped:Connect(updateButtonColor)
+
+	local function cleanup()
+		if renderConn then
+			renderConn:Disconnect()
+			renderConn = nil
+		end
+	end
+
 	local function update()
 		updateCost()
-		updateProgress()	
+		updateProgress()
 		updateMaxxed()
 		updateTitle()
+		updateButtonColor()
 	end
 
 	update()
 	
 	button.MouseButton1Down:Connect(function()
 		if isMaxxed() then return end
-		
+
 		-- Animation
-		Tween.ButtonPush(button)
+		ButtonUtility.ButtonPush(button)
 		Ui.PlaySound("Upgrade")
 
 		local cash = ClientPlayerData.Data.Cash
 		local currentValue = getCurrentValue()
-		
-		local newValue,message = Events.Upgrade:InvokeServer(name)
+
+		local newValue, message = Events.Upgrade:InvokeServer(name)
 
 		if newValue then
 			ClientPlayerData.Data.Plot[name] = newValue
 			update()
 		else
 			warn(message)
-		end	
+		end
+	end)
+
+	-- Clean up connection if needed (optional, e.g. on frame removal)
+	frame.AncestryChanged:Connect(function(_, parent)
+		if not parent then cleanup() end
 	end)
 end
 

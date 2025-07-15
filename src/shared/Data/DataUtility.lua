@@ -22,7 +22,7 @@ Data scopes:
 --]]
 
 local DATA_SCOPES = {
-    Player = "Dev#0";
+    Player = "Dev#3";
 }
 
 function DataUtility.GetDataScope(name)

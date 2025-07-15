@@ -28,15 +28,14 @@ end
 function PlotLoader.Resize(player)
 	local plot,root,_,plotLevel = getPlotInfo(player)
 
-    TilingManager.ResizeRoot(root, plotLevel)
-	-- TilingManager.GenerateTiling(player.UserId,root,plot.Name,plotLevel)
+    TilingManager.Resize(root, plotLevel)
 end
 
 -- Resize the plot and load the items, this should be fired when the player joins for the first time.
 function PlotLoader.Load(player)
 	local plot,root,playerTag,plotLevel = getPlotInfo(player)
 
-    TilingManager.ResizeRoot(root, plotLevel)
+    TilingManager.Resize(root, plotLevel)
     TilingManager.GenerateTiling(player.UserId,root,plot.Name,plotLevel)
 
     -- Load items.
