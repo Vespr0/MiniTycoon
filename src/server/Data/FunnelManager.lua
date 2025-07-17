@@ -15,9 +15,26 @@ local AnalyticsService = game:GetService("AnalyticsService")
 
 local FunnelManager = {}
 
-local
+FunnelManager.OnboardingSteps = {
+    FirstPlayed = 1,
+    FirstItemPlaced = 2,
+    FirstCashEarned = 3,
+    FirstMarketPurchase = 4,
+    FirstOfferPurchase = 5,
+    FirstPlotExpansion = 6,
+}
 
-function FunnelManager.LogOnboarding(eventName: string, properties: { [string]: any }?)
+function FunnelManager.LogOnboarding(player: Player, eventName: string)
+    if not FunnelManager.OnboardingSteps[eventName] then
+        warn("Invalid onboarding event name: " .. tostring(eventName))
+        return
+    end
+
+    local step = FunnelManager.OnboardingSteps[eventName]
     -- Log a one-time event
-    AnalyticsService:ReportFunnelEvent(eventName, properties)
+    AnalyticsService:LogOnboardingFunnelStepEvent(
+        player, step, eventName
+    )
 end
+
+return FunnelManager

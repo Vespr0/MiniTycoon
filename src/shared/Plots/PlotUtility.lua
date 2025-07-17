@@ -7,14 +7,18 @@ PlotUtility.MaxPlotWidth = 100
 PlotUtility.Upgrades = {
 	PlotLevel = {
 		DisplayName = "Plot Level";
-		Description = "Expands your plot";
+		Description = "<b>Expands</b> your plot and increases the <b>part limit</b>";
 		MaxValue = 5;
 	}	
 }
 
+function PlotUtility.GetMaxPartsFromPlotLevel(plotLevel: number)
+	return 50*plotLevel
+end
+
 PlotUtility.UpgradeCosts = {
-	PlotLevel = function(currentPlotLevel)
-		return math.round(((currentPlotLevel * 200)^2)/10)
+	PlotLevel = function(plotLevel)
+		return math.round(((plotLevel * 200)^2)/10)
 	end,
 }
 
@@ -26,6 +30,8 @@ function PlotUtility.GetPlotFromPlayer(player)
 	if plotName then
 		return Plots[plotName]
 	end
+
+	return nil
 end
 
 function PlotUtility.DoesPlayerOwnPlot(player,plot)
@@ -36,6 +42,8 @@ function PlotUtility.DoesPlayerOwnPlot(player,plot)
 	if plotName then
 		return plot.Name == plotName
 	end
+
+	return nil
 end
 
 function PlotUtility.GetPart(plot,partID)
@@ -52,6 +60,7 @@ function PlotUtility.GetPart(plot,partID)
 			return drop
 		end
 	end
+
 	return nil
 end
 

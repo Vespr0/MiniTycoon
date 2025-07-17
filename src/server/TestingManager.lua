@@ -14,6 +14,9 @@ function TestingManager.RunAll()
                 if not success then
                     warn(`[TestingManager] Error requiring {testModule.Name}: {tostring(module)}`)
                 end
+                
+                if not module.Enabled then return end
+
                 if not module.Run then
                     warn(`[TestingManager] Module {testModule.Name} does not have a Run function.`)
                     return

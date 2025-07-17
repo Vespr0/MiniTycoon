@@ -8,6 +8,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local TiliingUtility = require(Shared.Plots.TilingUtility)
 local PlotUtility = require(Shared.Plots.PlotUtility)
 
+TilingTest.Enabled = false
+
 function TilingTest.Run()
     -- Debug generation by generating and rendering tiles
     local tilesPerSide = PlotUtility.MaxPlotWidth

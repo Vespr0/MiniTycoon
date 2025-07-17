@@ -26,9 +26,7 @@ local function getOffersPool()
     local pool = {}
     for category, items in ShopInfo.Items do
         for itemName, info in items do
-            warn(info)
             if info.inOffers then
-                warn("AAAAAAAAAA")
                 pool[itemName] = {
                     levelRequirement = info.levelRequirement or 1,
                     luckFactor = info.luckFactor or 1,
@@ -141,26 +139,26 @@ local function generateOffers(player, level, count, pool)
     end
 
     local offers = {}
-    local picked = {}
+    -- local picked = {}
 
     for i = 1, count do
         -- Remove already picked items from weights
         local available = {}
         for _, entry in ipairs(weights) do
-            if not picked[entry.ItemName] then
+            -- if not picked[entry.ItemName] then
                 table.insert(available, entry)
-            end
+            -- end
         end
         if #available == 0 then break end
         local offer = weightedRandom(available)
         if offer then
             table.insert(offers, offer)
-            picked[offer.ItemName] = true
+            -- picked[offer.ItemName] = true
         end
     end
 
     return offers
-end
+end 
 
 function OffersUtil.GenerateOffers(player)
     if not player then warn("Player not specified or nil") return end
@@ -170,7 +168,7 @@ function OffersUtil.GenerateOffers(player)
 
     local offersPool = getOffersPool()
     -- You can adjust the number of offers as needed
-    local offerCount = 6
+    local offerCount = 8
     local generatedOffers = generateOffers(player, level, offerCount, offersPool)
     if generatedOffers then
         for _, offer in pairs(generatedOffers) do

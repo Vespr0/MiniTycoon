@@ -222,32 +222,20 @@ function ClientPlacement.StartPlacing(itemName,model,moving)
         end
     end)
 
-    -- Input Handling --
-    trove:Connect(UserInputService.InputBegan,function(input, gameProcessedEvent) -- Keep existing input for mouse click and Q key
-        if gameProcessedEvent then return end
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if not validPlacement then
-                return
-            end
-            placeItem()
-        end
-        if input.KeyCode == Enum.KeyCode.R then
-            rotate()
-        end
-        if input.KeyCode == Enum.KeyCode.Q then
-            abortPlacement()
-        end
-    end)
-
-    -- Connect to UI button signals from PlacementMenuUi
-    trove:Connect(PlacementMenuUi.RotateButtonClicked, function()
+    -- Input Handling via PlacementInput signals
+    local PlacementInput = require(script.Parent.Parent.Input.InputModules.PlacementInput)
+    trove:Connect(PlacementInput.RotateEvent, function()
         rotate()
     end)
-
-    trove:Connect(PlacementMenuUi.CancelButtonClicked, function()
+    trove:Connect(PlacementInput.CancelEvent, function()
         abortPlacement()
     end)
-
+    trove:Connect(PlacementInput.PlaceEvent, function()
+        if not validPlacement then
+            return
+        end
+        placeItem()
+    end)
     -- Open the placement menu UI
     PlacementMenuUi.Open()
 end

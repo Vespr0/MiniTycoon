@@ -21,7 +21,7 @@ local IsStudio = RunService:IsStudio()
 
 local MINUTE = 60
 local HOUR = MINUTE*60
-local OFFER_DURATION = IsStudio and MINUTE or MINUTE*5
+local OFFER_DURATION = IsStudio and MINUTE/4 or MINUTE*15
 
 local function getOfferFromItem(offers,itemName)
     for i = 1,#offers do

@@ -38,30 +38,35 @@ ShopInfo.Items = {
             price = 40,
             levelRequirement = 1,
             inMarket = true,
+            inOffers = true,
         },
 
         IronMine = {
             price = 60,
             levelRequirement = 2,
             inMarket = true,
+            inOffers = true,
         },
 
         LargeCoalMine = {
             price = 100,
             levelRequirement = 3,
             inMarket = true,
+            inOffers = true
         },
 
         QuartzMine = {
             price = 1000,
-            levelRequirement = 40,
+            levelRequirement = 10,
             inMarket = false, -- Not in market, just offers
+            inOffers = true
         },
 
         UraniumLazur = {
             price = 1500,
-            levelRequirement = 70,
-            inMarket = false, 
+            levelRequirement = 20,
+            inMarket = false,
+            inOffers = true 
         },
     },
 
@@ -71,12 +76,14 @@ ShopInfo.Items = {
             price = 20,
             levelRequirement = 1,
             inMarket = true,
+            inOffers = true
         },
 
         IceBelt = {
             price = 100,
-            levelRequirement = 1,
+            levelRequirement = 10,
             inMarket = false, 
+            inOffers = true
         }
     },
 
@@ -99,7 +106,9 @@ ShopInfo.Items = {
         SmallTree = {
             price = 20,
             levelRequirement = 1,
-            inMarket = false, -- Not in market, just offers
+            inMarket = true, -- Not in market, just offers
+            inOffers = true,
+            sex = 1
         },
     }
 }

@@ -27,6 +27,7 @@ end
 -- Resize the plot, this is fired once a plot upgrade is purchased.
 function PlotLoader.Resize(player)
 	local plot,root,_,plotLevel = getPlotInfo(player)
+    plot:SetAttribute("Level",plotLevel)
 
     TilingManager.Resize(root, plotLevel)
 end
@@ -35,6 +36,7 @@ end
 function PlotLoader.Load(player)
 	local plot,root,playerTag,plotLevel = getPlotInfo(player)
 
+    plot:SetAttribute("Level",plotLevel)
     TilingManager.Resize(root, plotLevel)
     TilingManager.GenerateTiling(player.UserId,root,plot.Name,plotLevel)
 

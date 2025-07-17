@@ -17,6 +17,7 @@ local PlotUtility = require(Shared.Plots.PlotUtility)
 local ServerDropper = require(Server.Items.Droppers.ServerDropper)
 local PlayerDataManager = require(Server.Data.PlayerDataManager)
 local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
+local FunnelManager = require(Server.Data.FunnelManager)
 
 local errors = {
     -- Arguments.
@@ -220,6 +221,10 @@ function ServerPlacement.Setup()
 
 		ItemsAccess.RegisterPlacedItem(player,localID,position,itemName,yRotation)
         ItemsAccess.ConsumeStorageItems(player,itemName,1)
+
+        -- Funnel log
+        FunnelManager.LogOnboarding(player, "FirstItemPlaced")
+
 		return localID
     end
     Events.Move.OnServerInvoke = function(player,localID,position,yRotation)
