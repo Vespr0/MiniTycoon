@@ -23,6 +23,9 @@ FunnelsLogger.OnboardingSteps = {
     FirstOfferPurchase = 4,
     FirstMarketPurchase = 5,
     FirstPlotExpansion = 6,
+    ReachedLevel25 = 7,
+    ReachedLevel50 = 8,
+    ReachedLevel100 = 9,
 }
 
 function FunnelsLogger.LogOnboarding(player: Player, eventName: string)

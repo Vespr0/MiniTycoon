@@ -11,6 +11,7 @@ local Shared = ReplicatedStorage.Shared
 local DataAccess = require(script.Parent.Parent.DataAccess)
 local DataUtility = DataAccess.DataUtility
 local LevelingUtil = require(Shared.Data.LevelingUtil)
+local OnboardingAccess = require(script.Parent.OnboardingAccess)
 
 function LevelingAccess.GiveExp(...)
 	local player, amount = DataAccess.GetParameters(...)
@@ -28,6 +29,9 @@ function LevelingAccess.GiveExp(...)
     -- Set new Values.
     dataStore.Value.Level = newLevel
     dataStore.Value.Exp = newExp
+
+    -- Check for level-based onboarding steps
+    OnboardingAccess.CheckLevelSteps(player, newLevel)
 
     -- Update
     DataAccess.PlayerDataChanged:Fire(player,"Leveling",dataStore.Value.Exp,dataStore.Value.Level)

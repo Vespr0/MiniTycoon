@@ -15,8 +15,8 @@ local OffersAccess = require(Server.Data.DataAccessModules.OffersAccess)
 local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 local LevelingAccess = require(Server.Data.DataAccessModules.LevelingAccess)
+local OnboardingAccess = require(Server.Data.DataAccessModules.OnboardingAccess)
 local OffersUtil = require(script.Parent.OffersUtil)
-local FunnelsLogger = require(Server.Analytics.FunnelsLogger)
 local EconomyLogger = require(Server.Analytics.EconomyLogger)
 
 local IsStudio = RunService:IsStudio()
@@ -111,8 +111,8 @@ local function BuyRequest(player,args)
                 LevelingAccess.GiveExp(player,offer.Price)
                 -- Funnel event for first offer purchase
                 
-                -- Log funnel
-                FunnelsLogger.LogOnboarding(player, "FirstOfferPurchase")
+                -- Log onboarding step
+                OnboardingAccess.Complete(player, "FirstOfferPurchase")
 
                 -- Log economy shop purchase
                 local endingCash = CashAccess.GetCash(player) - offer.Price

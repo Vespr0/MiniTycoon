@@ -1,5 +1,6 @@
 local PlayerManager = {}
 local BadgeManager = require(script.Parent.Data.BadgeManager)
+local OnboardingAccess = require(script.Parent.Data.DataAccessModules.OnboardingAccess)
 
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
@@ -36,6 +37,7 @@ function PlayerManager.Setup()
     Players.PlayerAdded:Connect(function(player)
         setupPlayer(player)
         BadgeManager.Award(player, "Welcome")
+        OnboardingAccess.Complete(player, "FirstPlayed")
     end)
     -- When a player leaves.
     Players.PlayerRemoving:Connect(function(player)

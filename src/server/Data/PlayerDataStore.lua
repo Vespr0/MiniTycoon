@@ -41,7 +41,9 @@ local dataTemplate = {
     -- Stats --
     Stats = {
         OffersBought = 0;
-    }
+    };
+    -- Onboarding steps tracking --
+    Onboarding = {}
 }
 
 local function stateChanged(state,dataStore)
