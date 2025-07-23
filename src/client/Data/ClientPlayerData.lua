@@ -3,6 +3,7 @@ local ClientPlayerData = {}
 -- Services --
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 -- LocalPlayer --
 local Player = Players.LocalPlayer
@@ -144,6 +145,13 @@ function ClientPlayerData.Setup()
     PlayerDataUpdateBridge:Connect(function(data)
         ClientPlayerData.Read(data)
     end)
+
+    -- ClientPlayerData.DataUpdate:Connect(function()
+    --     if RunService:IsStudio() then
+    --         -- Debug 
+    --         print("Data update ",ClientPlayerData.Data)
+    --     end 
+    -- end)
 end
 
 return ClientPlayerData

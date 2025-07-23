@@ -3,42 +3,42 @@ local PlacementInput = {}
 local ClientInput = require(script.Parent.Parent.ClientInput)
 local TappingInput = require(script.Parent.TappingInput)
 
-PlacementInput.RotateEvent = ClientInput.Signal.new()
-PlacementInput.CancelEvent = ClientInput.Signal.new()
-PlacementInput.PlaceEvent = ClientInput.Signal.new()
+PlacementInput.SelectEvent = ClientInput.Signal.new()
+PlacementInput.MoveEvent = ClientInput.Signal.new()
+PlacementInput.StoreEvent = ClientInput.Signal.new()
 
 function PlacementInput.Init()
     
     ClientInput.FilteredInputStarted:Connect(function(inputObject: InputObject)
         if ClientInput.HasKeyboard then
-            if inputObject.KeyCode == Enum.KeyCode.R then
-                PlacementInput.RotateEvent:Fire()
-            elseif inputObject.KeyCode == Enum.KeyCode.Q then
-                PlacementInput.CancelEvent:Fire()
+            if inputObject.KeyCode == Enum.KeyCode.V then
+                PlacementInput.MoveEvent:Fire()
+            elseif inputObject.KeyCode == Enum.KeyCode.B then
+                PlacementInput.StoreEvent:Fire()
             end
         end
 
         if ClientInput.HasGamepad then
             if inputObject.KeyCode == Enum.KeyCode.ButtonY then -- Right
-                PlacementInput.RotateEvent:Fire()
+                PlacementInput.MoveEvent:Fire()
             end
             if inputObject.KeyCode == Enum.KeyCode.ButtonB then -- Left
-                PlacementInput.CancelEvent:Fire()
+                PlacementInput.StoreEvent:Fire()
             end
             if inputObject.KeyCode == Enum.KeyCode.ButtonA then -- Bottom 
-                PlacementInput.PlaceEvent:Fire()
+                PlacementInput.SelectEvent:Fire()
             end
         end
 
         if ClientInput.HasMouse then
             if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
-                PlacementInput.PlaceEvent:Fire()
+                PlacementInput.SelectEvent:Fire()
             end
         end
     end)
 
     TappingInput.DoubleTapEvent:Connect(function()
-        PlacementInput.PlaceEvent:Fire()
+        PlacementInput.SelectEvent:Fire()
     end)
 end
 

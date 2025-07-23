@@ -10,7 +10,7 @@ local Shared = ReplicatedStorage.Shared
 -- Modules --
 local DataAccess = require(script.Parent.Parent.DataAccess)
 local DataUtility = DataAccess.DataUtility
-local FunnelManager = require(script.Parent.Parent.FunnelManager)
+local FunnelsLogger = require(script.Parent.Parent.Parent.Analytics.FunnelsLogger)
 
 local function setSessionVariable(player,variable,value)
     local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
@@ -35,7 +35,7 @@ function SessionAccess.SetFirstPlayed(...)
     warn(player.UserId.." first played: "..os.date("%c"))
 
     -- Funnel log
-    FunnelManager.LogOnboarding(player, "FirstPlayed")
+    FunnelsLogger.LogOnboarding(player, "FirstPlayed")
     
     -- Update
     DataAccess.PlayerDataChanged:Fire(player,"FirstPlayed",os.time())

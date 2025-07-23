@@ -17,12 +17,14 @@ local Trove = require(game.ReplicatedStorage.Packages.trove)
 local CashUtility = require(game.ReplicatedStorage.Shared.Utility.CashUtility)
 local ButtonUtility = require(script.Parent.Util.ButtonUtility)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData) 
+local TipsUtility = require(script.Parent.Util.TipsUtility)
 
 -- Ui Elements
 local MainFrame = Ui.ShopGui:WaitForChild("MainFrame") 
 local InsightFrame = MainFrame:WaitForChild("InsightFrame")
 local Preview = InsightFrame:WaitForChild("Preview")
 local Button = InsightFrame:WaitForChild("Buy")
+local TipsFrame = Preview:WaitForChild("Tips")
 
 Insight.InsightFrame = InsightFrame
 Insight.Preview = Preview
@@ -54,6 +56,10 @@ function Insight.Open(itemConfig, itemName, price, levelRequirement, rarity, buy
 	InsightFrame.Rarity.Text = string.upper(itemConfig.Rarity or "Common")
 	InsightFrame.Rarity.TextColor3 = rarityInfo.Color
 	InsightFrame.Rarity.UIStroke.Color = rarityInfo.StrokeColor
+
+	-- Tips
+	local tips = TipsUtility.GetItemConfigTips(itemConfig)
+	TipsUtility.UpdateTips(TipsFrame, tips, 10)
 
 	-- Update Viewport
 	ViewportUtil.UpdateItemViewport(itemName, Preview)

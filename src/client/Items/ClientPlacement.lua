@@ -236,6 +236,13 @@ function ClientPlacement.StartPlacing(itemName,model,moving)
         end
         placeItem()
     end)
+    trove:Connect(PlacementMenuUi.CancelButtonClicked, function()
+        abortPlacement()
+    end)
+    trove:Connect(PlacementMenuUi.RotateButtonClicked, function()
+        rotate()
+    end)
+
     -- Open the placement menu UI
     PlacementMenuUi.Open()
 end

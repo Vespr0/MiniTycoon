@@ -88,9 +88,9 @@ function PlotManager.Setup()
 		task.defer(function()
 			PlotManager.SetPlayerPlot(player,PlotUtility.FindAvaiablePlot())
 			repeat task.wait(.2) until player:GetAttribute("DataLoaded")
-			if game:GetService("RunService"):IsStudio() then
-				PlotAccess.SetLevel(player,1)
-			end
+			-- if game:GetService("RunService"):IsStudio() then
+			-- 	PlotAccess.SetLevel(player,1)
+			-- end
 			PlotLoader.Load(player)
 		end)
     end

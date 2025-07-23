@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local DataAccess = require(script.Parent.Parent.DataAccess)
 local DataUtility = DataAccess.DataUtility
 local LevelingAccess = require(script.Parent.LevelingAccess)
+local FunnelsLogger = require(script.Parent.Parent.Parent.Analytics.FunnelsLogger)
 
 -- Constants -- 
 local CASH_QUEUE_DELAY = 0.3
@@ -45,6 +46,9 @@ function CashAccess.GiveCash(...)
     if expGain then
         LevelingAccess.GiveExp(player, amount)
     end
+
+    -- Funnel log for onboarding step 3
+    FunnelsLogger.LogOnboarding(player, "FirstCashEarned")
 
     updateClientCash(player,dataStore.Value.Cash)
 end

@@ -11,7 +11,7 @@ local Packages = ReplicatedStorage.Packages
 local PartCache = require(Shared.Items.Droppers.PartCache)
 local MainCache = PartCache.new(ReplicatedStorage.Drop,200)
 local Signal = require(Packages.signal)
-local DropUtil = require(script.Parent.DropUtil)
+local DropUtil = require(Shared.Items.Droppers.DropUtil)
 
 function Drop.new(propieties,params)
     local drop = setmetatable({}, Drop)
@@ -155,67 +155,23 @@ function Drop:getForge()
     return false
 end
 
-function Drop:getDistanceToPart(part)
-    return (self.instance.Position - part.Position).Magnitude
-end
-
--- Check if the upgraders are close enough to afford calculating complex collisions.
-function Drop:getPotentialUpgraders()
-    local items = self.plot.Items
-
-    local closeUpgraders = {}
-    for _,item in pairs(items:GetChildren()) do
-        if item:GetAttribute("ItemType") == "Upgrader" then
-            local localID = item:GetAttribute("LocalID")
-            if closeUpgraders[localID] then
-                continue
-            end
-            if self.boosts[localID] then
-                continue
-            end
-
-            local upgrader = item:FindFirstChild("Upgrader")
-            if upgrader then
-                local dist = self:getDistanceToPart(upgrader)
-                local upgraderBiggestAxis = math.max(upgrader.Size.X,upgrader.Size.Y,upgrader.Size.Z)
-                if dist > upgraderBiggestAxis then
-                    continue
-                end
-                --warn("Addded to the list of potential upgraders",localID,upgrader)
-                closeUpgraders[localID] = upgrader
-                -- if closest == nil or self:getDistanceToPart(upgrader) < self:getDistanceToPart(closest) then
-                --     closest = upgrader
-                -- end
-            else
-                warn("Missing upgrader part in upgrader item: "..item.Name)
-            end
-        end
-    end
-
-    return closeUpgraders
-end
-
 function Drop:getUpgrader()
-    local upgraders = self:getPotentialUpgraders()
-    if next(upgraders) then
-        for localID,upgrader in pairs(upgraders) do
-            local overlapParams = OverlapParams.new()
-            overlapParams.FilterType = Enum.RaycastFilterType.Include
-            overlapParams.FilterDescendantsInstances = {self.instance}
-            local results = workspace:GetPartBoundsInBox(upgrader.CFrame,upgrader.Size,overlapParams)
-
-            if results and results[1] == self.instance then
-                local boostType = upgrader:GetAttribute("BoostType")
-                local boostValue = upgrader:GetAttribute("BoostValue")
-                self.boosts[localID] = {type = boostType,value = boostValue}
-            end
-        end
-    end 
+    local newBoosts = DropUtil.ProcessUpgraders(self.instance, self.plot, self.boosts)
+    
+    -- Apply new boosts
+    for localID, boost in pairs(newBoosts) do
+        self.boosts[localID] = boost
+        -- Update current value
+        -- self.instance:SetAttribute("CurrentValue", self:getValue())
+    end
 end
 
 function Drop:startLoop()
     local sizeMagnitude = self.instance.Size.Magnitude
     local lastSecondPosition = self.instance.Position
+
+    -- Update current value
+    -- self.instance:SetAttribute("CurrentValue", self:getValue())
 
     task.spawn(function()
         while true do
@@ -255,7 +211,7 @@ function Drop:step(deltaTime)
     -- end
 
     -- Cap delta time
-    deltaTime = math.min(deltaTime,.1)
+    -- deltaTime = math.min(deltaTime,.1)
 
     -- Calculate velocity
     local delta = 2 --(100*deltaTime)

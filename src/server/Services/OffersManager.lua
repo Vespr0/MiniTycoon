@@ -16,6 +16,8 @@ local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 local LevelingAccess = require(Server.Data.DataAccessModules.LevelingAccess)
 local OffersUtil = require(script.Parent.OffersUtil)
+local FunnelsLogger = require(Server.Analytics.FunnelsLogger)
+local EconomyLogger = require(Server.Analytics.EconomyLogger)
 
 local IsStudio = RunService:IsStudio()
 
@@ -107,6 +109,15 @@ local function BuyRequest(player,args)
                 OffersAccess.MarkOfferAsBought(player,offerID)
                 -- Give exp
                 LevelingAccess.GiveExp(player,offer.Price)
+                -- Funnel event for first offer purchase
+                
+                -- Log funnel
+                FunnelsLogger.LogOnboarding(player, "FirstOfferPurchase")
+
+                -- Log economy shop purchase
+                local endingCash = CashAccess.GetCash(player) - offer.Price
+                EconomyLogger.LogShopPurchase(player, itemName, "Market",offer.Price, endingCash)
+
                 return true
             else
                 return false,"Not enough cash."

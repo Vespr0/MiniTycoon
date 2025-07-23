@@ -13,6 +13,8 @@ local ItemsAccess = require(Server.Data.DataAccessModules.ItemsAccess)
 local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 local LevelingAccess = require(Server.Data.DataAccessModules.LevelingAccess)
 local ShopInfo = require(Shared.Services.ShopInfo)
+local FunnelsLogger = require(Server.Analytics.FunnelsLogger)
+local EconomyLogger = require(Server.Analytics.EconomyLogger)
 
 local function buyMarketItem(player, args)
 	local itemName = args and args.itemName
@@ -32,6 +34,14 @@ local function buyMarketItem(player, args)
 	CashAccess.TakeCash(player, price)
 	ItemsAccess.GiveStorageItems(player, itemName, 1)
 	LevelingAccess.GiveExp(player, price)
+
+	-- Funnel log for onboarding step 4
+	FunnelsLogger.LogOnboarding(player, "FirstMarketPurchase")
+
+	-- Log economy shop purchase
+	local endingCash = CashAccess.GetCash(player) - price
+	EconomyLogger.LogShopPurchase(player, itemName, "Market", price, endingCash)
+
 	return true
 end
 

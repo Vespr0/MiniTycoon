@@ -46,6 +46,7 @@ local trove = require(Packages.trove).new()
 
 -- Modules --
 local ItemUtility = require(Shared.Items.ItemUtility)
+local TipsUtility = require(script.Parent.Util.TipsUtility)
 
 -- Functions
 local function tweenPopup(goal)
@@ -80,6 +81,10 @@ local function updateItems()
 
         local viewport = ViewportUtil.CreateItemViewport(itemName)
         viewport.Parent = uiItem
+
+        -- Tips
+        local tips = TipsUtility.GetItemConfigTips(config)
+        TipsUtility.UpdateTips(uiItem.Tips,tips,10)
 
         trove:Connect(uiItem.MouseButton1Click,function()
             ClientPlacement.StartPlacing(itemName)

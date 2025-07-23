@@ -65,7 +65,7 @@ end
 function CashUtility.Format(value, options)
 	options = options or {}
 	local fullNumberMode = options.fullNumber or false
-	local displayDecimals = options.decimals
+	local displayDecimals = options.decimals or 0
 
 	local absValue = math.abs(value)
 	local suffix = ""

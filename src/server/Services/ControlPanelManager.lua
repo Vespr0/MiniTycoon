@@ -14,6 +14,7 @@ local PlotAccess = require(Server.Data.DataAccessModules.PlotAccess)
 local PlotManager = require(Server.Plots.PlotManager)
 local CashAccess = require(Server.Data.DataAccessModules.CashAccess)
 local PlotUtility = require(Shared.Plots.PlotUtility)
+local FunnelsLogger = require(Server.Analytics.FunnelsLogger)
 
 local function upgradeRequest(player,name)
 	if not (name) then return false, `Missing arguments` end
@@ -34,6 +35,10 @@ local function upgradeRequest(player,name)
 			PlotManager.Upgrade(player,name)
 			
 			print(currentPlotLevel)
+
+			-- Funnel log for onboarding step 6
+ 			FunnelsLogger.LogOnboarding(player, "FirstPlotExpansion")
+
 			return currentPlotLevel+1
 		else
 			return false, `Not enough cash.`

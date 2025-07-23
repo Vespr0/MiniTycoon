@@ -107,4 +107,11 @@ function AssetsDealer.GetTexture(directory)
 	return (part and part.Decal and part.Decal.Texture) or nil
 end
 
+function AssetsDealer.GetUi(directory)
+	local part = AssetsDealer.GetAssetFromDirectory("Ui",directory,false)
+	local ui = part:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("BillboardGui"):Clone()
+
+	return ui
+end
+
 return AssetsDealer

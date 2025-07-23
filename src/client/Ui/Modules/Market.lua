@@ -25,6 +25,7 @@ local AssetsDealer = require(ReplicatedStorage.Shared.AssetsDealer)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local CashUtility = require(ReplicatedStorage.Shared.Utility.CashUtility) 
 local ButtonUtility = require(script.Parent.Util.ButtonUtility)
+local TipsUtility = require(script.Parent.Util.TipsUtility)
 
 -- Ui Elements
 local MainFrame = Ui.ShopGui:WaitForChild("MainFrame")

@@ -43,11 +43,16 @@ local DeviceType = Instance.new("StringValue"); DeviceType.Parent = Player
 DeviceType.Name = "DeviceType"
 DeviceType.Value = Ui.GetDeviceType()
 
+local CLEAR_FRAME_BLACKLIST = {
+    "UIGridLayout",
+    "UIListLayout"
+}
 function Ui.ClearFrame(frame)
 	for _,uiElement:GuiBase2d in pairs(frame:GetChildren()) do
-		if not uiElement:IsA("UIGridLayout") and not uiElement:IsA("UIListLayout") then
-			uiElement:Destroy()
+		if table.find(CLEAR_FRAME_BLACKLIST, uiElement.ClassName) then
+			continue
 		end
+		uiElement:Destroy()
 	end
 end
 

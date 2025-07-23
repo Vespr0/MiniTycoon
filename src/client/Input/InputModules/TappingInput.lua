@@ -12,7 +12,6 @@ function TappingInput.Init()
         if inputObject.UserInputType == Enum.UserInputType.Touch then
             local currentTime = os.clock()
             if currentTime - lastTapTime <= doubleTapThreshold then
-                warn("double tap!")
                 TappingInput.DoubleTapEvent:Fire(inputObject.Position)
             end
             lastTapTime = currentTime

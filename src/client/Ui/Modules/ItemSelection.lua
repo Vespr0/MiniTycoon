@@ -13,6 +13,14 @@ local Nodes = workspace:WaitForChild("Nodes")
 local Events = ReplicatedStorage.Events
 local _Plots = workspace:WaitForChild("Plots")
 
+-- Modules --
+-- TODO: this module was made without using ui utility, only adding it now, should clean the code up.
+local Ui = require(script.Parent.Parent.UiUtility)
+local PlacementUtility = require(Shared.Plots.PlacementUtility)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
+local ItemUtility = require(Shared.Items.ItemUtility)
+local ItemSelectionInput = require(script.Parent.Parent.Parent.Input.InputModules.ItemSelectionInput)
+
 -- LocalPlayer --
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
@@ -24,11 +32,6 @@ local Gui = PlayerGui:WaitForChild("ItemSelection")
 local MainFrame = Gui:WaitForChild("MainFrame")
 local Container = MainFrame:WaitForChild("Container")
 local Background = MainFrame:WaitForChild("Background")
-
--- Modules --
-local PlacementUtility = require(Shared.Plots.PlacementUtility)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
-local ItemUtility = require(Shared.Items.ItemUtility)
 
 -- Variables --
 local CurrentllySelectedItem = nil
@@ -53,23 +56,23 @@ RAYCAST_PARAMS.FilterDescendantsInstances = {Plot}
 
 -- Functions --
 local function fadeUpAnimation()
-	Container.Position = UDim2.fromScale(.5,.5)
-	Background.Position = UDim2.fromScale(.5,.5)
-	
-	local tweenInfo = TweenInfo.new(.2,Enum.EasingStyle.Sine)
-	local tween1 = TweenService:Create(Container,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
-	local tween2 = TweenService:Create(Background,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
-	
-	tween1:Play()
-	tween2:Play()
+    Container.Position = UDim2.fromScale(.5,.5)
+    Background.Position = UDim2.fromScale(.5,.5)
+    
+    local tweenInfo = TweenInfo.new(.2,Enum.EasingStyle.Sine)
+    local tween1 = TweenService:Create(Container,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
+    local tween2 = TweenService:Create(Background,tweenInfo,{Position = UDim2.fromScale(.5,.4)})
+    
+    tween1:Play()
+    tween2:Play()
 end
 
 local function moveGui(item)
     local vector,onScreen = Camera:WorldToScreenPoint(item.PrimaryPart.Position+Vector3.yAxis*2)
-	if not onScreen then MainFrame.Visible = false return end
-	
-	MainFrame.Visible = true
-	MainFrame.Position = UDim2.fromOffset(vector.X,vector.Y)
+    if not onScreen then MainFrame.Visible = false return end
+    
+    MainFrame.Visible = true
+    MainFrame.Position = UDim2.fromOffset(vector.X,vector.Y)
 end
 
 local function getItemFromPart(part)
@@ -82,11 +85,11 @@ local function getItemFromPart(part)
 end
 
 local function toggleSelectionHighlight(bool)
-	SELECTION_HIGHLIGHT.Enabled = bool
+    SELECTION_HIGHLIGHT.Enabled = bool
 end
 
 local function updateSelectionHighlight(item)
-	SELECTION_HIGHLIGHT.Adornee = item
+    SELECTION_HIGHLIGHT.Adornee = item
 end
 
 local function updateHoverHighlight(item)
@@ -113,16 +116,16 @@ end
 local function select(item)
     Gui.Enabled = true
     local config = ItemUtility.GetItemConfig(item.Name)
-	Container.ItemNameLabel.Text = config.DisplayName
-	updateSelectionHighlight(item)
-	toggleSelectionHighlight(true) 
-	fadeUpAnimation()
+    Container.ItemNameLabel.Text = config.DisplayName
+    updateSelectionHighlight(item)
+    toggleSelectionHighlight(true) 
+    fadeUpAnimation()
     CurrentllySelectedItem = item
 end
 
 local function unSelect()
-	Gui.Enabled = false
-	toggleSelectionHighlight(false)
+    Gui.Enabled = false
+    toggleSelectionHighlight(false)
     CurrentllySelectedItem = nil
 end
 
@@ -131,7 +134,7 @@ local function update()
         moveGui(CurrentllySelectedItem)
     end
 
-	local raycast = workspace:Raycast(Camera.CFrame.Position,Mouse.UnitRay.Direction*100,RAYCAST_PARAMS)
+    local raycast = workspace:Raycast(Camera.CFrame.Position,Mouse.UnitRay.Direction*100,RAYCAST_PARAMS)
     if raycast then
         local part = raycast.Instance
         if part then
@@ -146,46 +149,41 @@ local function update()
 end
 
 local function move()
-	if not CurrentllySelectedItem then return end
-	local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
-	ClientPlacement.StartPlacing(nil,item,true)
-	unSelect()
+    if not CurrentllySelectedItem then return end
+    local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
+    ClientPlacement.StartPlacing(nil,item,true)
+    unSelect()
 end
 
 local function deposit()
-	if not CurrentllySelectedItem then return end
-	Events.Deposit:InvokeServer(CurrentllySelectedItem:GetAttribute("LocalID"))
-	unSelect()
+    if not CurrentllySelectedItem then return end
+    Events.Deposit:InvokeServer(CurrentllySelectedItem:GetAttribute("LocalID"))
+    unSelect()
 end
 
 function ItemSelection.Setup()
-	RunService.RenderStepped:Connect(update)
-	
-	MainFrame.Visible = false
+    RunService.RenderStepped:Connect(update)
+    MainFrame.Visible = false
 
-    UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        if gameProcessedEvent then return end
-
-        -- Selecting
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if CurrentllyHoveredItem then
-                if not ClientPlacement.IsPlacing() then
-                    select(CurrentllyHoveredItem)
-                end
-            else
-                unSelect()
+    -- Selection
+    ItemSelectionInput.SelectEvent:Connect(function()
+        if CurrentllyHoveredItem then
+            if not ClientPlacement.IsPlacing() then
+                select(CurrentllyHoveredItem)
             end
+        else
+            unSelect()
         end
-
-        -- Move
-        if input.KeyCode == Enum.KeyCode.V then
-			move()
-        end
-
-        -- Deposit
-		if input.KeyCode == Enum.KeyCode.B then
-			deposit()
-        end
+    end)
+    -- Move
+    ItemSelectionInput.MoveEvent:Connect(function()
+        move()
+        Ui.PlaySound("Collect")
+    end)
+    -- Deposit
+    ItemSelectionInput.StoreEvent:Connect(function()
+        deposit()
+        Ui.PlaySound("Collect")
     end)
 end
 

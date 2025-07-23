@@ -89,7 +89,17 @@ ShopInfo.Items = {
 
     -- Upgraders
     Upgrader = {
-
+        OldWasher = {
+            price = 100,
+            levelRequirement = 1,
+            inMarket = true,
+            inOffers = true
+        },
+        UraniumInfuser = {
+            price = 1500,
+            levelRequirement = 20,
+            inMarket = true,
+        }
     },
 
     -- Forge

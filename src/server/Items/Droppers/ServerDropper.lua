@@ -15,7 +15,7 @@ local PlotUtility = require(Shared.Plots.PlotUtility)
 
 -- Constants
 -- Tweak for more/less spread
-local DROPPER_OFFSET_MULTIPLIER = 2
+local DROPPER_OFFSET_MULTIPLIER = 4
 
 function Dropper.new(params)
     local dropper = setmetatable({}, Dropper)
@@ -46,7 +46,9 @@ function Dropper:setup()
 
     -- Unique initial offset based on localID (stable but pseudo-random)
     local offset = ((math.sin(self.localID)+1)/2) * DROPPER_OFFSET_MULTIPLIER 
-    task.wait(self.params.dropDelay + offset)
+    -- Bias for longer drop delays
+    local bias = self.params.dropDelay > 10 and 0 or self.params.dropDelay/10
+    task.wait(self.params.dropDelay + offset + bias)
 
     -- Core loop
     while self:exists() do
