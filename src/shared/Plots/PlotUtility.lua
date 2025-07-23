@@ -13,7 +13,7 @@ PlotUtility.Upgrades = {
 }
 
 function PlotUtility.GetMaxPartsFromPlotLevel(plotLevel: number)
-	return 5*plotLevel
+	return 20*plotLevel
 end
 
 PlotUtility.UpgradeCosts = {

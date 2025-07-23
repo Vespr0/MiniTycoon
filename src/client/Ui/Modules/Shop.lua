@@ -40,10 +40,16 @@ local CurrentSection
 
 -- Module Functions
 
+Shop.FirstOpen = true
+
 function Shop.Open()
 	Gui.Enabled = true
 	MainFrame.Position = origin + UDim2.fromScale(0,1)
 	Tween.Popup(MainFrame, origin)
+	if Shop.FirstOpen then
+		Shop.FirstOpen = false
+		Selectors:switch("Market")
+	end
 end
 
 
@@ -56,8 +62,8 @@ end
 
 function Shop.Setup()
 	Gui.Enabled = false
-
-	Selectors:switch("Market")
+	-- task.wait(.1)
+	-- Selectors:switch("Market")
 end
 
 return Shop

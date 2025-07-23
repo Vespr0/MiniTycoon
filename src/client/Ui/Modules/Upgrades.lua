@@ -92,8 +92,10 @@ function Upgrades.Connect(name,info)
 	local function updateTitle()
 		-- Basic info
 		upperFrame.UpgradeName.Text = info.DisplayName.." : "..getCurrentValue()
+
+		-- Description
+		lowerFrame.Description.Text = info.Description
 	end
-	
 
 	-- Color the button green/red depending on affordability
 	local function updateButtonColor()
@@ -102,14 +104,6 @@ function Upgrades.Connect(name,info)
 	end
 
 	-- Connect to RenderStepped for real-time color update (like Offers)
-	local renderConn = RunService.RenderStepped:Connect(updateButtonColor)
-
-	local function cleanup()
-		if renderConn then
-			renderConn:Disconnect()
-			renderConn = nil
-		end
-	end
 
 	local function update()
 		updateCost()
@@ -119,8 +113,15 @@ function Upgrades.Connect(name,info)
 		updateButtonColor()
 	end
 
-	update()
+	local renderConn = RunService.RenderStepped:Connect(update)
 	
+	local function cleanup()
+		if renderConn then
+			renderConn:Disconnect()
+			renderConn = nil
+		end
+	end
+
 	button.MouseButton1Down:Connect(function()
 		if isMaxxed() then return end
 
