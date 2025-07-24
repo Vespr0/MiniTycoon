@@ -45,7 +45,7 @@ function Upgrades.Close()
 	UpgradesFrame.Visible = false
 end
 
-function Upgrades.Connect(name,info)
+function Upgrades.Connect(name, info)
 	local frame = UpgradeTemplate:Clone()
 	frame.Parent = UpgradesFrame:WaitForChild("Upgrades")
 	local upperFrame = frame:WaitForChild("UpperFrame")
@@ -56,7 +56,7 @@ function Upgrades.Connect(name,info)
 	local tickTemplate = ticks.TickTemplate
 	tickTemplate.Parent = script
 	local maxValue = info.MaxValue
-	
+
 	-- Functions
 	local function getCurrentValue()
 		return ClientPlayerData.Data.Plot[name]
@@ -76,14 +76,14 @@ function Upgrades.Connect(name,info)
 		--button.Visible = not isMaxxed()
 	end
 	local function updateProgress(value)
-		for _,frame in ticks:GetChildren() do
-			if frame:IsA("Frame") then 
+		for _, frame in ticks:GetChildren() do
+			if frame:IsA("Frame") then
 				frame:Destroy()
 			end
 		end
-		ticks:WaitForChild("GridLayout").CellSize = UDim2.fromScale(1/maxValue,1)
+		ticks:WaitForChild("GridLayout").CellSize = UDim2.fromScale(1 / maxValue, 1)
 		local currentValue = getCurrentValue()
-		for i = 1,currentValue do
+		for i = 1, currentValue do
 			local newTick = tickTemplate:Clone()
 			newTick.Parent = ticks
 			newTick.Visible = true
@@ -91,7 +91,7 @@ function Upgrades.Connect(name,info)
 	end
 	local function updateTitle()
 		-- Basic info
-		upperFrame.UpgradeName.Text = info.DisplayName.." : "..getCurrentValue()
+		upperFrame.UpgradeName.Text = info.DisplayName .. " : " .. getCurrentValue()
 
 		-- Description
 		lowerFrame.Description.Text = info.Description
@@ -114,7 +114,7 @@ function Upgrades.Connect(name,info)
 	end
 
 	local renderConn = RunService.RenderStepped:Connect(update)
-	
+
 	local function cleanup()
 		if renderConn then
 			renderConn:Disconnect()
@@ -123,7 +123,9 @@ function Upgrades.Connect(name,info)
 	end
 
 	button.MouseButton1Down:Connect(function()
-		if isMaxxed() then return end
+		if isMaxxed() then
+			return
+		end
 
 		-- Animation
 		ButtonUtility.ButtonPush(button)
@@ -144,13 +146,15 @@ function Upgrades.Connect(name,info)
 
 	-- Clean up connection if needed (optional, e.g. on frame removal)
 	frame.AncestryChanged:Connect(function(_, parent)
-		if not parent then cleanup() end
+		if not parent then
+			cleanup()
+		end
 	end)
 end
 
-function Upgrades.Setup()    
-	for name,info in PlotUtility.Upgrades do
-		Upgrades.Connect(name,info)
+function Upgrades.Setup()
+	for name, info in PlotUtility.Upgrades do
+		Upgrades.Connect(name, info)
 	end
 end
 

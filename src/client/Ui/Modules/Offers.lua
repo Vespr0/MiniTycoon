@@ -38,6 +38,7 @@ local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerDa
 local ItemUtility = require(Shared.Items.ItemUtility)
 local DataUtility = require(Shared.Data.DataUtility)
 local CashUtility = require(Shared.Utility.CashUtility)
+local ShopInfo = require(ReplicatedStorage.Shared.Services.ShopInfo)
 local Tween = require(script.Parent.Util.Tween)
 local Colors = require(script.Parent.Util.Colors)
 local Trove = require(Packages.trove)
@@ -52,10 +53,10 @@ local currentViewports = {}
 
 -- Local Functions
 function get()
-    local data = Events.Offers:InvokeServer("Get")
+	local data = Events.Offers:InvokeServer("Get")
 
-    currentExpiration = data.expiration
-    currentOffers = data.offers
+	currentExpiration = data.expiration
+	currentOffers = data.offers
 end
 
 -- local currentInsightTrove = nil -- Moved to InsightFrame.lua
@@ -64,144 +65,173 @@ end
 -- 	return ClientPlayerData.Data.Cash >= price
 -- end
 
-local function buyOffer(offerID,price,itemName)
-    Ui.PlaySound("Purchase")
+local function buyOffer(offerID, price, itemName)
+	Ui.PlaySound("Purchase")
 
-    local success,error = Events.Offers:InvokeServer("Buy",{offerID = offerID})
-    if not success then warn(error) return end
+	local success, error = Events.Offers:InvokeServer("Buy", { offerID = offerID })
+	if not success then
+		warn(error)
+		return
+	end
 
-    ClientPlayerData.Read({
-        type = "SingleOffer";
-        arg1 = offerID;
-        arg2 = {
-            ItemName = itemName;
-            Price = price;
-            Bought = true;
-        };
-    })
+	ClientPlayerData.Read({
+		type = "SingleOffer",
+		arg1 = offerID,
+		arg2 = {
+			ItemName = itemName,
+			Price = price,
+			Bought = true,
+		},
+	})
 
-    OffersContainer[offerID].Sold.Visible = true
-    Insight.Close() -- Use the new Close function
+	OffersContainer[offerID].Sold.Visible = true
+    -- Hide sale
+    OffersContainer[offerID].Sale.Visible = false
 
-    local itemConfig = ItemUtility.GetItemConfig(itemName)
-    local message =  PopupUi.GenerateItemPurchaseMessage(itemName, price, itemConfig)
-    PopupUi.Enqueue(itemName, message, 1)
+	Insight.Close() -- Use the new Close function
+
+	local itemConfig = ItemUtility.GetItemConfig(itemName)
+	local message = PopupUi.GenerateItemPurchaseMessage(itemName, price, itemConfig)
+	PopupUi.Enqueue(itemName, message, 1)
 end
 
 local function checkExpiration()
-    local diff = os.difftime(currentExpiration,workspace:GetServerTimeNow())
-    return diff <= 0,diff
+	local diff = os.difftime(currentExpiration, workspace:GetServerTimeNow())
+	return diff <= 0, diff
 end
 
 local function updateContainer()
-    if checkExpiration() then return end -- Shoudln't be expired.
+	if checkExpiration() then
+		return
+	end -- Shoudln't be expired.
 
-    for _,offer in pairs(OffersContainer:GetChildren()) do
-        if offer:IsA("TextButton") then
-            offer:Destroy()
-        end
-    end
-    currentViewports = {} -- TODO: is this a memory leak? (Yes, if the viewports aren't destroyed when the offers are removed)
+	for _, offer in pairs(OffersContainer:GetChildren()) do
+		if offer:IsA("TextButton") then
+			offer:Destroy()
+		end
+	end
+	currentViewports = {} -- TODO: is this a memory leak? (Yes, if the viewports aren't destroyed when the offers are removed)
 
-    if not currentOffers or not next(currentOffers) then return end
+	if not currentOffers or not next(currentOffers) then
+		return
+	end
 
-    for offerID,offer in pairs(currentOffers) do
-        local itemName = offer.ItemName
-        local price = offer.Price
-        local bought = offer.Bought
+	for offerID, offer in pairs(currentOffers) do
+		local itemName = offer.ItemName
+		local price = offer.Price
+		local bought = offer.Bought
 
-        local config = ItemUtility.GetItemConfig(itemName)
+		local config = ItemUtility.GetItemConfig(itemName)
 
-        if not itemName then warn("Item with ID "..itemName.." does not exist, can't show offer.") continue end
+		if not itemName then
+			warn("Item with ID " .. itemName .. " does not exist, can't show offer.")
+			continue
+		end
 
-        local item = ItemTemplate:Clone()
-        item.Name = offerID
-        item.Parent = OffersContainer
+		local item = ItemTemplate:Clone()
+		item.Name = offerID
+		item.Parent = OffersContainer
 
-        -- ItemName
-        local itemNameLabel = item:WaitForChild("ItemName")
-        itemNameLabel.Text = config.DisplayName or itemName
+		-- ItemName
+		local itemNameLabel = item:WaitForChild("ItemName")
+		itemNameLabel.Text = config.DisplayName or itemName
 
-        -- Bought
-        item.Sold.Visible = bought
+		-- Bought
+		item.Sold.Visible = bought
 
-        -- Price
-        item:WaitForChild("Price").Text = CashUtility.Format(price,{
-            fullNumber = false,
-            decimals = 0
-        })
+		-- Price
+		item:WaitForChild("Price").Text = CashUtility.Format(price, {
+			fullNumber = false,
+			decimals = 0,
+		})
 
-        local viewport = ViewportUtil.CreateItemViewport(itemName)
-        viewport.Parent = item
+		-- Sale discount
+		local saleLabel = item:FindFirstChild("Sale")
+		if saleLabel then
+			local discountPercent, hasDiscount = ShopInfo.CalculateDiscount(itemName, price)
+			if hasDiscount then
+				saleLabel.Text = discountPercent .. "% OFF"
+				saleLabel.Visible = true
+			else
+				saleLabel.Visible = false
+			end
+		end
 
-        table.insert(currentViewports,viewport)
+		local viewport = ViewportUtil.CreateItemViewport(itemName)
+		viewport.Parent = item
 
-        local gradient = ViewportGradient:Clone()
-        gradient.Parent = viewport
+		table.insert(currentViewports, viewport)
 
-        local rarity = config.Rarity or "Common"
-        item.MouseButton1Click:Connect(function()
-            -- Call the new InsightFrame.Open function
-            Insight.Open(config, itemName, price, nil, rarity, function()
-                buyOffer(offerID, price, itemName) -- Pass the Offers-specific buy logic as a callback
-            end)
-        end)
-    end
+		local gradient = ViewportGradient:Clone()
+		gradient.Parent = viewport
+
+		local rarity = config.Rarity or "Common"
+		item.MouseButton1Click:Connect(function()
+			-- Call the new InsightFrame.Open function
+			Insight.Open(config, itemName, price, nil, rarity, function()
+				buyOffer(offerID, price, itemName) -- Pass the Offers-specific buy logic as a callback
+			end)
+		end)
+	end
 end
 
 function Offers.Reload()
-    get()
-    local expired = checkExpiration()
-    if not expired then
-        updateContainer()
-    end
+	get()
+	local expired = checkExpiration()
+	if not expired then
+		updateContainer()
+	end
 end
 
 local function spin()
-    local preview = Insight.Preview
-    if not preview then return end
+	local preview = Insight.Preview
+	if not preview then
+		return
+	end
 
-    local model = preview:FindFirstChildWhichIsA("Model")
-    if model then
-        model:PivotTo(model:GetPivot()*CFrame.Angles(0,math.rad(0.3),0))
-    end
+	local model = preview:FindFirstChildWhichIsA("Model")
+	if model then
+		model:PivotTo(model:GetPivot() * CFrame.Angles(0, math.rad(0.3), 0))
+	end
 end
 
 local function update()
-    local expired,diff = checkExpiration()
-    MainFrame:WaitForChild("Shadow").Visible = expired
-    Timer.Text = "Offers reset in: "..Time.GetFullTimeString(diff)
+	local expired, diff = checkExpiration()
+	MainFrame:WaitForChild("Shadow").Visible = expired
+	Timer.Text = "Offers reset in: " .. Time.GetFullTimeString(diff)
 
-    -- Spin
-    spin()
+	-- Spin
+	spin()
 end
 
 -- Module Functions
 function Offers.Open()
-    OffersFrame.Visible = true
-    -- Optionally close Insight when opening OffersFrame
-    Insight.Close()
+	OffersFrame.Visible = true
+	-- Optionally close Insight when opening OffersFrame
+	Insight.Close()
 end
 
 function Offers.Close()
-    OffersFrame.Visible = false
-    -- Optionally close Insight when closing OffersFrame
-    Insight.Close()
+	OffersFrame.Visible = false
+	-- Optionally close Insight when closing OffersFrame
+	Insight.Close()
 end
 
 function Offers.Setup()
-    Offers.Reload()
-    Insight.Close() -- Use the new Close function
-    local paused = false
-    RunService.RenderStepped:Connect(function()
-        if checkExpiration() then
-            if paused then return end
-            paused = true
-            Offers.Reload()
-            paused = false
-        end
-        update()
-    end)
+	Offers.Reload()
+	Insight.Close() -- Use the new Close function
+	local paused = false
+	RunService.RenderStepped:Connect(function()
+		if checkExpiration() then
+			if paused then
+				return
+			end
+			paused = true
+			Offers.Reload()
+			paused = false
+		end
+		update()
+	end)
 end
 
 return Offers

@@ -77,7 +77,7 @@ local function updateItems()
         local uiItem = ItemTemplate:Clone()
         uiItem.Parent = ItemsFrame
         uiItem.ItemCount.Text = "x"..count
-		uiItem.ItemName.Text = `{config.DisplayName} ({itemName})`
+		uiItem.ItemName.Text = `{config.DisplayName}`
 
         local viewport = ViewportUtil.CreateItemViewport(itemName)
         viewport.Parent = uiItem

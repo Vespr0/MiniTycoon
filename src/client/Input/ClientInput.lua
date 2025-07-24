@@ -14,6 +14,10 @@ ClientInput.HasKeyboard = UserInputService.KeyboardEnabled
 ClientInput.HasTouch = UserInputService.TouchEnabled
 ClientInput.HasGamepad = UserInputService.GamepadEnabled
 
+-- Mobile detection
+ClientInput.IsMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+ClientInput.HoverEnabled = not ClientInput.IsMobile
+
 -- Events
 ClientInput.InputStarted = Signal.new()
 ClientInput.FilteredInputStarted = Signal.new()
@@ -21,24 +25,28 @@ ClientInput.InputEnded = Signal.new()
 ClientInput.FilteredInputEnded = Signal.new()
 
 -- Functions
+function ClientInput.IsHoverEnabled()
+	return ClientInput.HoverEnabled
+end
+
 local function setupInputModules()
-    for _,inputModule in script.Parent.InputModules:GetChildren() do
-        local module = require(inputModule)
-        if module and module.Init then
-            module.Init()
-        end
-    end
+	for _, inputModule in script.Parent.InputModules:GetChildren() do
+		local module = require(inputModule)
+		if module and module.Init then
+			module.Init()
+		end
+	end
 end
 
 function ClientInput.Setup()
-    UserInputService.InputBegan:Connect(function(inputObject: InputObject, gameProcessedEvent: boolean)
-        ClientInput.InputStarted:Fire(inputObject)
-        if not gameProcessedEvent then
-            ClientInput.FilteredInputStarted:Fire(inputObject)
-        end
-    end)
+	UserInputService.InputBegan:Connect(function(inputObject: InputObject, gameProcessedEvent: boolean)
+		ClientInput.InputStarted:Fire(inputObject)
+		if not gameProcessedEvent then
+			ClientInput.FilteredInputStarted:Fire(inputObject)
+		end
+	end)
 
-    setupInputModules()
+	setupInputModules()
 end
 
 return ClientInput

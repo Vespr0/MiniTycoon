@@ -30,6 +30,27 @@ function ShopInfo.GetItemShopInfo(itemName)
     return info
 end
 
+function ShopInfo.CalculateDiscount(itemName, offerPrice)
+    local shopInfo = ShopInfo.GetItemShopInfo(itemName)
+    if not shopInfo then
+        return 0, false
+    end
+    
+    -- TODO: Decide if this makes sense or not
+    -- Only show discount if item is available in market
+    -- if not shopInfo.inMarket then
+    --     return 0, false
+    -- end
+    
+    local originalPrice = shopInfo.price
+    if not originalPrice or offerPrice >= originalPrice then
+        return 0, false
+    end
+    
+    local discount = math.floor(((originalPrice - offerPrice) / originalPrice) * 100)
+    return discount, discount > 0
+end
+
 ShopInfo.Items = {
 
     -- Droppers
