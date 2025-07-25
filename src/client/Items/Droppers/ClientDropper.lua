@@ -19,6 +19,7 @@ local LocalPlayer = Players.LocalPlayer
 function Dropper.new(params)
     local dropper = setmetatable({}, Dropper)
     -- Drop Propieties --
+    dropper.config = params.config
     dropper.model = params.model
     dropper.localID = dropper.model:GetAttribute("LocalID")
     dropper.signal = params.signal
@@ -83,11 +84,14 @@ function Dropper:drop(part,partID)
         sound = self.dropPropieties.sound;
     })
 
+    print(self.config)
     self.clientDrop = ClientDrop.new(self.dropPropieties,{
         instance = part,
         plot = self.Plot,
         localID = self.localID,
-        partID = partID
+        partID = partID,
+        productType = self.config.ProductType,
+        productQuantity = self.config.ProductQuantity
     })
 end
 

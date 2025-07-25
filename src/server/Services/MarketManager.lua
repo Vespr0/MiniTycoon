@@ -1,6 +1,5 @@
 local MarketManager = {}
 
-local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -31,6 +30,7 @@ local function buyMarketItem(player, args)
 	if cash < price then return false, "Not enough cash." end
 
 	-- Take cash and give item
+	local endingCash = cash - price
 	CashAccess.TakeCash(player, price)
 	ItemsAccess.GiveStorageItems(player, itemName, 1)
 	LevelingAccess.GiveExp(player, price)
@@ -39,7 +39,6 @@ local function buyMarketItem(player, args)
 	OnboardingAccess.Complete(player, "FirstMarketPurchase")
 
 	-- Log economy shop purchase
-	local endingCash = CashAccess.GetCash(player) - price
 	EconomyLogger.LogShopPurchase(player, itemName, "Market", price, endingCash)
 
 	return true

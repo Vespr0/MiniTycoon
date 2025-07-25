@@ -1,5 +1,8 @@
 local AnalyticsService = game:GetService("AnalyticsService")
 
+-- Modules --
+local AnalyticsUtility = require(script.Parent.AnalyticsUtility)
+
 local FunnelsLogger = {}
 
 --[[
@@ -29,6 +32,11 @@ FunnelsLogger.OnboardingSteps = {
 }
 
 function FunnelsLogger.LogOnboarding(player: Player, eventName: string)
+    -- Skip analytics for admin players
+    if not AnalyticsUtility.ValidatePlayer(player) then
+        return
+    end
+    
     if not FunnelsLogger.OnboardingSteps[eventName] then
         warn("Invalid onboarding event name: " .. tostring(eventName))
         return

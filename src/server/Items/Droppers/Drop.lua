@@ -12,12 +12,14 @@ local PartCache = require(Shared.Items.Droppers.PartCache)
 local MainCache = PartCache.new(ReplicatedStorage.Drop,200)
 local Signal = require(Packages.signal)
 local DropUtil = require(Shared.Items.Droppers.DropUtil)
+local ProductsInfo = require(Shared.Items.ProductsInfo)
 
 function Drop.new(propieties,params)
     local drop = setmetatable({}, Drop)
     -- Propieties --
     drop.plot = params.plot
-    drop.startingValue = propieties.value or 1
+    drop.productType = params.productType
+    drop.productQuantity = params.productQuantity
     drop.size = propieties.size and Vector3.one*propieties.size or Vector3.one/2
     drop.density = propieties.density or 1
     -- Instance --
@@ -78,16 +80,19 @@ function Drop:exists()
 end
 
 function Drop:getValue()
-    local value = self.startingValue
+    warn(self.productType)
+    local baseValue = ProductsInfo.Products[self.productType].BaseSellValue
+    local totalValue = baseValue * self.productQuantity
+    
     for _,boost in pairs(self.boosts) do
-        value = DropUtil.CalculateBoost(value, boost.type, boost.value)
+        totalValue = DropUtil.CalculateBoost(totalValue, boost.type, boost.value)
     end
-    return value
+    return totalValue
 end
 
 function Drop:sell(sellMultiplier,forgeName)
     self.sold:Fire(sellMultiplier,forgeName)
-    Events.DropReplication:FireAllClients(self.ownerID,self.localID,self.partID,true,forgeName)
+    Events.DropReplication:FireAllClients(self.ownerID,self.localID,self.partID,true,forgeName,self.productType,self.productQuantity)
     self:destroy()
 end
 

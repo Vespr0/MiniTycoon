@@ -12,7 +12,7 @@ local CashUtility = require(Shared.Utility.CashUtility)
 
 local LocalPlayer = Players.LocalPlayer
 local DEFAULT_UI_SIZE = UDim2.new(2, 5, 1, 5)
-local PROXIMITY_DISTANCE = 20 -- Distance in studs to show the UI
+local PROXIMITY_DISTANCE = 40 -- Distance in studs to show the UI
 
 function CashDisplay.new(parentInstance)
 	local display = setmetatable({}, CashDisplay)

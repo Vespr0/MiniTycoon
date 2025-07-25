@@ -50,7 +50,8 @@ ReplicationFunctions.Dropper = function(args)
     -- Instanciate class
     local dropper = ClientDropper.new({
         model = item,
-        dropPropieties = args.dropPropieties,
+        dropPropieties = args.config.DropPropieties,
+        config = args.config,
         plot = Plot
     })
 
@@ -59,7 +60,7 @@ end
 
 function ClientItemsReplication.Replicate(itemType,args)
     if not ReplicationFunctions[itemType] then
-        warn("No replication function for type: " .. itemType)
+        -- warn("No replication function for type: " .. itemType)
         return 
     end
     ReplicationFunctions[itemType](args)
@@ -79,7 +80,7 @@ function ClientItemsReplication.Setup()
         if localID then
             ClientItemsReplication.Replicate(itemType,{
                 localID = localID,
-                dropPropieties = config.DropPropieties
+                config = config
             })
         end
     end

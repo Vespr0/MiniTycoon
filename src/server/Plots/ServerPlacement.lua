@@ -105,8 +105,7 @@ function ServerPlacement.PlaceItem(player,position,itemName,yRotation,localID,fi
                         plot = plot;
                         owner = player;
                         model = model;
-                        dropDelay = config.DropDelay;
-                        dropPropieties = config.DropPropieties;
+                        config = config
                     })
                 end;
                 Belt = function()

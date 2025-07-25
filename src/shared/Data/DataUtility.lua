@@ -1,5 +1,7 @@
 local DataUtility = {}
 
+local RunService = game:GetService("RunService")
+
 local DATA_KEYS = {
     "Cash";"Level";"Exp"
 }
@@ -21,8 +23,9 @@ Data scopes:
 
 --]]
 
+local PLAYER_DATA_SCOPE = (RunService:IsStudio() and "Studio#1" or "Dev#3")
 local DATA_SCOPES = {
-    Player = "Dev#3";
+    Player = PLAYER_DATA_SCOPE;
 }
 
 function DataUtility.GetDataScope(name)

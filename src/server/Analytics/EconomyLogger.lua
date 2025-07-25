@@ -1,5 +1,8 @@
 local AnalyticsService = game:GetService("AnalyticsService")
 
+-- Modules --
+local AnalyticsUtility = require(script.Parent.AnalyticsUtility)
+
 local EconomyLogger = {}
 
 --[[
@@ -102,6 +105,16 @@ AnalyticsService:LogEconomyEvent(
 export type ShopPurchaseType = "Market" | "Offers"
 
 function EconomyLogger.LogShopPurchase(player: Player, itemName: string, shopPurchaseType: ShopPurchaseType, cost: number, endingBalance: number)
+    -- Skip analytics for admin players
+    if not AnalyticsUtility.ValidatePlayer(player) then
+        return
+    end
+    
+    -- Validate parameters
+    if not AnalyticsUtility.ValidateAmount(cost) or not AnalyticsUtility.ValidateBalance(endingBalance) then
+        return
+    end
+    
     if shopPurchaseType ~= "Market" and shopPurchaseType ~= "Offers" then
         warn(`Invalid shop purchase type: {shopPurchaseType}`)
         return
@@ -115,24 +128,67 @@ function EconomyLogger.LogShopPurchase(player: Player, itemName: string, shopPur
         endingBalance,
         Enum.AnalyticsEconomyTransactionType.Shop.Name,
         itemName,
+        AnalyticsUtility.CreateCustomFields(
+            AnalyticsUtility.FormatCustomField("ShopPurchaseType", shopPurchaseType)
+        )
+    )
+end
 
-        -- Custom fields
-        {
-            [Enum.AnalyticsCustomFieldKeys.CustomField01.Name] = `ShopPurchaseType - {shopPurchaseType}`
-        }
+-- Log cash earned from gameplay (ore selling, etc.)
+function EconomyLogger.LogCashEarned(player: Player, amount: number, endingBalance: number, itemName: string, productType: string, forgeItemName: string)
+    -- Skip analytics for admin players
+    if not AnalyticsUtility.ValidatePlayer(player) then
+        return
+    end
+    
+    -- Validate parameters
+    if not AnalyticsUtility.ValidateAmount(amount) or not AnalyticsUtility.ValidateBalance(endingBalance) then
+        return
+    end
+    
+    AnalyticsService:LogEconomyEvent(
+        player,
+        Enum.AnalyticsEconomyFlowType.Source,
+        CASH_CURRENCY_STRING,
+        amount,
+        endingBalance,
+        Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
+        itemName,
+        AnalyticsUtility.CreateCustomFields(
+            AnalyticsUtility.FormatCustomField("ProductType", productType),
+            AnalyticsUtility.FormatCustomField("ForgeItemName", forgeItemName)
+        )
+    )
+end
+
+-- Log onboarding cash rewards
+function EconomyLogger.LogOnboardingCash(player: Player, amount: number, endingBalance: number)
+    -- Skip analytics for admin players
+    if not AnalyticsUtility.ValidatePlayer(player) then
+        return
+    end
+    
+    -- Validate parameters
+    if not AnalyticsUtility.ValidateAmount(amount) or not AnalyticsUtility.ValidateBalance(endingBalance) then
+        return
+    end
+    
+    AnalyticsService:LogEconomyEvent(
+        player,
+        Enum.AnalyticsEconomyFlowType.Source,
+        CASH_CURRENCY_STRING,
+        amount,
+        endingBalance,
+        Enum.AnalyticsEconomyTransactionType.Onboarding.Name,
+        "StarterCash"
     )
 end
 
 --[[
-    TODO
+    TODO: Batch call system for ore sells
 
-    Batch call system for ore sells
-
-    Every time a specific product is sold , we add to a list the earnings and the product name (earnings for the same product stack),
-
+    Every time a specific product is sold, we add to a list the earnings and the product name (earnings for the same product stack),
     every x seconds we send the requests.
 --]]
-
--- function EconomyLogger.LogSingleDropSell(player: Player, earnings: number, endingBalance: number)
 
 return EconomyLogger

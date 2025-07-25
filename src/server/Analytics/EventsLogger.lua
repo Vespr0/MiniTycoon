@@ -1,5 +1,8 @@
 local AnalyticsService = game:GetService("AnalyticsService")
 
+-- Modules --
+local AnalyticsUtility = require(script.Parent.AnalyticsUtility)
+
 local EventsLogger = {}
 
 --[[
@@ -30,11 +33,67 @@ local EventsLogger = {}
     For example, instead of PlantCabbage, PlantTurnip, PlantPepper as three separate events, you could have a single event with the name PlantSeed and custom field values Plant - Cabbage, Plant - Turnip, and Plant - Pepper. This way you can visualize both the total number of seeds planted as well as compare each plant in the same visualization. This also reduces your event name cardinality.
 ]]
 
-function EventsLogger.LogEventRaw(player, eventName: string, eventValue: any)
+-- function EventsLogger.LogEventRaw(player: Player, eventName: string, eventValue: any)
+--     -- Skip analytics for admin players
+--     if not AnalyticsUtility.ValidatePlayer(player) then
+--         return
+--     end
+    
+--     AnalyticsService:LogCustomEvent(
+--         player,
+--         eventName, -- Event name
+--         eventValue -- Event value
+--     )
+-- end
+
+-- -- Log item placement events
+-- function EventsLogger.LogItemPlaced(player: Player, itemName: string, plotLevel: number?)
+--     -- Skip analytics for admin players
+--     if not AnalyticsUtility.ValidatePlayer(player) then
+--         return
+--     end
+    
+--     AnalyticsService:LogCustomEvent(
+--         player,
+--         "ItemPlaced",
+--         AnalyticsUtility.CreateCustomFields(
+--             AnalyticsUtility.FormatCustomField("Item", itemName),
+--             AnalyticsUtility.FormatCustomField("PlotLevel", plotLevel or 1)
+--         )
+--     )
+-- end
+
+-- -- Log item removal events
+-- function EventsLogger.LogItemRemoved(player: Player, itemName: string, plotLevel: number?)
+--     -- Skip analytics for admin players
+--     if not AnalyticsUtility.ValidatePlayer(player) then
+--         return
+--     end
+    
+--     AnalyticsService:LogCustomEvent(
+--         player,
+--         "ItemRemoved",
+--         AnalyticsUtility.CreateCustomFields(
+--             AnalyticsUtility.FormatCustomField("Item", itemName),
+--             AnalyticsUtility.FormatCustomField("PlotLevel", plotLevel or 1)
+--         )
+--     )
+-- end
+
+-- Log plot expansion events
+function EventsLogger.LogPlotExpansion(player: Player, fromLevel: number, toLevel: number)
+    -- Skip analytics for admin players
+    if not AnalyticsUtility.ValidatePlayer(player) then
+        return
+    end
+    
     AnalyticsService:LogCustomEvent(
         player,
-        eventName, -- Event name
-        eventValue -- Event value
+        "PlotExpansion",
+        AnalyticsUtility.CreateCustomFields(
+            AnalyticsUtility.FormatCustomField("FromLevel", fromLevel),
+            AnalyticsUtility.FormatCustomField("ToLevel", toLevel)
+        )
     )
 end
 

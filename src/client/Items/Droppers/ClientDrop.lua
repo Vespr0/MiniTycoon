@@ -26,6 +26,8 @@ function ClientDrop.new(properties, params)
 	drop.localID = params.localID
 	drop.partID = params.partID
 	drop.properties = properties
+	drop.productType = params.productType
+	drop.productQuantity = params.productQuantity
 
 	-- Mesh --
 	drop.mesh = AssetsDealer.GetMesh(properties.mesh)
@@ -65,7 +67,7 @@ function ClientDrop.new(properties, params)
 	end)
 
 	drop.soldConnection = Events.DropReplication.OnClientEvent:Connect(
-		function(ownerID, localID, partID, sold, forgeName)
+		function(ownerID, localID, partID, sold, forgeName, productType, productQuantity)
 			if ownerID ~= drop.plot:GetAttribute("OwnerID") then
 				return
 			end
@@ -78,6 +80,12 @@ function ClientDrop.new(properties, params)
 				drop:sell(forgeName)
 				return
 			end
+			
+			-- Handle new drop creation if this is for a new drop
+			if not sold and productType and productQuantity then
+				-- This would be handled by the client dropper system
+				-- Just here for completeness of the event signature
+			end
 		end
 	)
 
@@ -85,11 +93,15 @@ function ClientDrop.new(properties, params)
 end
 
 function ClientDrop:getValue()
-	local value = self.properties.value
+	local ProductsInfo = require(game.ReplicatedStorage.Shared.Items.ProductsInfo)
+	warn(self.productType,self.productQuantity)
+	local baseValue = ProductsInfo.Products[self.productType].BaseSellValue
+	local totalValue = baseValue * self.productQuantity
+	
 	for _, boost in pairs(self.boosts) do
-		value = DropUtil.CalculateBoost(value, boost.type, boost.value)
+		totalValue = DropUtil.CalculateBoost(totalValue, boost.type, boost.value)
 	end
-	return value
+	return totalValue
 end
 
 function ClientDrop:sell(forgeName)

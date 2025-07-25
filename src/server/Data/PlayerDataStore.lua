@@ -14,14 +14,9 @@ local dataTemplate = {
     -- Basic Data --
     Level = 1;
     Exp = 0;
-    Cash = 50;
+    Cash = 0;
     -- Items --
-    Storage = {
-        -- 1 dropper, 5 belts and 1 forge.
-        CoalMine = 1;
-        OldBelt = 5;
-        OldForge = 1;
-    };
+    Storage = {};
 	PlacedItems = {};
 	-- Plot --
 	Plot = {
