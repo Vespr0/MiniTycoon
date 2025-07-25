@@ -139,21 +139,21 @@ local function generateOffers(player, level, count, pool)
     end
 
     local offers = {}
-    -- local picked = {}
+    local picked = {}
 
     for i = 1, count do
         -- Remove already picked items from weights
         local available = {}
         for _, entry in ipairs(weights) do
-            -- if not picked[entry.ItemName] then
+            if not picked[entry.ItemName] then
                 table.insert(available, entry)
-            -- end
+            end
         end
         if #available == 0 then break end
         local offer = weightedRandom(available)
         if offer then
             table.insert(offers, offer)
-            -- picked[offer.ItemName] = true
+            picked[offer.ItemName] = true
         end
     end
 

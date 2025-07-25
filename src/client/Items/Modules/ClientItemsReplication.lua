@@ -34,22 +34,18 @@ ReplicationFunctions = {}
 ReplicationFunctions.Dropper = function(args)
     local localID = args.localID
 
-    local item
-    local time = 0
     -- Wait for item to be replicated
-    while not item and time < 5 do
-        item = PlacementUtility.GetItemFromLocalID(Plot.Items,localID)
-        time += task.wait(0.1)
-    end
+    print(Plot.Name)
+    local model = PlacementUtility.WaitForItemFromLocalID(Plot.Items,localID, 5)
     
-    if not item then
-        error("Trying to get replicated item from localID but got nil.")
+    if not model then
+        error(`Tried to get replicated item from localID ({localID}) but was not found.`)
         return
     end
 
     -- Instanciate class
     local dropper = ClientDropper.new({
-        model = item,
+        model = model,
         dropPropieties = args.config.DropPropieties,
         config = args.config,
         plot = Plot

@@ -16,7 +16,7 @@ local NOISE_ASSET_RANGES = {
     { threshold = -math.huge, assetName = "Water" }, -- fallback
 }
 
-local RIVERS_COUNT = 2 -- Number of rivers to generate
+local RIVERS_COUNT = 3 -- Number of rivers to generate
 
 local function calculateCenterBias(distanceFromCenter: number, tilesPerSide: number): number
     return math.atan(1 - (distanceFromCenter / (tilesPerSide / 2)))

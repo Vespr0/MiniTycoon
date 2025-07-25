@@ -94,7 +94,7 @@ end
 
 function ClientDrop:getValue()
 	local ProductsInfo = require(game.ReplicatedStorage.Shared.Items.ProductsInfo)
-	warn(self.productType,self.productQuantity)
+
 	local baseValue = ProductsInfo.Products[self.productType].BaseSellValue
 	local totalValue = baseValue * self.productQuantity
 	

@@ -6,12 +6,17 @@ ProductsInfo.Products = {
 		LockedSellValue = true,
 	},
 
+	IronOre = {
+		BaseSellValue = 2,
+		LockedSellValue = true,
+	},
+
 	QuartzOre = {
 		BaseSellValue = 5,
 		LockedSellValue = true,
 	},
 
-	UraniumOre = {
+	Uranium = {
 		BaseSellValue = 10,
 		LockedSellValue = true,
 	},

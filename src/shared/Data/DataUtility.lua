@@ -21,9 +21,14 @@ Data scopes:
 
 25 Jun - ?? ?? ["Player#0"];
 
+2025
+
+?? ?? - ?? ?? ["Dev#3"];
+
+
 --]]
 
-local PLAYER_DATA_SCOPE = (RunService:IsStudio() and "Studio#1" or "Dev#3")
+local PLAYER_DATA_SCOPE = (RunService:IsStudio() and "SEX#0" or "Dev#3")
 local DATA_SCOPES = {
     Player = PLAYER_DATA_SCOPE;
 }
