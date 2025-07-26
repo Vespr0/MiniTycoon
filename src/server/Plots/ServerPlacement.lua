@@ -95,7 +95,7 @@ function ServerPlacement.PlaceItem(player, position, itemName, yRotation, localI
 		overlapParams.FilterDescendantsInstances = { workspace.Nodes, plot.Drops, model, filteredModel }
 
 		-- Validate placement.
-		local isPlacementValid = ignoreValidation or PlacementUtility.isPlacementValid(plot, model, overlapParams)
+		local isPlacementValid = ignoreValidation or PlacementUtility.isPlacementValid(plot, model, overlapParams, config)
 		if isPlacementValid then
 			-- IDs.
 			if not localID then
@@ -184,6 +184,7 @@ local function generateDefaultEdges(item)
 		local edge = Instance.new("Attachment")
 		edge.Name = "Edge"
 		edge.Parent = root
+		-- edge.Visible = true
 		local heightBias = -Vector3.yAxis * size.Y / 2
 		local extraBias = Vector3.yAxis * 0.1 -- So it's not exactlly on the plot, which causes the raycasting to go through
 		edge.Position = pos + heightBias + extraBias
@@ -197,7 +198,7 @@ end
 
 local function setupItems()
 	-- Missing primary part:
-	local descendants = ReplicatedStorage.Assets:GetDescendants()
+	local descendants = ReplicatedStorage.Assets.Items:GetDescendants()
 	for _, item in pairs(descendants) do
 		if item:IsA("Model") then
 			local folder = item.Parent

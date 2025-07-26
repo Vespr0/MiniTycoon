@@ -18,7 +18,7 @@ local ReplicateBorder = Events.ReplicateBorder :: RemoteEvent
 -- So for example Attachment B3 and Attachment T3 are linked to Beam3
 
 local PLOT_BORDER_HEIGHT = 2
-local PLOT_BORDER_COLOR = Color3.fromRGB(175, 228, 241)
+local PLOT_BORDER_COLOR = Color3.fromRGB(18, 255, 227)
 local WATER_BASE_HEIGHT = 0.4 -- Height of the water base part
 local WATER_BASE_OFFSET = 0 -- How much lower the water sits compared to tiles
 local WATER_BOTTOM_HEIGHT = 1.0 -- Height of the water bottom part
@@ -80,8 +80,7 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 		- Vector3.new(PlotUtility.MaxPlotWidth / 2 + tileSize / 2, 0, PlotUtility.MaxPlotWidth / 2 + tileSize / 2)
 
 	-- Generate tiles info
-	local tilesPerSide = PlotUtility.MaxPlotWidth / tileSize
-	local tiles = TilingUtility.GenerateTiles(tilesPerSide, seed)
+	local tiles = TilingUtility.GenerateTiles(seed)
 
 	-- Clear existing tiles
 	plot.Tiles:ClearAllChildren()
@@ -89,9 +88,9 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 	-- Create the large water part that covers the entire plot
 	ClientTiling.CreateWaterBase(plot, root)
 
-	for x = 1, tilesPerSide do
+	for x = 1, TilingUtility.TILES_PER_SIDE do
 		RunService.RenderStepped:Wait() -- Yield to avoid freezing the client
-		for y = 1, tilesPerSide do
+		for y = 1, TilingUtility.TILES_PER_SIDE do
 			local tile = tiles[x][y]
 
 			-- Skip placing tiles where water should be - let the water base show through
@@ -102,6 +101,7 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 			local asset = AssetsDealer.GetTile(tile.assetName)
 			local tileModel = asset.Model :: Model
 			tileModel.Parent = plot.Tiles
+			tileModel.Name = `[{x},{y}]`
 			tileModel:PivotTo(CFrame.new(origin + Vector3.new(x * tileSize, 0, y * tileSize)))
 
 			asset:Destroy()
@@ -132,7 +132,7 @@ function ClientTiling.CreateWaterBase(plot, root)
 	waterBottom.CanCollide = false
 	waterBottom.Size = Vector3.new(plotSize, WATER_BOTTOM_HEIGHT, plotSize)
 	waterBottom.CFrame = root.CFrame + Vector3.new(0, WATER_BOTTOM_OFFSET, 0)
-	-- TODO: Maybe get the color from the Sand tyle? (AssetsDealer)
+	-- TODO: Maybe get the color from the Sand tile? (AssetsDealer)
 	waterBottom.Color = Color3.fromRGB(167, 151, 86) -- Sandy brown color
 	waterBottom.Parent = plot
 

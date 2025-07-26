@@ -27,7 +27,7 @@ function TilingManager.GenerateTiling(userID: number, root: BasePart, plotName: 
     ReplicateTiling:FireAllClients(plotName, seed)
 
     TilingManager.TilingInfo[plotName] = {
-        tiles = TilingUtility.GenerateTiles(PlotUtility.MaxPlotWidth/GameConfig.TileSize, seed),
+        tiles = TilingUtility.GenerateTiles(seed),
         seed = seed,
         root = root,
     }

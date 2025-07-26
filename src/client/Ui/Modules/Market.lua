@@ -177,7 +177,9 @@ function Market.Setup()
     end
 
     -- Create selectors class instance
-    local Selectors = SelectorsClass.new(CategorySelectorsFrame, categories, selectorFunctions)
+    local BUTTON_SELECTED_COLOR = Ui.BUTTON_SELECTED_COLOR
+    local BUTTON_UNSELECTED_COLOR = Color3.fromRGB(129, 129, 129)
+    local Selectors = SelectorsClass.new(CategorySelectorsFrame, categories, selectorFunctions,BUTTON_SELECTED_COLOR,BUTTON_UNSELECTED_COLOR)
     Selectors:switch("Dropper")
 
     task.spawn(function()

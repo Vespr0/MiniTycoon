@@ -80,7 +80,7 @@ function Drop:exists()
 end
 
 function Drop:getValue()
-    warn(self.productType)
+    warn(self.productType,self.productQuantity)
     local baseValue = ProductsInfo.Products[self.productType].BaseSellValue
     local totalValue = baseValue * self.productQuantity
     

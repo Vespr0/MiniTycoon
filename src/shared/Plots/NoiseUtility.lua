@@ -24,7 +24,7 @@ end
 
 -- Basic octave summation for Perlin noise
 function NoiseUtility.getNoiseValue(x: number, y: number, seed: number, scale: number?, octaves: number?, persistence: number?): number
-    local oct = octaves or 3 
+    local oct = octaves or 3
     local pers = persistence or 0.5 
     local scal = scale or NOISE_SCALE + .01 -- + 0.01 to avoid math.noise bug 
 

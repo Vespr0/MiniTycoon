@@ -11,7 +11,7 @@ ProductsInfo.Products = {
 		LockedSellValue = true,
 	},
 
-	QuartzOre = {
+	Quartz = {
 		BaseSellValue = 5,
 		LockedSellValue = true,
 	},

@@ -1,7 +1,5 @@
-
 local Selectors = {}
 Selectors.__index = Selectors
-
 
 -- Unified section handler: supports {open,close} modules or plain functions
 
@@ -9,8 +7,7 @@ Selectors.__index = Selectors
 local Ui = require(script.Parent.Parent.Parent.UiUtility)
 local Tween = require(script.Parent.Tween)
 
-
-function Selectors.new(buttonsFrame: Frame, selections, sections)
+function Selectors.new(buttonsFrame: Frame, selections, sections, buttonSelectedColor, buttonUnselectedColor)
 	local self = setmetatable({}, Selectors)
 
 	self.selections = selections
@@ -18,6 +15,10 @@ function Selectors.new(buttonsFrame: Frame, selections, sections)
 
 	self.buttons = {}
 	self.frames = {}
+
+	-- Use provided colors or default to Ui constants
+	self.buttonSelectedColor = buttonSelectedColor or Ui.BUTTON_SELECTED_COLOR
+	self.buttonUnselectedColor = buttonUnselectedColor or Ui.BUTTON_UNSELECTED_COLOR
 
 	for _, name in selections do
 		self.buttons[name] = buttonsFrame:WaitForChild(name)
@@ -31,7 +32,7 @@ function Selectors.new(buttonsFrame: Frame, selections, sections)
 end
 
 function Selectors:connectInputs()
-	for _,button in self.buttons do
+	for _, button in self.buttons do
 		button.MouseButton1Click:Connect(function()
 			Ui.PlaySound("Click")
 			self:switch(button.Name)
@@ -39,13 +40,12 @@ function Selectors:connectInputs()
 	end
 end
 
-
 function Selectors:switch(name)
 	self.currentSelection = name
 
 	for _, button in self.buttons do
 		local isSelectedType = button.Name == self.currentSelection
-		Tween.Color(button, isSelectedType and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR)
+		Tween.Color(button, isSelectedType and self.buttonSelectedColor or self.buttonUnselectedColor)
 
 		local sectionName = button.Name
 		local section = self.sections and self.sections[sectionName]
