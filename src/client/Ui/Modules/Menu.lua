@@ -12,6 +12,9 @@ local UiModules = script.Parent
 local Gui = PlayerGui:WaitForChild("Menu")
 local MainFrame = Gui:WaitForChild("MainFrame")
 
+Menu.Gui = Gui
+Menu.MainFrame = MainFrame
+
 local Ui = require(script.Parent.Parent.UiUtility)
 
 -- Constants

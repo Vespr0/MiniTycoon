@@ -43,21 +43,22 @@ function TilingUtility.AbsoluteToTilePosition(absolutePosition: Vector3, plotRoo
 	-- Convert world position to the noise coordinate system used in GenerateTiles
 	-- Client places tiles starting from index 1, at positions: origin + Vector3.new(x * tileSize, 0, y * tileSize)
 	-- where origin = plotRootPosition - Vector3.new(MaxPlotWidth/2 + tileSize/2, 0, MaxPlotWidth/2 + tileSize/2)
-	-- 
+	--
 	-- To reverse this:
 	-- 1. Calculate what the client's origin would be
 	local maxPlotWidth = PlotUtility.MaxPlotWidth
-	local clientOrigin = plotRootPosition - Vector3.new(maxPlotWidth / 2 + tileSize / 2, 0, maxPlotWidth / 2 + tileSize / 2)
-	
+	local clientOrigin = plotRootPosition
+		- Vector3.new(maxPlotWidth / 2 + tileSize / 2, 0, maxPlotWidth / 2 + tileSize / 2)
+
 	-- 2. Find the array indices this position would correspond to
 	local offsetFromOrigin = absolutePosition - clientOrigin
-	local arrayX = offsetFromOrigin.X / tileSize  -- This gives us the x index (can be fractional)
-	local arrayY = offsetFromOrigin.Z / tileSize  -- This gives us the y index (can be fractional)
-	
+	local arrayX = offsetFromOrigin.X / tileSize -- This gives us the x index (can be fractional)
+	local arrayY = offsetFromOrigin.Z / tileSize -- This gives us the y index (can be fractional)
+
 	-- 3. Round to nearest integer to get the actual tile indices (since tiles are discrete)
 	local roundedArrayX = math.round(arrayX)
 	local roundedArrayY = math.round(arrayY)
-	
+
 	-- 4. Convert array indices to noise coordinates (same as GenerateTiles does)
 	local tileX = roundedArrayX - TilingUtility.TILES_PER_SIDE / 2
 	local tileY = roundedArrayY - TilingUtility.TILES_PER_SIDE / 2
@@ -69,8 +70,18 @@ function TilingUtility.AbsoluteToTilePosition(absolutePosition: Vector3, plotRoo
 end
 
 -- Terrain generation utilities
-local function calculateCenterBias(distanceFromCenter: number): number
-	return math.atan(1 - (distanceFromCenter / (TilingUtility.TILES_PER_SIDE / 2)))
+local function calculateCenterBias(relativeX: number, relativeY: number): number
+	local maxDistance = TilingUtility.TILES_PER_SIDE / 2 -- Distance from center to edge
+
+	-- Use Chebyshev distance (max of x,y) for square island shape
+	local squareDistance = math.max(math.abs(relativeX), math.abs(relativeY))
+	local normalizedDistance = math.min(squareDistance / maxDistance, 1) -- Clamp to [0, 1]
+
+	-- More aggressive square island generation - positive bias at center, negative at edges
+	-- This forces water at borders and guarantees land in the center
+	local bias = math.cos(normalizedDistance * math.pi / 2) ^ 3 * 1.2 - normalizedDistance * 0.3
+
+	return bias
 end
 
 local function isNearRiver(x: number, y: number, riverPoints: any, radius: number): boolean
@@ -85,6 +96,9 @@ local function isNearRiver(x: number, y: number, riverPoints: any, radius: numbe
 end
 
 local function generateRivers(seed: number, riversCount: number): { any }
+	-- Seed for rivers cannot be nil
+	seed = math.abs(seed)
+
 	local rivers = {}
 	for i = 1, riversCount do
 		local random = Random.new(seed + i)
@@ -137,8 +151,7 @@ local function generateSingleTileData(
 	config: TerrainConfig
 ): Tile
 	-- Calculate terrain noise with center bias
-	local distanceFromCenter = math.sqrt(relativeX ^ 2 + relativeY ^ 2)
-	local centerBias = calculateCenterBias(distanceFromCenter)
+	local centerBias = calculateCenterBias(relativeX, relativeY)
 	local noiseValue = NoiseUtility.getNoiseValue(relativeX, relativeY, seed) + centerBias
 
 	-- Calculate rocks noise

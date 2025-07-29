@@ -94,8 +94,8 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 		error(`Already placing or moving.`)
 		return
 	end
-	if not itemName and not model then
-		error(`either itemName or model must not be nil.`)
+	if not itemName then
+		error(`itemName must not be nil.`)
 		return
 	end
 	-- Update placement status.
@@ -119,7 +119,8 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 	local item = AssetsDealer.GetItem(itemName)
 
 	local config = require(item.config)
-
+	print(config)
+	
 	-- Model.
 	local localID = 0
 	if not model then

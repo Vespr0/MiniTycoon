@@ -167,6 +167,11 @@ local function updateContainer()
 
 		local rarity = config.Rarity or "Common"
 		item.MouseButton1Click:Connect(function()
+			if item.Sold.Visible then
+				Ui.PlaySound("Error")
+				return
+			end
+			
 			-- Call the new InsightFrame.Open function
 			Insight.Open(config, itemName, price, nil, rarity, function()
 				buyOffer(offerID, price, itemName) -- Pass the Offers-specific buy logic as a callback

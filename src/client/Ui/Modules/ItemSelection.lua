@@ -150,8 +150,12 @@ end
 
 local function move()
     if not CurrentllySelectedItem then return end
-    local item = PlacementUtility.GetItemFromLocalID(Plot.Items,CurrentllySelectedItem:GetAttribute("LocalID"))
-    ClientPlacement.StartPlacing(nil,item,true)
+    local localID = CurrentllySelectedItem:GetAttribute("LocalID")
+    local item = PlacementUtility.GetItemFromLocalID(Plot.Items,localID)
+    if not item then
+        error(`Couldn't find item with localID "{localID}" in folder Items in Plot.`)
+    end
+    ClientPlacement.StartPlacing(item.Name,item,true)
     unSelect()
 end
 

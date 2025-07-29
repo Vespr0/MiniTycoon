@@ -41,8 +41,9 @@ function ClientLoader.Start()
 	LoadingScreen.SetContext("Loading Assets")
 	ClientLoader.SetProgress(0)
 	task.wait(.1)
-	ClientLoader.LoadFolder(Assets.Items.Droppers)
-	ClientLoader.LoadFolder(Assets.Tiles)
+	-- TODO: May be uneccessary and may just lag mobile
+	-- ClientLoader.LoadFolder(Assets.Items.Droppers)
+	-- ClientLoader.LoadFolder(Assets.Tiles)
 	-- Modules --
 	LoadingScreen.SetContext("Loading Modules")
 	ClientLoader.SetProgress(0)
@@ -54,7 +55,7 @@ function ClientLoader.Start()
 			if required.Setup then
 				required.Setup()
 			end
-			task.wait(.1)
+			-- task.wait(.1)
 		end
 		ClientLoader.SetProgress(i / #FOLDERS)
 	end

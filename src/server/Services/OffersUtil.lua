@@ -99,7 +99,7 @@ local function generateWeights(player, level, pool)
 
         local amount = isItemPresentInInventory(player, itemName)
         local weight = getWeightsNumber(level, levelRequirement, luckFactor, amount)
-        print(`Generating weights for {itemName}: basePrice: {basePrice} owned: {amount} -  Weight: {weight}`)
+        -- print(`Generating weights for {itemName}: basePrice: {basePrice} owned: {amount} -  Weight: {weight}`)
         if weight > 0 then
             table.insert(weights, {
                 ItemName = itemName,
@@ -134,7 +134,7 @@ local function generateOffers(player, level, count, pool)
 
     local weights = generateWeights(player, level, pool)
     if not weights or not next(weights) then
-        warn("Failed to generate weights")
+        error("Failed to generate weights")
         return
     end
 
@@ -161,7 +161,7 @@ local function generateOffers(player, level, count, pool)
 end 
 
 function OffersUtil.GenerateOffers(player)
-    if not player then warn("Player not specified or nil") return end
+    if not player then error("Player not specified or nil") return end
 
     local level,_ = LevelingAccess.Get(player)
     local offers = {}

@@ -50,9 +50,7 @@ function PlotLoader.Load(player)
 		local absolutePosition = root.Position + localPosition
 		local success, arg1 = ServerPlacement.PlaceItem(player, absolutePosition, data[4], data[5], localID, nil, true)
 		if not success then
-			warn("Error from player's(" .. playerTag .. ") plot loading placement : " .. arg1)
-        else
-            print("Successful placement of ".. localID)
+			error("Error from player's(" .. playerTag .. ") plot loading placement : " .. arg1)
 		end
 	end
 end

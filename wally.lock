@@ -5,7 +5,12 @@ registry = "test"
 [[package]]
 name = "andrea/main"
 version = "0.1.0"
-dependencies = [["BridgeNet2", "ffrostflame/bridgenet2@0.5.5"], ["janitor", "howmanysmall/janitor@1.15.6"], ["signal", "sleitnick/signal@1.5.0"], ["suphisdatastoremodule", "skylord-103/suphisdatastoremodule@1.0.0"], ["trove", "sleitnick/trove@1.0.1"]]
+dependencies = [["BridgeNet2", "ffrostflame/bridgenet2@0.5.5"], ["fusion", "elttob/fusion@0.3.0"], ["janitor", "howmanysmall/janitor@1.15.6"], ["signal", "sleitnick/signal@1.5.0"], ["suphisdatastoremodule", "skylord-103/suphisdatastoremodule@1.0.0"], ["trove", "sleitnick/trove@1.0.1"], ["ui-labs", "pepeeltoro41/ui-labs@2.4.0"]]
+
+[[package]]
+name = "elttob/fusion"
+version = "0.3.0"
+dependencies = []
 
 [[package]]
 name = "evaera/promise"
@@ -26,6 +31,11 @@ dependencies = []
 name = "howmanysmall/janitor"
 version = "1.15.6"
 dependencies = [["Promise", "evaera/promise@4.0.0"]]
+
+[[package]]
+name = "pepeeltoro41/ui-labs"
+version = "2.4.0"
+dependencies = []
 
 [[package]]
 name = "pysephwasntavailable/remotepacketsizecounter"

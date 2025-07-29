@@ -18,7 +18,7 @@ local ReplicateBorder = Events.ReplicateBorder :: RemoteEvent
 -- So for example Attachment B3 and Attachment T3 are linked to Beam3
 
 local PLOT_BORDER_HEIGHT = 2
-local PLOT_BORDER_COLOR = Color3.fromRGB(18, 255, 227)
+local PLOT_BORDER_COLOR = Color3.fromRGB(186, 255, 239)
 local WATER_BASE_HEIGHT = 0.4 -- Height of the water base part
 local WATER_BASE_OFFSET = 0 -- How much lower the water sits compared to tiles
 local WATER_BOTTOM_HEIGHT = 1.0 -- Height of the water bottom part
@@ -86,7 +86,7 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 	plot.Tiles:ClearAllChildren()
 
 	-- Create the large water part that covers the entire plot
-	ClientTiling.CreateWaterBase(plot, root)
+	-- ClientTiling.CreateWaterBase(plot, root)
 
 	for x = 1, TilingUtility.TILES_PER_SIDE do
 		RunService.RenderStepped:Wait() -- Yield to avoid freezing the client
@@ -109,47 +109,47 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 	end
 end
 
-function ClientTiling.CreateWaterBase(plot, root)
-	-- Remove existing water parts if they exist
-	-- local existingWater = plot:FindFirstChild("WaterBase")
-	-- if existingWater then
-	-- 	existingWater:Destroy()
-	-- end
-	-- local existingWaterBottom = plot:FindFirstChild("WaterBottom")
-	-- if existingWaterBottom then
-	-- 	existingWaterBottom:Destroy()
-	-- end
+-- function ClientTiling.CreateWaterBase(plot, root)
+-- 	-- Remove existing water parts if they exist
+-- 	-- local existingWater = plot:FindFirstChild("WaterBase")
+-- 	-- if existingWater then
+-- 	-- 	existingWater:Destroy()
+-- 	-- end
+-- 	-- local existingWaterBottom = plot:FindFirstChild("WaterBottom")
+-- 	-- if existingWaterBottom then
+-- 	-- 	existingWaterBottom:Destroy()
+-- 	-- end
 
-	local plotSize = PlotUtility.MaxPlotWidth
+-- 	local plotSize = PlotUtility.MaxPlotWidth
 
-	-- Create the water bottom part (seafloor/lakebed)
-	local waterBottom = Instance.new("Part")
-	waterBottom.Name = "WaterBottom"
-	waterBottom.Material = Enum.Material.Sand
-	waterBottom.TopSurface = Enum.SurfaceType.Smooth
-	waterBottom.BottomSurface = Enum.SurfaceType.Smooth
-	waterBottom.Anchored = true
-	waterBottom.CanCollide = false
-	waterBottom.Size = Vector3.new(plotSize, WATER_BOTTOM_HEIGHT, plotSize)
-	waterBottom.CFrame = root.CFrame + Vector3.new(0, WATER_BOTTOM_OFFSET, 0)
-	-- TODO: Maybe get the color from the Sand tile? (AssetsDealer)
-	waterBottom.Color = Color3.fromRGB(167, 151, 86) -- Sandy brown color
-	waterBottom.Parent = plot
+-- 	-- Create the water bottom part (seafloor/lakebed)
+-- 	local waterBottom = Instance.new("Part")
+-- 	waterBottom.Name = "WaterBottom"
+-- 	waterBottom.Material = Enum.Material.Sand
+-- 	waterBottom.TopSurface = Enum.SurfaceType.Smooth
+-- 	waterBottom.BottomSurface = Enum.SurfaceType.Smooth
+-- 	waterBottom.Anchored = true
+-- 	waterBottom.CanCollide = false
+-- 	waterBottom.Size = Vector3.new(plotSize, WATER_BOTTOM_HEIGHT, plotSize)
+-- 	waterBottom.CFrame = root.CFrame + Vector3.new(0, WATER_BOTTOM_OFFSET, 0)
+-- 	-- TODO: Maybe get the color from the Sand tile? (AssetsDealer)
+-- 	waterBottom.Color = Color3.fromRGB(167, 151, 86) -- Sandy brown color
+-- 	waterBottom.Parent = plot
 
-	-- Create the water base part
-	local waterBase = Instance.new("Part")
-	waterBase.Name = "WaterBase"
-	waterBase.Material = Enum.Material.SmoothPlastic
-	waterBase.TopSurface = Enum.SurfaceType.Smooth
-	waterBase.BottomSurface = Enum.SurfaceType.Smooth
-	waterBase.Anchored = true
-	waterBase.CanCollide = false
-	waterBase.Transparency = 0.3
-	waterBase.Size = Vector3.new(plotSize, WATER_BASE_HEIGHT, plotSize)
-	waterBase.CFrame = root.CFrame + Vector3.new(0, WATER_BASE_OFFSET, 0)
-	waterBase.Color = Color3.fromRGB(67, 178, 229)
-	waterBase.Parent = plot
-end
+-- 	-- Create the water base part
+-- 	local waterBase = Instance.new("Part")
+-- 	waterBase.Name = "WaterBase"
+-- 	waterBase.Material = Enum.Material.SmoothPlastic
+-- 	waterBase.TopSurface = Enum.SurfaceType.Smooth
+-- 	waterBase.BottomSurface = Enum.SurfaceType.Smooth
+-- 	waterBase.Anchored = true
+-- 	waterBase.CanCollide = false
+-- 	waterBase.Transparency = 0.3
+-- 	waterBase.Size = Vector3.new(plotSize, WATER_BASE_HEIGHT, plotSize)
+-- 	waterBase.CFrame = root.CFrame + Vector3.new(0, WATER_BASE_OFFSET, 0)
+-- 	waterBase.Color = Color3.fromRGB(67, 178, 229)
+-- 	waterBase.Parent = plot
+-- end
 
 function ClientTiling.Setup()
 	ReplicateTiling.OnClientEvent:Connect(function(plotName, seed)

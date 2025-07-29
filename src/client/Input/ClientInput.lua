@@ -15,7 +15,8 @@ ClientInput.HasTouch = UserInputService.TouchEnabled
 ClientInput.HasGamepad = UserInputService.GamepadEnabled
 
 -- Mobile detection
-ClientInput.IsMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+-- TODO: Decide if it makes sense to add `and not UserInputService.MouseEnabled`
+ClientInput.IsMobile = UserInputService.TouchEnabled -- and not UserInputService.MouseEnabled
 ClientInput.HoverEnabled = not ClientInput.IsMobile
 
 -- Events

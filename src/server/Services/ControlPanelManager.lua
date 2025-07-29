@@ -21,7 +21,6 @@ local function upgradeRequest(player,name)
 	if not (typeof(name) == "string") then return false,`Invalid arguments` end
 
 	local currentPlotLevel = PlotAccess.GetLevel(player)
-	print(currentPlotLevel)
 	local info = PlotUtility.Upgrades[name]
 	local cost = PlotUtility.UpgradeCosts[name](currentPlotLevel)
 	if cost then
@@ -34,8 +33,6 @@ local function upgradeRequest(player,name)
 			CashAccess.TakeCash(player,cost)
 			PlotManager.Upgrade(player,name)
 			
-			print(currentPlotLevel)
-
 			-- Log onboarding step
  			OnboardingAccess.Complete(player, "FirstPlotExpansion")
 

@@ -46,10 +46,10 @@ function PlotManager.SetPlayerPlot(player,name)
 	end	
 	plot:SetAttribute("OwnerID",player.UserId)
 	plot:SetAttribute("DropCounter",0)
-	task.spawn(function()
-		repeat task.wait(.2)
+		task.spawn(function()
+			repeat task.wait(.2)
         until player.Character
-		player.Character.PrimaryPart.CFrame = CFrame.new(plot.Root.Position+Vector3.yAxis*6)
+		player.Character.PrimaryPart:PivotTo(CFrame.new(plot.Root.Position+Vector3.yAxis*10))
 	end)
 end
 
@@ -71,6 +71,13 @@ end
 
 local function setupPlotFolders()
 	for _,folder in pairs(Plots:GetChildren()) do
+		local root = folder:FindFirstChild("Root")
+		if not root then
+			error("Plot "..folder.Name.." is missing root part.")
+		end
+
+		root.Transparency = 1
+
 		-- Folders --
 		local ItemsFolder = Instance.new("Folder"); ItemsFolder.Parent = folder; ItemsFolder.Name = "Items";
 		local TilesFolder = Instance.new("Folder"); TilesFolder.Parent = folder; TilesFolder.Name = "Tiles";

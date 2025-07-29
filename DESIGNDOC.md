@@ -36,13 +36,8 @@ There is a simple leveling system. You gain [XP] by selling [Product]. Using a f
 
 ### Item Rarity System
 
-Defined in `ItemInfo.lua` Items have different rarity tiers that affect their availability and visual presentation:
-- **Common** (White) - Standard items available to most players
-- **Rare** (Blue) - Less common items with better stats or unique features  
-- **Collector's** (Red) - Limited or unobtainable items.
-- **Unusual** (Purple) - Rare items with unique mechanics.
-- **Admin** (Dark Blue) - Special administrative items
-
+Defined in `ItemInfo.lua` Items have different rarity tiers that affect their availability and visual presentation.
+Rarity is inside item's config `config.Rarity` which is a string of course.
 —
 
 ### The Plot
@@ -56,23 +51,22 @@ Most games of the genre have a plain concrete square, so this is an unconvention
 
 The actual placement system works in a grid, but the grid size is 0.5, smaller than the tile size which is 2 at the time of writing this. This means multiple items can be on the same tile, or one item can be on top of multiple tiles.
 
+All plots are surrounded by an ocean, the same ocean that visually rappresents the water tiles in a plot.
+
 ---
 
-### The Shop
-
-The shop is probably the most unconventional and risky mechanic I’ve implemented for the game (from the developer perspective not the player’s). Usually games of the genre but also games with similar contexts have a linear shop where you see all the items or at least most of them ordered by price, so you know what to do, you know what you are gonna but next, you know what you are saving for.
+### The Shop    
 
 The shop first tab is the Market. In the market you can select between different item types "Dropper, Belt, Forge, Decoration" and see the items that you can buy for X amount of [Cash] , if you are above a certain [Level].
 
 In Mini Tycoon the shop also has an “offers” system where every 5 minutes 8 items are proposed to you (offers get reset every time). A complex algorithm chooses both the items and the prices based on your current level, how many of a specific item you have and also a random element to make certain items rarer based on three lists, “ITEMS POOL” , “UTILITY POOL” and “SPECIAL POOL”. These lists contain: [itemName] = {recommended level,luck factor}.
-
 The algorithm then calculates weight based on the recommended level and luck factor in relation to the other variables mentioned earlier. The items for the offers are chosen by picking random weights (If an item has more weights it’s more likely to be chosen). More specifically it chooses 5 from the item pool, 2 from the utility pool and 1 from 0the special pool.
 For example it may generate “Coal Mine : 32$,Coal Mine : 32$,Coal Mine : 32$,Coal Mine : 32$, Conveyor 8$, Conveyor 8$, Tree: 12$”
 This system is risky because it’s unconventional and hard to balance.
 
 ---
 
-### The Stocks
+### The Stocks (Not yet Implemented)
 
 I want to add a stocks system , already simulated in `StocksSimulator.lua` where the sell value of a product can go up and down based on how much is sold, in a supply demand fascion. If a product is sold a lot then it's price goes down, if a product isn't sold much it's price goes up when other product is sold.
 

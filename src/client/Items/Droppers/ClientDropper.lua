@@ -84,7 +84,6 @@ function Dropper:drop(part,partID)
         sound = self.dropPropieties.sound;
     })
 
-    print(self.config)
     self.clientDrop = ClientDrop.new(self.dropPropieties,{
         instance = part,
         plot = self.Plot,

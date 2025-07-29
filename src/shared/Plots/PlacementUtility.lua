@@ -58,11 +58,11 @@ function PlacementUtility.GetItemFromLocalID(folder, localID)
 			return item
 		end
 	end
-	warn(`Couldn't find item with localID "{localID}" in folder "{folder.Name}".`)
+	-- warn(`Couldn't find item with localID "{localID}" in folder "{folder.Name}".`)
 	return false
 end
 
-function PlacementUtility.WaitForItemFromLocalID(folder, localID, waitTime)
+function PlacementUtility.WaitForItemFromLocalID(folder: Folder, localID: number, waitTime: number)
 	local model, timeout
 	local start = os.clock()
 	repeat
@@ -70,6 +70,11 @@ function PlacementUtility.WaitForItemFromLocalID(folder, localID, waitTime)
 		model = PlacementUtility.GetItemFromLocalID(folder, localID)
 		RunService.RenderStepped:Wait()
 	until model or timeout
+
+	if timeout and not model  then
+		error(`Couldn't find item with localID "{localID}" in folder "{folder:GetFullName()}".`)
+	end
+
 	return model
 end
 

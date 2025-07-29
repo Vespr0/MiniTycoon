@@ -25,7 +25,7 @@ local AssetsDealer = require(Shared.AssetsDealer)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local Tween = require(script.Parent.Util.Tween)
 local SelectorsClass = require(script.Parent.Util.SelectorsClass)
-
+local Signal = require(Packages.signal)
 
 local origin = MainFrame.Position
 local Selectors = SelectorsClass.new(
@@ -37,6 +37,8 @@ local Selectors = SelectorsClass.new(
 -- Variables --
 local trove = require(Packages.trove).new()
 local CurrentSection
+
+Shop.OpenedEvent = Signal.new()
 
 -- Module Functions
 
@@ -50,6 +52,8 @@ function Shop.Open()
 		Shop.FirstOpen = false
 		Selectors:switch("Market")
 	end
+
+	Shop.OpenedEvent:Fire()
 end
 
 

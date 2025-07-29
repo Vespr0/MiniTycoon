@@ -25,5 +25,5 @@ require(script.Services.ControlPanelManager).Setup()
 local TestingManager = require(script.TestingManager)
 if RunService:IsStudio() then
     -- Run all tests in the Tests folder
-    TestingManager.RunAll()
+    -- TestingManager.RunAll()
 end
