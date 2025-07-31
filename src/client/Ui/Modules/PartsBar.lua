@@ -10,14 +10,10 @@ local Shared = ReplicatedStorage.Shared
 
 -- Modules --
 local PlotUtility = require(ReplicatedStorage.Shared.Plots.PlotUtility)
-
--- LocalPlayer --
-local Player = Players.LocalPlayer
-local PlayerGui = Player.PlayerGui
+local UiUtility = require(script.Parent.Parent.UiUtility)
 
 -- Gui elements --
-local Gui = PlayerGui:WaitForChild("PartsBar")
-local MainFrame = Gui:WaitForChild("MainFrame")
+local MainFrame = UiUtility.TopGui:WaitForChild("MainFrame"):WaitForChild("PartsBar")
 local Fill = MainFrame:WaitForChild("Fill")
 local PartsLabel = MainFrame:WaitForChild("PartsLabel")
 
@@ -30,6 +26,7 @@ local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerDa
 -- Functions --
 local function update(currentPartsCount: number)
     local plotLevel = ClientPlayerData.Data.Plot.PlotLevel
+    print(plotLevel)
     local maxParts = PlotUtility.GetMaxPartsFromPlotLevel(plotLevel)
     
     PartsLabel.Text = `PARTS: {currentPartsCount}/{maxParts}`
@@ -40,14 +37,13 @@ local function update(currentPartsCount: number)
 end
 
 function PartsBar.Setup()
-    Gui.Enabled = true
     -- Setup label --
 
     local plot = nil
 
     task.spawn(function()
         while not plot do
-            plot = PlotUtility.GetPlotFromPlayer(Player)
+            plot = PlotUtility.GetPlotFromPlayer(Players.LocalPlayer)
             task.wait(.1)
         end
     end)
@@ -59,6 +55,12 @@ function PartsBar.Setup()
     end
 
     update(PartsValue.Value)
+
+    -- Update when the data is synched too (it's a one time thing)
+    ClientPlayerData.DataSynchedEvent:Connect(function()
+        update(PartsValue.Value)
+    end)
+    
     PartsValue.Changed:Connect(function(value)
         update(value)
     end)

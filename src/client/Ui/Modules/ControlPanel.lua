@@ -1,5 +1,10 @@
 local ControlPanel = {}
 
+ControlPanel.Dependencies = {
+	"Menu",
+	"Upgrades"
+}
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")

@@ -75,7 +75,7 @@ function DataAccess.AccessDataStore(name,key,r)
     local dataStore = DataStoreModule.find(name or DataUtility.GetDataScope("Player"),key)
     local success,error = isDataStoreAccessible(dataStore)
     if not success then
-        warn(error.." ...Retrying...")
+        print(error.." ...Retrying...")
         task.wait(1)
         return DataAccess.AccessDataStore(name,key,r-1)
     end

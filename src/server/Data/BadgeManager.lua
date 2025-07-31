@@ -17,10 +17,9 @@ function BadgeManager.Award(player,name,r)
     r = r or 4
     if r < 0 then
         return
-end
+    end
 
-    local badgeId = BADGES[name]
-    assert(badgeId,`Badge not found`)
+    local badgeId = BadgeManager.GetBadgeId(name)
     local success, badgeInfo = pcall(BadgeService.GetBadgeInfoAsync, BadgeService, badgeId)
 
     if success then
@@ -29,14 +28,14 @@ end
             -- Award badge
             local awarded, errorMessage = pcall(BadgeService.AwardBadge, BadgeService, player.UserId, badgeId)
             if not awarded then
-                warn("Error while awarding badge:", errorMessage)
+                warn(`Error while awarding badge: "{errorMessage}" ...Retrying...`)
                 task.spawn(function()
                     task.wait(3)
                     BadgeService.AwardBadge(player,name,r-1)
                 end)
             else
                 -- Badge awarded successfully
-                print(`Badge "{name}" awarded to {player.Name} (Could've been already awarded)`)
+                print(`Badge "{name}" awarded to {player.Name}`)
             end
         end 
     else

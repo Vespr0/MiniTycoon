@@ -10,14 +10,10 @@ local Shared = ReplicatedStorage.Shared
 
 -- Modules --
 local LevelingUtil = require(Shared.Data.LevelingUtil)
-
--- LocalPlayer --
-local Player = Players.LocalPlayer
-local PlayerGui = Player.PlayerGui
+local UiUtility = require(script.Parent.Parent.UiUtility)
 
 -- Gui elements --
-local Gui = PlayerGui:WaitForChild("LevelBar")
-local MainFrame = Gui:WaitForChild("MainFrame")
+local MainFrame = UiUtility.TopGui:WaitForChild("MainFrame"):WaitForChild("LevelBar")
 local Fill = MainFrame:WaitForChild("Fill")
 local LevelLabel = MainFrame:WaitForChild("LevelLabel")
 

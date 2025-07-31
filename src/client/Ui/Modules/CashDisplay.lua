@@ -69,11 +69,15 @@ function CashDisplay:fade()
 		local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
 
 		-- Fade transparency
-		local transparencyTween1 = TweenService:Create(self.label, fadeInfo, {
+		local labelTween = TweenService:Create(self.label, fadeInfo, {
 			TextTransparency = 1,
 		})
 
-		local transparencyTween2 = TweenService:Create(self.arrow, fadeInfo, {
+		local strokeTween = TweenService:Create(self.label:FindFirstChildOfClass("UIStroke"), fadeInfo, {
+			Transparency = 1,
+		})
+
+		local imageTween = TweenService:Create(self.arrow, fadeInfo, {
 			ImageTransparency = 1,
 		})
 
@@ -82,8 +86,9 @@ function CashDisplay:fade()
 			Size = DEFAULT_UI_SIZE - UDim2.fromOffset(15, 15),
 		})
 
-		transparencyTween1:Play()
-		transparencyTween2:Play()
+		labelTween:Play()
+		strokeTween:Play()
+		imageTween:Play()
 		scaleTween:Play()
 	end
 end

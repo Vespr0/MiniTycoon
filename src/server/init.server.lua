@@ -5,6 +5,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 workspace:WaitForChild("Assets").Parent = ReplicatedStorage
 -- Load modules --
 
+-- TODO: Automate this , what the hell why am i calling setup manually lmao
+
 -- Setup Plots and Placement
 require(script.Plots.PlotManager).Setup()
 require(script.Plots.ServerPlacement).Setup()
@@ -14,6 +16,7 @@ require(script.Plots.TilingManager).Setup()
 require(script.PlayerManager).Setup()
 require(script.Data.PlayerDataStore).Setup()
 require(script.Data.PlayerDataManager).Setup()
+require(script.Data.PlayerOrderedDataManager).Setup()
 
 -- Setup Services
 require(script.Services.MarketManager).Setup()

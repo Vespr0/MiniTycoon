@@ -12,10 +12,11 @@ local Shared = ReplicatedStorage.Shared
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
 
+-- Ui Modules
+local Ui = require(script.Parent.Parent.UiUtility)
+
 -- Gui elements --
-local Gui = PlayerGui:WaitForChild("Cash")
-local MainFrame = Gui:WaitForChild("MainFrame")
-local MoneyLabel = MainFrame:WaitForChild("MoneyLabel")
+local MoneyLabel = Ui.TopGui:WaitForChild("MainFrame"):WaitForChild("MoneyLabel")
 
 -- Constants --
 local TWEEN_INFO = TweenInfo.new(0.15, Enum.EasingStyle.Bounce, Enum.EasingDirection.InOut, 0, true)

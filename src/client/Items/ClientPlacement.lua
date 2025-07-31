@@ -59,7 +59,7 @@ local movingFlag = false -- upvalue for move/cancel logic
 
 local function animatePlacement(model: Model)
 	if not model or typeof(model) ~= "Instance" then
-		return warn("Error animating placement, model isn't valid.")
+		return error("Error animating placement, model isn't valid.")
 	end
 
 	Ui.PlaySound("Place")
@@ -119,7 +119,7 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 	local item = AssetsDealer.GetItem(itemName)
 
 	local config = require(item.config)
-	print(config)
+	-- print(config)
 	
 	-- Model.
 	local localID = 0
@@ -179,7 +179,7 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 	-- Finalizes the placement of the item.
 	local function placeItem()
 		isPlacing = false
-		ClientPlacement.PlacementFinished:Fire()
+		ClientPlacement.PlacementFinished:Fire(itemName)
 		ClientPlacement.PlacementStatusUpdated:Fire(isPlacing)
 
 		clean()

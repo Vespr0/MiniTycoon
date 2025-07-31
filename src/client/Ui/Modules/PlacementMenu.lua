@@ -13,7 +13,7 @@ local Signal = require(ReplicatedStorage.Packages.signal)
 
 -- Ui Elements 
 local Gui = Ui.PlacementMenuGui
-local MainFrame = Gui:WaitForChild("MainFrame")
+local MainFrame = Gui:WaitForChild("Holder"):WaitForChild("MainFrame")
 local RotateButton = MainFrame:WaitForChild("Rotate")
 local CancelButton = MainFrame:WaitForChild("Cancel")
 

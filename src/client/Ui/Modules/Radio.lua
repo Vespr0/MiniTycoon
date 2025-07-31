@@ -1,34 +1,36 @@
 local Radio = {}
 
 -- Services --
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 -- Folders --
 local Shared = ReplicatedStorage.Shared
+local Packages = ReplicatedStorage.Packages
 
 -- Modules --
 local Ui = require(script.Parent.Parent.UiUtility)
 local AssetsDealer = require(Shared.AssetsDealer)
 local ClientInput = require(script.Parent.Parent.Parent.Input.ClientInput)
--- TODO: Use SoundManager
+-- TODO: peek SoundManager
 -- local SoundManager = require(Shared.Sound.SoundManager)
 
--- LocalPlayer --
-local Player = Players.LocalPlayer
-local PlayerGui = Player.PlayerGui
+-- Fusion --
+local Fusion = require(Packages.fusion)
+local peek = Fusion.peek
 
 -- Gui elements --
-local Gui = PlayerGui:WaitForChild("Radio")
+local Gui = Ui.PlayerGui:WaitForChild("Radio")
 local MainFrame = Gui:WaitForChild("MainFrame")
 local Button = MainFrame:WaitForChild("Button")
 local StatusLabel = MainFrame:WaitForChild("Status")
+local ButtonIcon = Button:WaitForChild("Icon")
 
 -- Constants --
 local MUSIC_ENABLED_DEFAULT = true
 local MUSIC_VOLUME = 0.2
 local FADE_TIME = 5
+local MAX_SWAY_ROTATION = 10
 local MUSIC_TRACKS = {
 	{
 		directory = "Music/ChillFactor",
@@ -42,6 +44,14 @@ local MUSIC_TRACKS = {
 		directory = "Music/Beachcomber",
 		displayName = "Beachcomber",
 	},
+	{
+		directory = "Music/EmotionalWilderness",
+		displayName = "Emotional Wilderness",
+	},
+	{
+		directory = "Music/Troposphere",
+		displayName = "Troposphere",
+	},
 }
 local BUTTON_COLOR_ON = Color3.fromRGB(255, 255, 255) -- White for on
 local BUTTON_COLOR_OFF = Color3.fromRGB(224, 47, 47) -- Red for off
@@ -49,36 +59,57 @@ local STATUS_COLOR_ON = Color3.fromRGB(255, 255, 255) -- White for on
 local STATUS_COLOR_OFF = Color3.fromRGB(224, 47, 47) -- Red for off
 
 -- Variables --
-local musicEnabled = MUSIC_ENABLED_DEFAULT
 local currentMusicSound = nil
-local currentTrackIndex = 1
 local Random = Random.new(os.clock())
+local scope = Fusion.scoped(Fusion)
 
--- Functions --
+-- State --
+local musicEnabledState = scope:Value(MUSIC_ENABLED_DEFAULT)
+local currentTrackIndexState = scope:Value(1)
+local swayGoal = scope:Value(0) -- For the swaying animation
+
+-- Computed values --
+local buttonColor = scope:Computed(function(peek)
+	return peek(musicEnabledState) and BUTTON_COLOR_ON or BUTTON_COLOR_OFF
+end)
+
+local statusText = scope:Computed(function(peek)
+	local musicEnabled = peek(musicEnabledState)
+	local currentTrackIndex = peek(currentTrackIndexState)
+
+	if musicEnabled and MUSIC_TRACKS[currentTrackIndex] then
+		return "♪ Playing: " .. MUSIC_TRACKS[currentTrackIndex].displayName .. " ♪"
+	else
+		return "♪ Off ♪"
+	end
+end)
+
+local statusColor = scope:Computed(function(peek)
+	return peek(musicEnabledState) and STATUS_COLOR_ON or STATUS_COLOR_OFF
+end)
+
+-- Swaying animation tween
+local swayTween = scope:Tween(
+	swayGoal,
+	TweenInfo.new(
+		1.5, -- Duration: 1.5 seconds for smooth sway
+		Enum.EasingStyle.Sine, -- Smooth sine wave motion
+		Enum.EasingDirection.InOut, -- Smooth start and end
+		-1, -- Infinite repeats
+		true -- Reverse (creates oscillation)
+	)
+)
+
 local function randomizeTrack()
 	if #MUSIC_TRACKS > 1 then
+		local currentTrackIndex = peek(currentTrackIndexState)
 		local newIndex = Random:NextInteger(1, #MUSIC_TRACKS)
 		-- Ensure we don't pick the same track twice in a row
 		while newIndex == currentTrackIndex do
 			newIndex = Random:NextInteger(1, #MUSIC_TRACKS)
 		end
-		currentTrackIndex = newIndex
+		currentTrackIndexState:set(newIndex)
 	end
-end
-
-local function updateButtonColor()
-	Ui.UpdateToggleButtonColor(Button, musicEnabled, BUTTON_COLOR_ON, BUTTON_COLOR_OFF)
-end
-
-local function updateStatusLabel()
-	if musicEnabled and MUSIC_TRACKS[currentTrackIndex] then
-		StatusLabel.Text = "♪ Now Playing: " .. MUSIC_TRACKS[currentTrackIndex].displayName .. " ♪"
-	else
-		StatusLabel.Text = "♪ Music Off ♪"
-	end
-
-	-- Update status label color based on music state
-	StatusLabel.TextColor3 = musicEnabled and STATUS_COLOR_ON or STATUS_COLOR_OFF
 end
 
 local function stopCurrentMusicImmediately()
@@ -108,7 +139,7 @@ local function stopCurrentMusicWithFade()
 end
 
 local function playMusic()
-	if not musicEnabled then
+	if not peek(musicEnabledState) then
 		return
 	end
 
@@ -116,7 +147,7 @@ local function playMusic()
 	stopCurrentMusicWithFade()
 
 	-- Get the current track
-	local currentTrack = MUSIC_TRACKS[currentTrackIndex]
+	local currentTrack = MUSIC_TRACKS[peek(currentTrackIndexState)]
 	local musicAsset = AssetsDealer.GetSound(currentTrack.directory)
 
 	if musicAsset then
@@ -132,23 +163,18 @@ local function playMusic()
 			Volume = MUSIC_VOLUME,
 		})
 		fadeIn:Play()
-
-		-- print("Now playing:", currentTrack.displayName)
-		updateStatusLabel()
 	else
-		-- warn("Could not find music track:", currentTrack.directory)
+		warn("Could not find music track:", currentTrack.directory)
 	end
 end
 
 local function onButtonPressed()
-	musicEnabled = not musicEnabled
-	-- print("Music toggled:", musicEnabled and "ON" or "OFF")
+	local newMusicEnabled = not peek(musicEnabledState)
+	musicEnabledState:set(newMusicEnabled)
 
 	Ui.PlaySound("Click")
-	updateButtonColor()
-	updateStatusLabel()
 
-	if musicEnabled then
+	if newMusicEnabled then
 		randomizeTrack() -- Randomize track when turning music back on
 		playMusic()
 	else
@@ -160,95 +186,49 @@ function Radio.Setup()
 	-- Connect button press event
 	Button.Activated:Connect(onButtonPressed)
 
-	-- Set initial button color
-	updateButtonColor()
+	-- Set up reactive observers for existing GUI elements
+	scope:Observer(buttonColor):onChange(function()
+		Ui.UpdateToggleButtonColor(ButtonIcon, peek(musicEnabledState), BUTTON_COLOR_ON, BUTTON_COLOR_OFF)
+	end)
 
+	scope:Observer(statusText):onChange(function()
+		StatusLabel.Text = peek(statusText)
+	end)
+
+	scope:Observer(statusColor):onChange(function()
+		StatusLabel.TextColor3 = peek(statusColor)
+	end)
+
+	-- Apply swaying rotation to the button
+	scope:Observer(swayTween):onChange(function()
+		local rotation = peek(swayTween)
+		if peek(musicEnabledState) then
+			ButtonIcon.Rotation = rotation-MAX_SWAY_ROTATION/2
+		else	
+			ButtonIcon.Rotation = 0
+		end
+	end)
+
+	-- TODO: Decide on this
 	-- Hide status label on mobile devices
-	StatusLabel.Visible = not ClientInput.IsMobile
+	-- StatusLabel.Visible = not ClientInput.IsMobile
 
 	-- Randomize initial track selection
 	randomizeTrack()
 
-	-- Set initial status text
-	updateStatusLabel()
+	-- Trigger observers to set initial values
+	peek(buttonColor) -- Triggers the buttonColor observer
+	peek(statusText) -- Triggers the statusText observer
+	peek(statusColor) -- Triggers the statusColor observer
+	peek(swayTween) -- Triggers the swayTween observer
+
+	swayGoal:set(MAX_SWAY_ROTATION)
 
 	-- Set initial state and start music if enabled
-	-- print("Radio module initialized. Music is", musicEnabled and "ON" or "OFF")
+	-- print("Radio module initialized. Music is", peek(musicEnabledState) and "ON" or "OFF")
 
-	if musicEnabled then
+	if peek(musicEnabledState) then
 		playMusic()
-	end
-end
-
--- Public API --
-function Radio.IsMusicEnabled()
-	return musicEnabled
-end
-
-function Radio.SetMusicEnabled(enabled)
-	if type(enabled) == "boolean" then
-		musicEnabled = enabled
-		-- print("Music set to:", musicEnabled and "ON" or "OFF")
-
-		updateButtonColor()
-		updateStatusLabel()
-
-		if musicEnabled then
-			randomizeTrack() -- Randomize track when turning music back on
-			playMusic()
-		else
-			stopCurrentMusicImmediately() -- No fade when turning off
-		end
-	end
-end
-
-function Radio.ToggleMusic()
-	onButtonPressed()
-end
-
-function Radio.NextTrack()
-	if #MUSIC_TRACKS > 1 then
-		currentTrackIndex = currentTrackIndex + 1
-		if currentTrackIndex > #MUSIC_TRACKS then
-			currentTrackIndex = 1
-		end
-
-		if musicEnabled then
-			playMusic()
-		else
-			updateStatusLabel() -- Update status even if music is off
-		end
-	end
-end
-
-function Radio.PreviousTrack()
-	if #MUSIC_TRACKS > 1 then
-		currentTrackIndex = currentTrackIndex - 1
-		if currentTrackIndex < 1 then
-			currentTrackIndex = #MUSIC_TRACKS
-		end
-
-		if musicEnabled then
-			playMusic()
-		else
-			updateStatusLabel() -- Update status even if music is off
-		end
-	end
-end
-
-function Radio.GetCurrentTrack()
-	return MUSIC_TRACKS[currentTrackIndex]
-end
-
-function Radio.GetCurrentTrackName()
-	return MUSIC_TRACKS[currentTrackIndex] and MUSIC_TRACKS[currentTrackIndex].displayName or "Unknown"
-end
-
-function Radio.SetVolume(volume)
-	if type(volume) == "number" and volume >= 0 and volume <= 1 then
-		if currentMusicSound then
-			currentMusicSound.Volume = volume
-		end
 	end
 end
 

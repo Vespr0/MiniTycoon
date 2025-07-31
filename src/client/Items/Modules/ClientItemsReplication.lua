@@ -26,64 +26,72 @@ local ClientDropper = require(script.Parent.Parent.Droppers.ClientDropper)
 local Signal = require(Packages.signal)
 
 -- Variables --
-repeat task.wait(.2) until Player:GetAttribute("Plot") and PlacementUtility.GetClientPlot()
+repeat
+	task.wait(0.2)
+until Player:GetAttribute("Plot") and PlacementUtility.GetClientPlot()
 local Plot = PlacementUtility.GetClientPlot()
 
-ReplicationFunctions = {} 
+ReplicationFunctions = {}
 
 ReplicationFunctions.Dropper = function(args)
-    local localID = args.localID
+	local model = args.model
 
-    -- Wait for item to be replicated
-    print(Plot.Name)
-    local model = PlacementUtility.WaitForItemFromLocalID(Plot.Items,localID, 5)
-    
-    if not model then
-        error(`Tried to get replicated item from localID ({localID}) but was not found.`)
-        return
-    end
+	-- If we have a localID instead of a model, get the model
+	if not model and args.localID then
+		model = PlacementUtility.WaitForItemFromLocalID(Plot.Items, args.localID, 5)
 
-    -- Instanciate class
-    local dropper = ClientDropper.new({
-        model = model,
-        dropPropieties = args.config.DropPropieties,
-        config = args.config,
-        plot = Plot
-    })
+		if not model then
+			error(`Tried to get replicated item from localID ({args.localID}) but was not found.`)
+			return
+		end
+	end
 
-    repeat task.wait(1) until not dropper:exists()
+	-- Instanciate class
+	local dropper = ClientDropper.new({
+		model = model,
+		dropPropieties = args.config.DropPropieties,
+		config = args.config,
+		plot = Plot,
+	})
+
+	repeat
+		task.wait(1)
+	until not dropper:exists()
 end
 
-function ClientItemsReplication.Replicate(itemType,args)
-    if not ReplicationFunctions[itemType] then
-        -- warn("No replication function for type: " .. itemType)
-        return 
-    end
-    ReplicationFunctions[itemType](args)
+function ClientItemsReplication.Replicate(itemType, args)
+	if not ReplicationFunctions[itemType] then
+		-- warn("No replication function for type: " .. itemType)
+		return
+	end
+	ReplicationFunctions[itemType](args)
 end
 
--- TODO: items that existed before the setup run are replicated with the for loop below.
--- Said loop sends localID gotten from the item model to identify it, the replicate function
--- then converts it back to a model. This is silly.
+function ClientItemsReplication.ReplicateWithModel(itemType, model, config)
+	if not ReplicationFunctions[itemType] then
+		-- warn("No replication function for type: " .. itemType)
+		return
+	end
+	ReplicationFunctions[itemType]({
+		model = model,
+		config = config,
+	})
+end
 
 function ClientItemsReplication.Setup()
-    -- Replicate existing items
-    for _,item in pairs(Plot.Items:GetChildren()) do
-        local localID = item:GetAttribute("LocalID")
-        local itemType = item:GetAttribute("ItemType")
-        local config = ItemUtility.GetItemConfig(item.Name)
-            
-        if localID then
-            ClientItemsReplication.Replicate(itemType,{
-                localID = localID,
-                config = config
-            })
-        end
-    end
+	-- Replicate existing items directly with their models
+	for _, item in pairs(Plot.Items:GetChildren()) do
+		local itemType = item:GetAttribute("ItemType")
+		local config = ItemUtility.GetItemConfig(item.Name)
 
-    Events.ItemReplication.OnClientEvent:Connect(function(itemType,args)
-        ClientItemsReplication.Replicate(itemType,args)
-    end)
+		if itemType and config then
+			ClientItemsReplication.ReplicateWithModel(itemType, item, config)
+		end
+	end
+
+	Events.ItemReplication.OnClientEvent:Connect(function(itemType, args)
+		ClientItemsReplication.Replicate(itemType, args)
+	end)
 end
 
 return ClientItemsReplication

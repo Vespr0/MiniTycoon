@@ -8,7 +8,7 @@ PlotUtility.Upgrades = {
 	PlotLevel = {
 		DisplayName = "Plot Level";
 		Description = "<b>Expands</b> your plot and increases the <b>part limit</b>";
-		MaxValue = 5;
+		MaxValue = 10;
 	}	
 }
 

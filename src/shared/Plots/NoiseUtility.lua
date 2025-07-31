@@ -22,6 +22,37 @@ function NoiseUtility.generatePerlinWorm(startX: number, startY: number, seed: n
     return points
 end
 
+-- Generates a Perlin worm that's biased to pass through the center area
+function NoiseUtility.generatePerlinWormThroughCenter(startX: number, startY: number, seed: number, length: number, stepSize: number?, angleStep: number?): {{x: number, y: number}}
+    local points = {}
+    local x, y = startX, startY
+    local currentAngle = 0
+    local step = stepSize or 1
+    local angleStepSize = angleStep or math.pi / 6
+    
+    for i = 1, length do
+        table.insert(points, {x = x, y = y})
+        
+        -- Calculate bias toward center (0, 0)
+        local distanceToCenter = math.sqrt(x * x + y * y)
+        local angleToCenter = math.atan2(-y, -x) -- Angle pointing toward center
+        
+        -- Use Perlin noise for natural variation
+        local noise = math.noise(x * 0.1, y * 0.1, seed + i)
+        local noiseAngleChange = noise * angleStepSize
+        
+        -- Apply center bias - stronger when farther from center
+        local centerBias = math.min(distanceToCenter / 20, 1) * 0.3 -- Max 30% bias
+        local biasedAngle = angleToCenter * centerBias + noiseAngleChange * (1 - centerBias)
+        
+        currentAngle = currentAngle + biasedAngle
+        x = x + math.cos(currentAngle) * step
+        y = y + math.sin(currentAngle) * step
+    end
+    
+    return points
+end
+
 -- Basic octave summation for Perlin noise
 function NoiseUtility.getNoiseValue(x: number, y: number, seed: number, scale: number?, octaves: number?, persistence: number?): number
     local oct = octaves or 3

@@ -3,7 +3,6 @@ local TilingTest = {}
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Terrain = workspace.Terrain
 
 -- Modules
 local TilingUtility = require(Shared.Plots.TilingUtility)
@@ -14,17 +13,17 @@ TilingTest.Enabled = true
 
 -- Store placed tile data for testing
 local placedTiles = {}
-local terrainBlocks = {}
+local tileParts = {}
 
 function TilingTest.Run()
 	-- Clear any existing test data
 	TilingTest.Cleanup()
 	placedTiles = {}
-	terrainBlocks = {}
+	tileParts = {}
 
-	local plotRoot = workspace.Plots.Plot7.Root
+	local plotRoot = workspace.Plots.Plot6.Root
 
-	print("=== GENERATING TERRAIN TILES ===")
+	print("=== GENERATING TILE PARTS ===")
 	print(`Plot root at: {plotRoot.Position}`)
 
 	-- Generate tiles using a fixed seed
@@ -37,9 +36,9 @@ function TilingTest.Run()
 	local origin = plotRoot.Position - Vector3.new(maxPlotWidth / 2 + tileSize / 2, 0, maxPlotWidth / 2 + tileSize / 2)
 
 	print(`Client origin: {origin}`)
-	print(`Generating {TilingUtility.TILES_PER_SIDE}x{TilingUtility.TILES_PER_SIDE} terrain tiles...`)
+	print(`Generating {TilingUtility.TILES_PER_SIDE}x{TilingUtility.TILES_PER_SIDE} tile parts...`)
 
-	-- Place terrain tiles exactly like the client does
+	-- Place tile parts exactly like the client does
 	for x = 1, TilingUtility.TILES_PER_SIDE do
 		if x % 10 == 0 then
 			task.wait() -- Yield occasionally to avoid freezing
@@ -51,35 +50,38 @@ function TilingTest.Run()
 			-- Position it exactly like the client would
 			local worldPosition = origin + Vector3.new(x * tileSize, 0, y * tileSize)
 
-			-- Choose material and fill based on tile type
-			local material = Enum.Material.Grass
+			-- Choose material and color based on tile type
+			local material = Enum.Material.Plastic
+			local color = Color3.fromRGB(100, 100, 100) -- Default gray
 
 			if tile.assetName == "Grass" then
 				material = Enum.Material.Grass
+				color = Color3.fromRGB(34, 139, 34) -- Forest green
 			elseif tile.assetName == "Sand" then
 				material = Enum.Material.Sand
+				color = Color3.fromRGB(238, 203, 173) -- Sandy brown
 			elseif tile.assetName == "Water" then
-				material = Enum.Material.Water
+				material = Enum.Material.ForceField
+				color = Color3.fromRGB(65, 105, 225) -- Royal blue
 			elseif tile.assetName == "Rock" then
 				material = Enum.Material.Rock
+				color = Color3.fromRGB(105, 105, 105) -- Dim gray
 			else
 				error("Unknown tile asset name: " .. tile.assetName)
 			end
 
-			-- Create CFrame and size for FillBlock
-			local blockCFrame = CFrame.new(worldPosition + Vector3.new(0, 0, 0))
-			local blockSize = Vector3.new(tileSize, 5, tileSize)
+			-- Create the tile part
+			local tilePart = Instance.new("Part")
+			tilePart.Name = `Tile_{x}_{y}_{tile.assetName}`
+			tilePart.Size = Vector3.new(tileSize, 1, tileSize)
+			tilePart.Position = worldPosition
+			tilePart.Material = material
+			tilePart.Color = color
+			tilePart.Anchored = true
+			tilePart.Parent = workspace
 
-			-- Fill the terrain
-			if not (tile.assetName == "Water") then
-				Terrain:FillBlock(blockCFrame, blockSize, material)
-			end
-
-			-- Store block info for cleanup
-			table.insert(terrainBlocks, {
-				cframe = blockCFrame,
-				size = blockSize,
-			})
+			-- Store part for cleanup
+			table.insert(tileParts, tilePart)
 
 			-- Store tile info for testing
 			table.insert(placedTiles, {
@@ -87,14 +89,14 @@ function TilingTest.Run()
 				arrayX = x,
 				arrayY = y,
 				worldPosition = worldPosition,
-				blockCFrame = blockCFrame,
-				blockSize = blockSize,
+				tilePart = tilePart,
 				material = material,
+				color = color,
 			})
 		end
 	end
 
-	print(`Generated {#placedTiles} terrain tiles`)
+	print(`Generated {#placedTiles} tile parts`)
 	print("=== TESTING COORDINATE CONVERSION ===")
 
 	-- Test conversion on random tiles
@@ -170,13 +172,13 @@ function TilingTest.Run()
 	print("Call TilingTest.Cleanup() to remove all test terrain and markers")
 end
 
--- Clean up function to remove all test terrain and markers
+-- Clean up function to remove all test parts and markers
 function TilingTest.Cleanup()
-	local terrain = workspace.Terrain
-
-	-- Remove all terrain blocks we created
-	for _, block in ipairs(terrainBlocks) do
-		terrain:FillBlock(block.cframe, block.size, Enum.Material.Air)
+	-- Remove all tile parts we created
+	for _, tilePart in ipairs(tileParts) do
+		if tilePart and tilePart.Parent then
+			tilePart:Destroy()
+		end
 	end
 
 	-- Remove all marker parts
@@ -192,8 +194,8 @@ function TilingTest.Cleanup()
 	end
 
 	placedTiles = {}
-	terrainBlocks = {}
-	print("Test cleanup completed - terrain cleared and markers removed.")
+	tileParts = {}
+	print("Test cleanup completed - tile parts and markers removed.")
 end
 
 return TilingTest

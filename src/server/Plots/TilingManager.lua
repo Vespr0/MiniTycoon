@@ -17,7 +17,8 @@ function TilingManager.Resize(root: BasePart, plotLevel: number)
     local actualPlotWidth = TilingUtility.GetActualPlotWidth(plotLevel)
     root.Size = Vector3.new(actualPlotWidth, 1, actualPlotWidth)
 
-    ReplicateBorder:FireAllClients(root)
+    local plot = root.Parent
+     ReplicateBorder:FireAllClients(plot.Name)
 end
 
 --- Loads and tiles the plot root with tiles.
@@ -42,7 +43,7 @@ function TilingManager.Setup()
 
                 local seed = info.seed
                 ReplicateTiling:FireClient(player, plot.Name, seed)
-                ReplicateBorder:FireClient(player, info.root)
+                ReplicateBorder:FireClient(player, plot.Name)
             end
         end
     end)

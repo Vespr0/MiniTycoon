@@ -1,16 +1,16 @@
 local ClientLoader = {}
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContentProvider = game:GetService("ContentProvider")
-local TweenService = game:GetService("TweenService")
 
-
+local Signal = require(ReplicatedStorage.Packages.signal)
+local LoadingUtility = require(ReplicatedStorage.Shared.Utility.LoadingUtility)
 local LoadingScreen = require(script.Parent.Ui.Modules.LoadingScreen)
 
 local Events = ReplicatedStorage:WaitForChild("Events")
-local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Assets = ReplicatedStorage:WaitForChild("Assets")
+
+ClientLoader.ClientLoadedEvent = Signal.new()
+ClientLoader.ClientLoaded = false
 
 local FOLDERS = {
 	script.Parent.Data;
@@ -48,20 +48,24 @@ function ClientLoader.Start()
 	LoadingScreen.SetContext("Loading Modules")
 	ClientLoader.SetProgress(0)
 
-	for i, folder in FOLDERS do
-		for _, module in pairs(folder:GetChildren()) do
-			if not module:IsA("ModuleScript") then continue end
-			local required = require(module)
-			if required.Setup then
-				required.Setup()
-			end
-			-- task.wait(.1)
-		end
-		ClientLoader.SetProgress(i / #FOLDERS)
-	end
+	-- Collect all modules with Setup functions
+	local modules = LoadingUtility.CollectModules(FOLDERS)
+	
+	-- Resolve dependencies and sort modules
+	local sortedModules = LoadingUtility.ResolveDependencies(modules)
+	
+	-- Load modules in dependency order
+	LoadingUtility.LoadModules(
+		sortedModules,
+		function(progress) ClientLoader.SetProgress(progress) end,
+		function(context) LoadingScreen.SetContext(context) end
+	)
+
 	ClientLoader.SetProgress(1)
 	task.wait(.1)
 	Events.ClientLoaded:FireServer()
+	ClientLoader.ClientLoaded = true
+	ClientLoader.ClientLoadedEvent:Fire()
 	LoadingScreen.Close()
 end
 

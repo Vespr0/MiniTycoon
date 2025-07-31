@@ -3,10 +3,12 @@ local DataUtility = {}
 local RunService = game:GetService("RunService")
 
 local DATA_KEYS = {
-    "Cash";"Level";"Exp"
+	"Cash",
+	"Level",
+	"Exp",
 }
 local DATA_FOLDERS = {
-    "Storage";
+	"Storage",
 }
 
 --[[
@@ -30,11 +32,11 @@ Data scopes:
 
 local PLAYER_DATA_SCOPE = (RunService:IsStudio() and "SEX#0" or "Dev#3")
 local DATA_SCOPES = {
-    Player = PLAYER_DATA_SCOPE;
+	Player = PLAYER_DATA_SCOPE,
 }
 
 function DataUtility.GetDataScope(name)
-    return DATA_SCOPES[name]
+	return DATA_SCOPES[name]
 end
 --[[
 function DataUtility.CreateDataFolder()

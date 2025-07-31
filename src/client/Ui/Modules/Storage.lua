@@ -1,11 +1,17 @@
 local Storage = {}
 
+Storage.Dependencies = {
+	"Menu"
+}
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
+
+-- TODO: this module is so ass please use fusion 
 
 -- Ui Modules
 local Ui = require(script.Parent.Parent.UiUtility)
@@ -19,7 +25,8 @@ local ItemsFrame = InnerFrame:WaitForChild("ItemsFrame")
 local TypeSelectorsFrame = MainFrame:WaitForChild("TypeSelectors")
 local SearchBar = InnerFrame:WaitForChild("SearchBar")
 local TextBox = SearchBar:WaitForChild("TextBox")
-local SearchClearButton = TextBox:WaitForChild("Clear")
+local SearchIcon = SearchBar:WaitForChild("Icon")
+local SearchClearButton = SearchIcon:WaitForChild("Clear")
 
 local Shared = ReplicatedStorage.Shared
 local Packages = ReplicatedStorage.Packages
@@ -53,6 +60,8 @@ local CurrentSearchQuery = ""
 local trove = require(Packages.trove).new()
 
 Storage.OpenedEvent = Signal.new()
+Storage.ClosedEvent = Signal.new()
+Storage.ItemSelected = Signal.new()
 
 -- Modules --
 local ItemUtility = require(Shared.Items.ItemUtility)
@@ -128,6 +137,7 @@ local function updateItems()
 		uiItem.Parent = ItemsFrame
 		uiItem.ItemCount.Text = "x" .. count
 		uiItem.ItemName.Text = `{config.DisplayName}`
+		uiItem.Name = itemName
 
 		local viewport = ViewportUtil.CreateItemViewport(itemName)
 		viewport.Parent = uiItem
@@ -137,6 +147,7 @@ local function updateItems()
 		TipsUtility.UpdateTips(uiItem.Tips, tips, 10)
 
 		trove:Connect(uiItem.MouseButton1Click, function()
+			Storage.ItemSelected:Fire(itemName)
 			ClientPlacement.StartPlacing(itemName)
 		end)
 	end
@@ -149,6 +160,12 @@ local function updateTypeSelectors()
 	end
 end
 
+-- API
+
+function Storage.WaitForItemInItemsFrame(itemName: string)
+	return ItemsFrame:WaitForChild(itemName,5)
+end
+
 -- Module Functions
 function Storage.Open()
 	Gui.Enabled = true
@@ -159,6 +176,7 @@ function Storage.Open()
 	TextBox.Text = ""
 	CurrentSearchQuery = ""
 	SearchClearButton.Visible = false
+	SearchIcon.ImageTransparency = 0.5
 
 	updateItems()
 	updateTypeSelectors()
@@ -171,6 +189,8 @@ function Storage.Close()
 	tweenPopup(ORIGIN + UDim2.fromScale(0.5, 0))
 	task.wait(Ui.MENU_TWEEN_INFO.Time)
 	Gui.Enabled = false
+
+	Storage.ClosedEvent:Fire()
 end
 
 function Storage.Setup()
@@ -191,6 +211,7 @@ function Storage.Setup()
 	TextBox:GetPropertyChangedSignal("Text"):Connect(function()
 		CurrentSearchQuery = TextBox.Text
 		SearchClearButton.Visible = CurrentSearchQuery ~= ""
+		SearchIcon.ImageTransparency = CurrentSearchQuery ~= "" and 1 or 0.5
 		updateItems()
 	end)
 
@@ -200,6 +221,7 @@ function Storage.Setup()
 		TextBox.Text = ""
 		CurrentSearchQuery = ""
 		SearchClearButton.Visible = false
+		SearchIcon.ImageTransparency = 0.5
 		updateItems()
 	end)
 

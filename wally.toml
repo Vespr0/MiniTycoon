@@ -20,3 +20,4 @@ signal = "sleitnick/signal@1.5.0"
 # UI
 fusion = "elttob/fusion@0.3.0"
 ui-labs = "pepeeltoro41/ui-labs@2.4.0"
+uiparticle = "kumarion/uiparticle@0.0.1"

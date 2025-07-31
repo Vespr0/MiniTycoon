@@ -12,6 +12,7 @@ local DataAccess = require(script.Parent.Parent.DataAccess)
 local DataUtility = DataAccess.DataUtility
 local LevelingUtil = require(Shared.Data.LevelingUtil)
 local OnboardingAccess = require(script.Parent.OnboardingAccess)
+local LevelingOrdered = require(script.Parent.Parent.OrderedDataModules.LevelingOrdered)
 
 function LevelingAccess.GiveExp(...)
 	local player, amount = DataAccess.GetParameters(...)
@@ -30,6 +31,11 @@ function LevelingAccess.GiveExp(...)
     dataStore.Value.Level = newLevel
     dataStore.Value.Exp = newExp
 
+    -- Update OrderedDataStore if level changed
+    if newLevel ~= level then
+        LevelingOrdered.UpdatePlayerLevel(player, newLevel)
+    end
+
     -- Check for level-based onboarding steps
     OnboardingAccess.CheckLevelSteps(player, newLevel)
 
@@ -45,6 +51,10 @@ function LevelingAccess.ResetLeveling(...)
     if not dataStore then return end
     dataStore.Value.Level = 1
     dataStore.Value.Exp = 0
+    
+    -- Update OrderedDataStore
+    LevelingOrdered.UpdatePlayerLevel(player, 1)
+    
     DataAccess.PlayerDataChanged:Fire(player,"Leveling",dataStore.Value.Exp,dataStore.Value.Level)
 end
 
@@ -58,10 +68,21 @@ function LevelingAccess.Get(...)
     return dataStore.Value.Level,dataStore.Value.Exp
 end
 
-function LevelingAccess.Setup()
-    for _,player in Players:GetPlayers() do
-        LevelingAccess.ResetLeveling(player)
+local function updateOrdered(player: Player)
+    local level,_ = LevelingAccess.Get(player)
+    if level then
+        LevelingOrdered.UpdatePlayerLevel(player, level)
     end
+end
+
+function LevelingAccess.Setup()
+    -- Update ordered datastore when a player joins
+    for _,player in Players:GetPlayers() do
+        updateOrdered(player)
+    end
+    Players.PlayerAdded:Connect(function(player)
+        updateOrdered(player)
+    end)    
 end
 
 return LevelingAccess

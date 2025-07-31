@@ -88,7 +88,6 @@ function ItemsAccess.GiveStorageItems(...)
     local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
     if not dataStore then error(ERRORS.accessFailed.."#"..player.UserId); return end
 
-    warn(dataStore.Value.Storage)
     -- Database entry.
     if not dataStore.Value.Storage[itemName] then
         dataStore.Value.Storage[itemName] = amount
@@ -131,21 +130,20 @@ function ItemsAccess.GetStorageItem(...)
 end
 
 -- TODO : idk if this is corrent and eitherway it doesnt update the client
-function ItemsAccess.WipeAllItems(...)
-    local player = DataAccess.GetParameters(...)
-	if not player then return end
+-- function ItemsAccess.WipeAllItems(...)
+--     local player = DataAccess.GetParameters(...)
+-- 	if not player then return end
 	
-    local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
-    if not dataStore then return end
-    -- Setting database entry to nil to remove it.
-    for k,v in pairs(dataStore.Value.Storage) do
-        dataStore.Value.Storage[k] = nil
-    end
-    --DataAccess.PlayerDataChanged:Fire(player,"Storage"),nil,nil)
-end
+--     local dataStore = DataAccess.AccessDataStore(nil,player.UserId)
+--     if not dataStore then return end
+--     -- Setting database entry to nil to remove it.
+--     for k,v in pairs(dataStore.Value.Storage) do
+--         dataStore.Value.Storage[k] = nil
+--     end
+--     --DataAccess.PlayerDataChanged:Fire(player,"Storage"),nil,nil)
+-- end
 
 function ItemsAccess.Setup()
-
     -- Players.PlayerAdded:Connect(function(player)
     --     ItemsAccess.WipeAllItems(player)
     -- end)

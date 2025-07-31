@@ -1,5 +1,9 @@
 local Offers = {}
 
+Offers.Dependencies = {
+	"Shop"
+}
+
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +23,7 @@ local Time = require(Shared.Utility.Time)
 local ViewportUtil = require(script.Parent.Util.Viewport)
 local Insight = require(script.Parent.InsightFrame)
 local PopupUi = require(script.Parent.Popup)
+local AlertsManager = require(script.Parent.AlertsManager)
 
 -- Ui Elements
 local MainFrame = Ui.ShopGui:WaitForChild("MainFrame")
@@ -58,12 +63,6 @@ function get()
 	currentExpiration = data.expiration
 	currentOffers = data.offers
 end
-
--- local currentInsightTrove = nil -- Moved to InsightFrame.lua
-
--- local function canAfford(price) -- Moved to InsightFrame.lua
--- 	return ClientPlayerData.Data.Cash >= price
--- end
 
 local function buyOffer(offerID, price, itemName)
 	Ui.PlaySound("Purchase")
@@ -182,6 +181,11 @@ end
 
 function Offers.Reload()
 	get()
+	
+	-- Every time we reload offers, activate both alerts
+	AlertsManager.SwitchAlert("menu_Shop", true)
+	AlertsManager.SwitchAlert("shop_offers", true)
+	
 	local expired = checkExpiration()
 	if not expired then
 		updateContainer()
@@ -212,6 +216,9 @@ end
 -- Module Functions
 function Offers.Open()
 	OffersFrame.Visible = true
+	-- Turn off offers alert when user opens offers
+	AlertsManager.SwitchAlert("menu_Shop", false)
+	AlertsManager.SwitchAlert("shop_offers", false)
 	-- Optionally close Insight when opening OffersFrame
 	Insight.Close()
 end
@@ -225,6 +232,7 @@ end
 function Offers.Setup()
 	Offers.Reload()
 	Insight.Close() -- Use the new Close function
+	
 	local paused = false
 	RunService.RenderStepped:Connect(function()
 		if checkExpiration() then

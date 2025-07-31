@@ -28,12 +28,12 @@ function TipsUtility.CreateTipIcon(name)
 end
 
 function TipsUtility.GetItemConfigTips(itemConfig)
-    local canPlaceOnGround = itemConfig.CanPlaceOnGround or true
-	local canPlaceOnWater = itemConfig.CanPlaceOnWater or false
+    local canPlaceOnGround = itemConfig.CanPlaceOnGround
+	local canPlaceOnWater = itemConfig.CanPlaceOnWater
 
     local tips = {}
-	if canPlaceOnGround then
-		table.insert(tips, "CanPlaceOnGround")
+	if not canPlaceOnGround then
+		table.insert(tips, "CannotPlaceOnGround")
 	end
 	if canPlaceOnWater then
 		table.insert(tips, "CanPlaceOnWater")

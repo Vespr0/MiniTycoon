@@ -53,9 +53,12 @@ ClientPlayerData.ExpUpdate = Signal.new()
 ClientPlayerData.LevelUpdate = Signal.new()
 -- Storage
 ClientPlayerData.StorageUpdate = Signal.new()
+-- Plot
+ClientPlayerData.PlotUpdate = Signal.new()
 
 ClientPlayerData.DataSynched = false
 ClientPlayerData.DataSynchedEvent = Signal.new()
+
 
 function ClientPlayerData.Read(data)
     local functions = {
@@ -103,6 +106,7 @@ function ClientPlayerData.Read(data)
 		-- Plot
 		Plot = function(name,value)
 			ClientPlayerData.Data.Plot[name] = value
+            ClientPlayerData.PlotUpdate:Fire(name,value)
 		end;
     }
 	if data.type then

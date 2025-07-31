@@ -29,7 +29,7 @@ local DEFAULT_TERRAIN_CONFIG: TerrainConfig = {
 		{ threshold = 0.5, assetName = "Sand" },
 		{ threshold = -math.huge, assetName = "Water" }, -- fallback
 	},
-	riversCount = 2,
+	riversCount = 3,
 	rockThreshold = 0.8,
 	rockNoiseThreshold = 0.2,
 }
@@ -79,7 +79,7 @@ local function calculateCenterBias(relativeX: number, relativeY: number): number
 
 	-- More aggressive square island generation - positive bias at center, negative at edges
 	-- This forces water at borders and guarantees land in the center
-	local bias = math.cos(normalizedDistance * math.pi / 2) ^ 3 * 1.2 - normalizedDistance * 0.3
+	local bias = math.cos(normalizedDistance * math.pi / 2) ^ 2 * 1.2 - normalizedDistance * 0.4
 
 	return bias
 end
@@ -96,9 +96,6 @@ local function isNearRiver(x: number, y: number, riverPoints: any, radius: numbe
 end
 
 local function generateRivers(seed: number, riversCount: number): { any }
-	-- Seed for rivers cannot be nil
-	seed = math.abs(seed)
-
 	local rivers = {}
 	for i = 1, riversCount do
 		local random = Random.new(seed + i)
@@ -167,7 +164,7 @@ local function generateSingleTileData(
 end
 
 function TilingUtility.GetActualPlotWidth(plotLevel: number): number
-	return plotLevel * 20 -- Assuming each plot level increases the width by 20 units
+	return plotLevel * 10 + 10 -- Assuming each plot level increases the width by 10 units
 end
 
 function TilingUtility.GenerateSingleTile(tilePosition: TilePosition, seed: number, config: TerrainConfig?): Tile

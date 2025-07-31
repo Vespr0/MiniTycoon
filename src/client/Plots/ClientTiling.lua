@@ -162,12 +162,18 @@ function ClientTiling.Setup()
 		ClientTiling.GenerateTiling(plot, plot.Root, seed)
 	end)
 
-	ReplicateBorder.OnClientEvent:Connect(function(root)
-		if not root:IsA("BasePart") then
-			error("Expected root to be a BasePart, got " .. tostring(root))
+	ReplicateBorder.OnClientEvent:Connect(function(plotName)
+		local plot = workspace.Plots:FindFirstChild(plotName)
+		if not plot then
+			error("Plot with name " .. plotName .. " not found.")
 		end
 
-		ClientTiling.GenerateBorder(root.Parent, root)
+		local root = plot:FindFirstChild("Root")
+		if not root then
+			error("Root is nil or invalid")
+		end
+
+		ClientTiling.GenerateBorder(plot, root)
 	end)
 end
 

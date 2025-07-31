@@ -62,7 +62,7 @@ function PlacementUtility.GetItemFromLocalID(folder, localID)
 	return false
 end
 
-function PlacementUtility.WaitForItemFromLocalID(folder: Folder, localID: number, waitTime: number)
+function PlacementUtility.WaitForItemFromLocalID(folder: Folder, localID: number, waitTime: number?)
 	local model, timeout
 	local start = os.clock()
 	repeat
