@@ -15,6 +15,7 @@ function Selectors.new(buttonsFrame: Frame, selections, sections, buttonSelected
 
 	self.buttons = {}
 	self.frames = {}
+	self.enabled = true
 
 	-- Use provided colors or default to Ui constants
 	self.buttonSelectedColor = buttonSelectedColor or Ui.BUTTON_SELECTED_COLOR
@@ -28,12 +29,15 @@ function Selectors.new(buttonsFrame: Frame, selections, sections, buttonSelected
 
 	self:connectInputs()
 
+	self:toggle(true)
+
 	return self
 end
 
 function Selectors:connectInputs()
 	for _, button in self.buttons do
 		button.MouseButton1Click:Connect(function()
+			if not self.enabled then return end
 			Ui.PlaySound("Click")
 			self:switch(button.Name)
 		end)
@@ -67,6 +71,15 @@ function Selectors:switch(name)
 				warn(`No module/function for "{sectionName}" section.`)
 			end
 		end
+	end
+end
+
+function Selectors:toggle(enabled: boolean)
+	self.enabled = enabled
+
+	for _, button : ImageButton in self.buttons do
+		button.Active = enabled
+		button.ImageTransparency = enabled and 0 or 0.5
 	end
 end
 

@@ -144,9 +144,15 @@ end
 -- end
 
 function ItemsAccess.Init()
-    -- Players.PlayerAdded:Connect(function(player)
-    --     ItemsAccess.WipeAllItems(player)
-    -- end)
+    for _, player in Players:GetPlayers() do
+
+        ItemsAccess.GetStorageItem(player,"UraniumInfuser",100)
+    end
+    Players.PlayerAdded:Connect(function(player)
+        -- ItemsAccess.WipeAllItems(player)
+        
+        ItemsAccess.GetStorageItem(player,"UraniumInfuser",100)
+    end)
 end
 
 return ItemsAccess

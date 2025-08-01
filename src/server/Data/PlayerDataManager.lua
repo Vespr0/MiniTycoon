@@ -32,10 +32,10 @@ function PlayerDataManager.WipeUserData(userId)
 		dataStore.Value = PlayerDataStore.DataTemplate
 		local response = dataStore:Save()
 		if response == "Saved" then
-			warn("PlayerDataManager.WipeUserData: Wiped data for online userId " .. tostring(userId))
+			print("PlayerDataManager.WipeUserData: Wiped data for online userId " .. tostring(userId))
 			return true
 		else
-			warn(
+			error(
 				"PlayerDataManager.WipeUserData: Failed to save wiped data for userId "
 					.. tostring(userId)
 					.. " - "
@@ -49,13 +49,13 @@ function PlayerDataManager.WipeUserData(userId)
 		local response = tempDataStore:Open(PlayerDataStore.DataTemplate)
 
 		if response ~= "Success" then
-			warn(
+            tempDataStore:Destroy()
+            error(
 				"PlayerDataManager.WipeUserData: Failed to open datastore for userId "
-					.. tostring(userId)
-					.. " - "
-					.. response
+                .. tostring(userId)
+                .. " - "
+                .. response
 			)
-			tempDataStore:Destroy()
 			return false
 		end
 
@@ -67,10 +67,10 @@ function PlayerDataManager.WipeUserData(userId)
 		tempDataStore:Destroy()
 
 		if saveResponse == "Saved" then
-			warn("PlayerDataManager.WipeUserData: Wiped data for userId " .. tostring(userId))
+			print("PlayerDataManager.WipeUserData: Wiped data for userId " .. tostring(userId))
 			return true
 		else
-			warn(
+			error(
 				"PlayerDataManager.WipeUserData: Failed to save wiped data for userId "
 					.. tostring(userId)
 					.. " - "

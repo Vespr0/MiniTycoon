@@ -32,6 +32,15 @@ function PlotLoader.Resize(player)
 	TilingManager.Resize(root, plotLevel)
 end
 
+function PlotLoader.TeleportPlayer(player)
+	local plot = getPlotInfo(player)
+
+	task.spawn(function()
+		repeat task.wait(.2) until player.Character
+		player.Character.PrimaryPart:PivotTo(CFrame.new(plot.Root.Position+Vector3.yAxis*10))
+	end)
+end
+
 -- Resize the plot and load the items, this should be fired when the player joins for the first time.
 function PlotLoader.Load(player)
 	local plot, root, playerTag, plotLevel = getPlotInfo(player)
@@ -53,6 +62,8 @@ function PlotLoader.Load(player)
 			error("Error from player's(" .. playerTag .. ") plot loading placement : " .. arg1)
 		end
 	end
+
+	PlotLoader.TeleportPlayer(player)
 end
 
 return PlotLoader

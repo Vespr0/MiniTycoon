@@ -21,6 +21,7 @@ export type TerrainConfig = {
 	riversCount: number,
 	rockThreshold: number,
 	rockNoiseThreshold: number,
+	grassFieldRadius: number,
 }
 
 local DEFAULT_TERRAIN_CONFIG: TerrainConfig = {
@@ -32,6 +33,7 @@ local DEFAULT_TERRAIN_CONFIG: TerrainConfig = {
 	riversCount = 3,
 	rockThreshold = 0.8,
 	rockNoiseThreshold = 0.2,
+	grassFieldRadius = 4, -- Radius from center where rivers are not allowed
 }
 
 TilingUtility.TILES_PER_SIDE = PlotUtility.MaxPlotWidth / GameConfig.TileSize
@@ -95,6 +97,11 @@ local function isNearRiver(x: number, y: number, riverPoints: any, radius: numbe
 	return false
 end
 
+local function isInGrassField(x: number, y: number, grassFieldRadius: number): boolean
+	local distanceFromCenter = math.sqrt(x * x + y * y)
+	return distanceFromCenter <= grassFieldRadius
+end
+
 local function generateRivers(seed: number, riversCount: number): { any }
 	local rivers = {}
 	for i = 1, riversCount do
@@ -116,12 +123,17 @@ local function determineTileType(
 	rivers: { any },
 	config: TerrainConfig
 ): string
-	-- Rivers
-	for _, riverPoints in rivers do
-		local radius = noiseValue
-		local isRiver = isNearRiver(relativeX, relativeY, riverPoints, radius)
-		if isRiver then
-			return "Water"
+	-- Check if we're in the grass field radius (center area where rivers are not allowed)
+	local inGrassField = isInGrassField(relativeX, relativeY, config.grassFieldRadius)
+
+	-- Rivers (only if not in grass field)
+	if not inGrassField then
+		for _, riverPoints in rivers do
+			local radius = noiseValue
+			local isRiver = isNearRiver(relativeX, relativeY, riverPoints, radius)
+			if isRiver then
+				return "Water"
+			end
 		end
 	end
 

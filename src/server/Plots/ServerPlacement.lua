@@ -229,20 +229,21 @@ function ServerPlacement.PlaceStarterItems(player)
 	end
 
 	local root = plot:WaitForChild("Root")
-	local centerPosition = root.Position
+	local centerPosition = root.Position + Vector3.new(0, root.Size.Y / 2, 0)
+
 
 	-- Place OldBelt at center
-	local beltPosition = centerPosition + Vector3.new(-2, 1, 0) -- Offset to the left
-	local beltSuccess, beltLocalID = ServerPlacement.PlaceItem(player, beltPosition, "OldBelt", 0, nil, nil, true)
+	local beltPosition = centerPosition + Vector3.new(-2, 0.2, 0) -- Offset to the left
+	local beltSuccess, beltLocalID = ServerPlacement.PlaceItem(player, beltPosition, "OldBelt", 270, nil, nil, true)
 
 	if beltSuccess then
 		-- Convert to local position and register
 		local localBeltPosition = beltPosition - root.Position
-		ItemsAccess.RegisterPlacedItem(player, beltLocalID, localBeltPosition, "OldBelt", 0)
+		ItemsAccess.RegisterPlacedItem(player, beltLocalID, localBeltPosition, "OldBelt", 270)
 	end
 
 	-- Place OldForge next to the belt
-	local forgePosition = centerPosition + Vector3.new(2, 1, 0) -- Offset to the right
+	local forgePosition = centerPosition + Vector3.new(2, 0.2, 0) -- Offset to the right
 	local forgeSuccess, forgeLocalID = ServerPlacement.PlaceItem(player, forgePosition, "OldForge", 0, nil, nil, true)
 
 	if forgeSuccess then

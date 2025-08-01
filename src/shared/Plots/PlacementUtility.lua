@@ -17,7 +17,7 @@ end
 local Plots = workspace:WaitForChild("Plots")
 
 -- Constants --
-local DEFAULT_GRID_SIZE = 1 / 2
+local DEFAULT_GRID_SIZE = 1 --/ 2
 local OVERLAP_PARAMS = OverlapParams.new()
 OVERLAP_PARAMS.FilterType = Enum.RaycastFilterType.Include
 OVERLAP_PARAMS.FilterDescendantsInstances = { workspace.Plots }

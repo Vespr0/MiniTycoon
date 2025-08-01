@@ -1,7 +1,7 @@
 local Storage = {}
 
 Storage.Dependencies = {
-	"Menu"
+	"Menu",
 }
 
 local Players = game:GetService("Players")
@@ -11,11 +11,12 @@ local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 local PlayerGui = Player.PlayerGui
 
--- TODO: this module is so ass please use fusion 
+-- TODO: this module is so ass please use fusion
 
 -- Ui Modules
 local Ui = require(script.Parent.Parent.UiUtility)
 local ViewportUtil = require(script.Parent.Util.Viewport)
+local SelectorsClass = require(script.Parent.Util.SelectorsClass)
 
 -- Ui Elements
 local Gui = Ui.StorageGui
@@ -41,21 +42,14 @@ local SearchUtility = require(Shared.Utility.SearchUtility)
 
 -- Constants --
 local ORIGIN = MainFrame.Position
-local TYPE_SELECTORS = {
-	TypeSelectorsFrame:WaitForChild("All"),
-	TypeSelectorsFrame:WaitForChild("Dropper"),
-	TypeSelectorsFrame:WaitForChild("Belt"),
-	TypeSelectorsFrame:WaitForChild("Upgrader"),
-	TypeSelectorsFrame:WaitForChild("Forge"),
-	TypeSelectorsFrame:WaitForChild("Decor"),
-}
+local TYPE_SELECTIONS = { "All", "Dropper", "Belt", "Upgrader", "Forge", "Decor" }
 
 local POP_TWEENINFO = TweenInfo.new(0.15, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, true)
 local TYPE_SELECTORS_ORIGNAL_SIZE = TypeSelectorsFrame:GetChildren()[2].Size
 
 -- Variables --
 local ItemTemplate = nil
-local CurrentType = "All"
+local TypeSelectors = nil
 local CurrentSearchQuery = ""
 local trove = require(Packages.trove).new()
 
@@ -71,11 +65,6 @@ local TipsUtility = require(script.Parent.Util.TipsUtility)
 local function tweenPopup(goal)
 	local tween = TweenService:Create(MainFrame, Ui.MENU_TWEEN_INFO, { Position = goal })
 	tween:Play()
-end
-local function tweenTypeSelector(button, isSelected)
-	local goal = isSelected and Ui.BUTTON_SELECTED_COLOR or Ui.BUTTON_UNSELECTED_COLOR
-	local colorTween = TweenService:Create(button, Ui.MENU_TWEEN_INFO, { ImageColor3 = goal })
-	colorTween:Play()
 end
 
 local function updateItems()
@@ -120,7 +109,7 @@ local function updateItems()
 			local config = itemConfigs[itemName].config
 			local type = config.Type
 
-			if CurrentType == "All" or type == CurrentType then
+			if TypeSelectors.currentSelection == "All" or type == TypeSelectors.currentSelection then
 				itemsToShow[itemName] = true
 			end
 		end
@@ -153,17 +142,10 @@ local function updateItems()
 	end
 end
 
-local function updateTypeSelectors()
-	for _, typeSelector in pairs(TYPE_SELECTORS) do
-		local isSelectedType = typeSelector.Name == CurrentType
-		tweenTypeSelector(typeSelector, isSelectedType)
-	end
-end
-
 -- API
 
 function Storage.WaitForItemInItemsFrame(itemName: string)
-	return ItemsFrame:WaitForChild(itemName,5)
+	return ItemsFrame:WaitForChild(itemName, 5)
 end
 
 -- Module Functions
@@ -179,7 +161,7 @@ function Storage.Open()
 	SearchIcon.ImageTransparency = 0.5
 
 	updateItems()
-	updateTypeSelectors()
+	TypeSelectors:switch("All")
 
 	Storage.OpenedEvent:Fire()
 end
@@ -198,14 +180,21 @@ function Storage.Setup()
 	ItemTemplate = ItemsFrame:WaitForChild("ItemTemplate"):Clone()
 	ItemsFrame.ItemTemplate:Destroy()
 
-	for _, typeSelector in pairs(TYPE_SELECTORS) do
-		typeSelector.MouseButton1Click:Connect(function()
-			Ui.PlaySound("Click")
-			CurrentType = typeSelector.Name
-			updateTypeSelectors()
+	-- Create type selectors with callback functions
+	local typeSelectorSections = {}
+	for _, typeName in TYPE_SELECTIONS do
+		typeSelectorSections[typeName] = function()
 			updateItems()
-		end)
+		end
 	end
+
+	TypeSelectors = SelectorsClass.new(
+		TypeSelectorsFrame,
+		TYPE_SELECTIONS,
+		typeSelectorSections,
+		Ui.BUTTON_SELECTED_COLOR,
+		Ui.BUTTON_UNSELECTED_COLOR
+	)
 
 	-- Search functionality
 	TextBox:GetPropertyChangedSignal("Text"):Connect(function()

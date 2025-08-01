@@ -102,7 +102,7 @@ local function focusTo3DPlotPosition(position2D: Vector2)
 	local plot = PlotUtility.GetPlotFromPlayer(Player)
 	local root = plot.Root
 
-	local position = plot.Root.Position + Vector3.new(position2D.X, position2D.Y)
+	local position = plot.Root.Position + Vector3.new(position2D.X, 0, position2D.Y)
 	-- Height bias
 	position += Vector3.yAxis * (root.Size.Y / 2 + FocusElement3D.Size.Y / 2)
 	focusTo3DPosition(position)
@@ -124,6 +124,10 @@ end
 
 function Tutorial.getStorageItem(name: string)
 	return StorageUi.WaitForItemInItemsFrame(name)
+end
+
+function Tutorial.toggleStorageTypeSelectors(bool: boolean)
+	Ui.StorageGui.MainFrame.TypeSelectors.Visible = bool
 end
 
 function Tutorial.Setup()

@@ -13,23 +13,19 @@ local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacemen
 local Trove = require(ReplicatedStorage.Packages.trove)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local TutorialUi = require(script.Parent.Tutorial)
+local Signal = require(ReplicatedStorage.Packages.signal)
 
 -- Events
-local PhaseChangedEvent = Instance.new("BindableEvent")
-TutorialLogic.PhaseChanged = PhaseChangedEvent.Event
+TutorialLogic.PhaseChanged = Signal.new()
+local TutorialRemoteEvent = Events.Tutorial
 
 -- State
-local currentPhase = 0
+TutorialLogic.CurrentPhase = 0
 local currentTrove = nil
 
 -- Phase definitions
-local PHASES = {
-	[0] = "NotStarted",
-	[1] = "OpenStorage",
-	[2] = "SelectCoalMine",
-	[3] = "PlaceCoalMine",
-	[4] = "Completed",
-}
+local PHASES_CHECKPOINTS = { 4 }
+local FINAL_PHASE = 4
 
 local function sendSavedPhaseToServer(phase: number)
 	task.spawn(function()
@@ -43,9 +39,20 @@ end
 
 -- Phase management
 local function setPhase(phase: number)
-	currentPhase = phase
-	PhaseChangedEvent:Fire(phase)
+	TutorialLogic.CurrentPhase = phase
+	TutorialLogic.PhaseChanged:Fire(phase)
 	sendSavedPhaseToServer(phase)
+
+	-- If the phase is a checkpoint then save to server
+	if table.find(PHASES_CHECKPOINTS, phase) then
+		task.spawn(function()
+			local success, error = TutorialRemoteEvent:InvokeServer("SetPhase", phase)
+	
+			if not success then
+				error(`Error while saving tutorial phase to server: {error}`)
+			end
+		end)
+	end
 end
 
 local function cleanupCurrentPhase()
@@ -73,6 +80,7 @@ end
 phaseHandlers[2] = function()
 	currentTrove = Trove.new()
 
+	TutorialUi.toggleStorageTypeSelectors(false)
 	TutorialUi.showFocus()
 	TutorialUi.hideFocus3D()
 	TutorialUi.focusToElement(TutorialUi.getStorageItem("CoalMine"))
@@ -97,7 +105,7 @@ phaseHandlers[3] = function()
 
 	TutorialUi.hideFocus()
 	TutorialUi.showFocus3D()
-	TutorialUi.focusTo3DPlotPosition(Vector2.new(0, 0))
+	TutorialUi.focusTo3DPlotPosition(Vector2.new(-5, 0))
 
 	-- Listen for successful placement - only proceed if it's a CoalMine
 	currentTrove:Add(ClientPlacement.PlacementFinished:Connect(function(placedItemName: string)
@@ -119,6 +127,7 @@ end
 phaseHandlers[4] = function()
 	print("Tutorial Phase Four - CoalMine successfully placed!")
 
+	TutorialUi.toggleStorageTypeSelectors(true)
 	TutorialUi.hideFocus3D()
 	TutorialUi.hideFocus()
 end
@@ -137,25 +146,24 @@ end
 
 function TutorialLogic.Setup()
 	-- Wait for data to sync, then start from saved phase
-	-- task.spawn(function()
-	--     if ClientPlayerData.DataSynched then
-	--         TutorialLogic.StartFromSavedPhase()
-	--     else
-	--         if not ClientPlayerData.DataSynched then
-	--             ClientPlayerData.DataSynchedEvent:Wait()
-	--         end
-	--         TutorialLogic.StartFromSavedPhase()
-	--     end
-	-- end)
-
 	task.spawn(function()
-		TutorialLogic.GoToPhase(1)
+	    if ClientPlayerData.DataSynched then
+	        TutorialLogic.StartFromSavedPhase()
+	    else
+	        if not ClientPlayerData.DataSynched then
+	            ClientPlayerData.DataSynchedEvent:Wait()
+	        end
+	        TutorialLogic.StartFromSavedPhase()
+	    end
 	end)
 end
 
 function TutorialLogic.StartFromSavedPhase()
 	-- Get saved phase from ClientPlayerData (will be added when TutorialAccess is created)
 	local savedPhase = ClientPlayerData.Data.Tutorial and ClientPlayerData.Data.Tutorial.Phase or 1
+	print("Saved phase is ", savedPhase)
+
+	if FINAL_PHASE == savedPhase then return end
 
 	task.spawn(function()
 		TutorialLogic.GoToPhase(savedPhase)

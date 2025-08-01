@@ -43,6 +43,11 @@ end
 
 function ButtonUtility.SetButtonState(button, canAfford)
 	button.FakeButton.BackgroundColor3 = canAfford and Colors.Buttons.Green or Colors.Buttons.Red
+	local uiStroke = button.FakeButton:FindFirstChildOfClass("UIStroke")
+	if uiStroke then
+		uiStroke.Color = canAfford and Colors.Buttons.StrokeGreen or Colors.Buttons.StrokeRed
+	end
+
 end
 
 function ButtonUtility.ButtonPush(button)

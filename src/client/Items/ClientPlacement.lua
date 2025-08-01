@@ -53,6 +53,26 @@ ClientPlacement.PlacementRotated = Signal.new()
 
 -- Functions --
 
+-- Calculates dynamic grid size based on the model's root size
+local function calculateGridSize(modelRoot: BasePart): number
+	if not modelRoot then
+		error("No root part")
+	end
+
+	local size = modelRoot.Size
+
+	-- Check if X or Z dimensions are multiples of 0.5
+	local xIsEven = size.X % 2 == 0
+	local zIsEven = size.X % 2 == 0
+
+	-- x and z must be even for 1 stud grid size, otherwise 0.5
+	if xIsEven and zIsEven then
+		return 1
+	else
+		return 0.5
+	end
+end
+
 -- Animates the placement of a model with a slight scale effect.
 local originalModel = nil -- upvalue for move/cancel logic
 local movingFlag = false -- upvalue for move/cancel logic
@@ -120,7 +140,7 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 
 	local config = require(item.config)
 	-- print(config)
-	
+
 	-- Model.
 	local localID = 0
 	if not model then
@@ -206,6 +226,9 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 		end
 	end
 
+	-- Calculate dynamic grid size based on model
+	local dynamicGridSize = calculateGridSize(modelRoot)
+
 	-- Lerping the model to the target position and rotation.
 	local frame = 0
 	trove:Connect(RunService.RenderStepped, function(deltaTime)
@@ -217,7 +240,7 @@ function ClientPlacement.StartPlacing(itemName, model, moving)
 
 		-- Apply grid snapping (can be disabled for debugging)
 		local finalPos = DISABLE_GRID_SNAPPING and (pos + heightBias)
-			or PlacementUtility.SnapPositionToGrid(pos + heightBias, nil, true)
+			or PlacementUtility.SnapPositionToGrid(pos + heightBias, dynamicGridSize, true)
 		goalCFrame = CFrame.new(finalPos) * CFrame.Angles(0, math.rad(yRotation), 0)
 
 		-- Apply lerping (can be disabled for debugging)
