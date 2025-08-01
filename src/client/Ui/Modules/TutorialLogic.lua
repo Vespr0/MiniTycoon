@@ -4,7 +4,7 @@
 local TutorialLogic = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
--- local Players = game:GetService("Players")
+local Players = game:GetService("Players")
 local Events = ReplicatedStorage.Events
 
 -- Dependencies
@@ -24,7 +24,7 @@ TutorialLogic.CurrentPhase = 0
 local currentTrove = nil
 
 -- Phase definitions
-local PHASES_CHECKPOINTS = { 4 }
+local PHASES_CHECKPOINTS = {4}
 local FINAL_PHASE = 4
 
 local function sendSavedPhaseToServer(phase: number)
@@ -47,8 +47,7 @@ local function setPhase(phase: number)
 	if table.find(PHASES_CHECKPOINTS, phase) then
 		task.spawn(function()
 			local success, error = TutorialRemoteEvent:InvokeServer("SetPhase", phase)
-	
-			if not success then
+				if not success then
 				error(`Error while saving tutorial phase to server: {error}`)
 			end
 		end)
@@ -160,11 +159,21 @@ end
 
 function TutorialLogic.StartFromSavedPhase()
 	-- Get saved phase from ClientPlayerData (will be added when TutorialAccess is created)
-	local savedPhase = ClientPlayerData.Data.Tutorial and ClientPlayerData.Data.Tutorial.Phase or 1
-	print("Saved phase is ", savedPhase)
+	local savedPhase = ClientPlayerData.Data.Tutorial.SavedTutorialPhase
 
 	if FINAL_PHASE == savedPhase then return end
 
+	-- If the user has any kind of mine in his plot then skip to phase 4
+	-- This is bug only for people who played before the Tutorial update
+	-- TODO: Remove this after a bit for the above reason.
+	local PlotUtility = require(ReplicatedStorage.Shared.Plots.PlotUtility)
+	local Plot = PlotUtility.GetPlotFromPlayer(Players.LocalPlayer)
+	-- If the player has 2 or less items its probably a new player
+	if #Plot.Items:GetChildren() > 2 then
+		TutorialLogic.GoToPhase(4)
+		return
+	end
+	
 	task.spawn(function()
 		TutorialLogic.GoToPhase(savedPhase)
 	end)

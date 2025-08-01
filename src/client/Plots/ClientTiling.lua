@@ -168,7 +168,7 @@ function ClientTiling.Setup()
 			error("Plot with name " .. plotName .. " not found.")
 		end
 
-		local root = plot:FindFirstChild("Root")
+		local root = plot:WaitForChild("Root",2)
 		if not root then
 			error("Root is nil or invalid")
 		end

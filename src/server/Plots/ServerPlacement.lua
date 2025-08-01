@@ -222,15 +222,13 @@ local function setupItems()
 end
 
 function ServerPlacement.PlaceStarterItems(player)
+	-- Since plot loader replaces items we cant mark them as placed and must only register them
+	-- To make sure plot loader is called before this function we will wait for the plot to be loaded
 	local plot = PlotUtility.GetPlotFromPlayer(player)
-	if not plot then
-		warn("No plot found for player: " .. player.Name)
-		return false
-	end
+	PlotUtility.WaitForPlotToLoad(plot)
 
 	local root = plot:WaitForChild("Root")
-	local centerPosition = root.Position + Vector3.new(0, root.Size.Y / 2, 0)
-
+	local centerPosition = root.Position + Vector3.yAxis*(root.Size.Y/2)
 
 	-- Place OldBelt at center
 	local beltPosition = centerPosition + Vector3.new(-2, 0.2, 0) -- Offset to the left
@@ -251,8 +249,7 @@ function ServerPlacement.PlaceStarterItems(player)
 		local localForgePosition = forgePosition - root.Position
 		ItemsAccess.RegisterPlacedItem(player, forgeLocalID, localForgePosition, "OldForge", 0)
 	end
-
-	return beltSuccess and forgeSuccess
+	return true
 end
 
 function ServerPlacement.Setup()

@@ -64,6 +64,8 @@ function PlotLoader.Load(player)
 	end
 
 	PlotLoader.TeleportPlayer(player)
+
+	plot:SetAttribute("Loaded", true)
 end
 
 return PlotLoader

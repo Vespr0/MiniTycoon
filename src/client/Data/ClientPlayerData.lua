@@ -152,6 +152,7 @@ function ClientPlayerData.Read(data)
             if not ClientPlayerData.DataSynched then
                 ClientPlayerData.DataSynchedEvent:Fire()
             end
+            
             ClientPlayerData.DataSynched = true
         else
 			functions[data.type](arg1,arg2)

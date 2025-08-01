@@ -56,35 +56,35 @@ ShopInfo.Items = {
     -- Droppers
     Dropper = {
         CoalMine = {
-            price = 40,
+            price = 50,
             levelRequirement = 1,
             inMarket = true,
             inOffers = true,
         },
 
         IronMine = {
-            price = 60,
+            price = 100,
             levelRequirement = 2,
             inMarket = true,
             inOffers = true,
         },
 
         LargeCoalMine = {
-            price = 100,
+            price = 200,
             levelRequirement = 3,
             inMarket = true,
             inOffers = true
         },
 
         QuartzMine = {
-            price = 1000,
+            price = 1500,
             levelRequirement = 10,
             inMarket = false, -- Not in market, just offers
             inOffers = true
         },
 
         UraniumLazur = {
-            price = 1500,
+            price = 5000,
             levelRequirement = 20,
             inMarket = false,
             inOffers = true 
@@ -94,14 +94,14 @@ ShopInfo.Items = {
     -- Conveyor Belts
     Belt = {
         OldBelt = {
-            price = 20,
+            price = 25,
             levelRequirement = 1,
             inMarket = true,
             inOffers = true
         },
 
         IceBelt = {
-            price = 100,
+            price = 500,
             levelRequirement = 10,
             inMarket = false, 
             inOffers = true
@@ -111,13 +111,13 @@ ShopInfo.Items = {
     -- Upgraders
     Upgrader = {
         OldWasher = {
-            price = 100,
+            price = 250,
             levelRequirement = 1,
             inMarket = true,
             inOffers = true
         },
         UraniumInfuser = {
-            price = 1500,
+            price = 15000,
             levelRequirement = 20,
             inMarket = true,
         }

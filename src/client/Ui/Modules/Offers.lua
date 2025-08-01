@@ -183,9 +183,12 @@ function Offers.Reload()
 	get()
 	
 	-- Every time we reload offers, activate both alerts
-	AlertsManager.SwitchAlert("menu_Shop", true)
-	AlertsManager.SwitchAlert("shop_offers", true)
-	
+	-- If tutorial is not at phase 4 yet then dont show alerts, so as to not overwhealm the new user
+	if ClientPlayerData.Data.Tutorial.SavedTutorialPhase >= 4 then
+		AlertsManager.SwitchAlert("menu_Shop", true)
+		AlertsManager.SwitchAlert("shop_offers", true)
+	end
+
 	local expired = checkExpiration()
 	if not expired then
 		updateContainer()
@@ -230,20 +233,26 @@ function Offers.Close()
 end
 
 function Offers.Setup()
-	Offers.Reload()
-	Insight.Close() -- Use the new Close function
+	task.spawn(function()	
+		if not ClientPlayerData.DataSynched then
+			ClientPlayerData.DataSynchedEvent:Wait()
+			
+			Insight.Close() -- Use the new Close function
 	
-	local paused = false
-	RunService.RenderStepped:Connect(function()
-		if checkExpiration() then
-			if paused then
-				return
-			end
-			paused = true
-			Offers.Reload()
-			paused = false
+			get()
+			local paused = false
+			RunService.RenderStepped:Connect(function()
+				if checkExpiration() then
+					if paused then
+						return
+					end
+					paused = true
+					Offers.Reload()
+					paused = false
+				end
+				update()
+			end)
 		end
-		update()
 	end)
 end
 

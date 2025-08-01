@@ -46,6 +46,19 @@ function PlotUtility.DoesPlayerOwnPlot(player,plot)
 	return nil
 end
 
+function PlotUtility.WaitForPlotToLoad(plot)
+	local start = os.clock()
+	local timeout 
+	repeat
+		task.wait()
+		timeout = os.clock()-start > 5
+	until plot:GetAttribute("Loaded") or timeout
+
+	if timeout then
+		error(`Plot "{plot.Name}" took too long to load.`)
+	end
+end
+
 function PlotUtility.GetPart(plot,partID)
 	if not plot then
 		error("Plot is missing or nil.")

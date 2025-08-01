@@ -5,8 +5,30 @@
   "showAttachments": false,
   "hideUnresolved": false,
   "showOrphans": true,
-  "collapse-color-groups": true,
-  "colorGroups": [],
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "#Economy",
+      "color": {
+        "a": 1,
+        "rgb": 14070113
+      }
+    },
+    {
+      "query": "#Monetization",
+      "color": {
+        "a": 1,
+        "rgb": 2752332
+      }
+    },
+    {
+      "query": "#Core",
+      "color": {
+        "a": 1,
+        "rgb": 16777215
+      }
+    }
+  ],
   "collapse-display": true,
   "showArrow": false,
   "textFadeMultiplier": 0,
@@ -17,6 +39,6 @@
   "repelStrength": 10,
   "linkStrength": 1,
   "linkDistance": 250,
-  "scale": 0.9999999999999996,
+  "scale": 0.9999999999999993,
   "close": false
 }

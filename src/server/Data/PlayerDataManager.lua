@@ -49,12 +49,12 @@ function PlayerDataManager.WipeUserData(userId)
 		local response = tempDataStore:Open(PlayerDataStore.DataTemplate)
 
 		if response ~= "Success" then
-            tempDataStore:Destroy()
-            error(
+			tempDataStore:Destroy()
+			error(
 				"PlayerDataManager.WipeUserData: Failed to open datastore for userId "
-                .. tostring(userId)
-                .. " - "
-                .. response
+					.. tostring(userId)
+					.. " - "
+					.. response
 			)
 			return false
 		end
@@ -91,7 +91,7 @@ function PlayerDataManager.Setup()
 
 	if RunService:IsStudio() then
 		-- Wipe the user data of the test user.
-		PlayerDataManager.WipeUserData(-1)
+		-- PlayerDataManager.WipeUserData(-1)
 	end
 end
 

@@ -35,7 +35,7 @@ local function giveFirstPlayedResources(player)
 	-- Give starter items
 	local ItemsAccess = require(script.Parent.ItemsAccess)
 	ItemsAccess.GiveStorageItems(player, "CoalMine", 1)
-	-- ItemsAccess.GiveStorageItems(player, "OldBelt", 5)
+	ItemsAccess.GiveStorageItems(player, "OldBelt", 2)
 	-- ItemsAccess.GiveStorageItems(player, "OldForge", 1)
 	
 	-- Log starter cash

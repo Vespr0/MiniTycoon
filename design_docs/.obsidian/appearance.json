@@ -1,3 +1,6 @@
 {
-  "monospaceFontFamily": "Consolas"
+  "monospaceFontFamily": "Consolas",
+  "cssTheme": "AnuPpuccin",
+  "accentColor": "#ff0088",
+  "textFontFamily": "Georgia"
 }
