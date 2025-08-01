@@ -39,7 +39,7 @@ function StatsAccess.IncrementStat(...)
     warn(player.UserId.." stats updated. "..tostring(statName).." is now "..tostring(value))
 end
 
-function StatsAccess.Setup()
+function StatsAccess.Init()
 end
 
 return StatsAccess

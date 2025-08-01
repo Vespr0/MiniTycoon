@@ -38,9 +38,9 @@ function ShopInfo.CalculateDiscount(itemName, offerPrice)
     
     -- TODO: Decide if this makes sense or not
     -- Only show discount if item is available in market
-    -- if not shopInfo.inMarket then
-    --     return 0, false
-    -- end
+    if not shopInfo.inMarket then
+        return 0, false
+    end
     
     local originalPrice = shopInfo.price
     if not originalPrice or offerPrice >= originalPrice then
@@ -139,7 +139,6 @@ ShopInfo.Items = {
             levelRequirement = 1,
             inMarket = true, -- Not in market, just offers
             inOffers = true,
-            sex = 1
         },
     }
 }

@@ -6,6 +6,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
 local ServerStorage = game:GetService("ServerStorage")
 
+-- TODO: I apparently planned on adding a global datastore idk why.
+
 -- Folders --
 local Shared = ReplicatedStorage.Shared
 local Packages = ReplicatedStorage.Packages
@@ -36,15 +38,15 @@ local function stateChanged(state, dataStore)
 	end
 end
 
-function PlayerDataStore.Setup()
-	local dataStore = DataStoreModule.new(DataUtility.GetDataScope("Global"))
-	dataStore.StateChanged:Connect(stateChanged)
+-- function PlayerDataStore.Setup()
+-- 	local dataStore = DataStoreModule.new(DataUtility.GetDataScope("Global"))
+-- 	dataStore.StateChanged:Connect(stateChanged)
 
-	game:BindToClose(function()
-		if dataStore then
-			dataStore:Destroy()
-		end
-	end)
-end
+-- 	game:BindToClose(function()
+-- 		if dataStore then
+-- 			dataStore:Destroy()
+-- 		end
+-- 	end)
+-- end
 
 return PlayerDataStore

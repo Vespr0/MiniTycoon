@@ -143,7 +143,7 @@ end
 --     --DataAccess.PlayerDataChanged:Fire(player,"Storage"),nil,nil)
 -- end
 
-function ItemsAccess.Setup()
+function ItemsAccess.Init()
     -- Players.PlayerAdded:Connect(function(player)
     --     ItemsAccess.WipeAllItems(player)
     -- end)

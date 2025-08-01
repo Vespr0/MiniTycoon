@@ -78,7 +78,7 @@ function OffersAccess.WipeAllOffers(player)
 end
 
 
-function OffersAccess.Setup()
+function OffersAccess.Init()
     Players.PlayerAdded:Connect(function(player)
         --OffersAccess.WipeAllOffers(player)
     end)

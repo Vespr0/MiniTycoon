@@ -75,7 +75,7 @@ local function updateOrdered(player: Player)
     end
 end
 
-function LevelingAccess.Setup()
+function LevelingAccess.Init()
     -- Update ordered datastore when a player joins
     for _,player in Players:GetPlayers() do
         updateOrdered(player)

@@ -46,9 +46,8 @@ function PlotManager.SetPlayerPlot(player,name)
 	end	
 	plot:SetAttribute("OwnerID",player.UserId)
 	plot:SetAttribute("DropCounter",0)
-		task.spawn(function()
-			repeat task.wait(.2)
-        until player.Character
+	task.spawn(function()
+		repeat task.wait(.2) until player.Character
 		player.Character.PrimaryPart:PivotTo(CFrame.new(plot.Root.Position+Vector3.yAxis*10))
 	end)
 end
@@ -101,7 +100,7 @@ function PlotManager.Setup()
 			PlotLoader.Load(player)
 		end)
     end
-	for _,player in pairs(Players:GetChildren()) do
+	for _,player in Players:GetPlayers() do
 		loadPlayer(player)
 	end
 	Players.PlayerAdded:Connect(function(player)

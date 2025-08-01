@@ -53,9 +53,9 @@ local function findAvaiableItemLocalID(folder)
 	end
 end
 
-local function setModelStreamingMode(model: Model,player: Player?)
-    model.ModelStreamingMode = Enum.ModelStreamingMode.PersistentPerPlayer
-    model:AddPersistentPlayer(player)
+local function setModelStreamingMode(model: Model, player: Player?)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.PersistentPerPlayer
+	model:AddPersistentPlayer(player)
 end
 
 function ServerPlacement.DisableQueries(model)
@@ -95,7 +95,8 @@ function ServerPlacement.PlaceItem(player, position, itemName, yRotation, localI
 		overlapParams.FilterDescendantsInstances = { workspace.Nodes, plot.Drops, model, filteredModel }
 
 		-- Validate placement.
-		local isPlacementValid = ignoreValidation or PlacementUtility.isPlacementValid(plot, model, overlapParams, config)
+		local isPlacementValid = ignoreValidation
+			or PlacementUtility.isPlacementValid(plot, model, overlapParams, config)
 		if isPlacementValid then
 			-- IDs.
 			if not localID then
@@ -218,6 +219,39 @@ local function setupItems()
 			end
 		end
 	end
+end
+
+function ServerPlacement.PlaceStarterItems(player)
+	local plot = PlotUtility.GetPlotFromPlayer(player)
+	if not plot then
+		warn("No plot found for player: " .. player.Name)
+		return false
+	end
+
+	local root = plot:WaitForChild("Root")
+	local centerPosition = root.Position
+
+	-- Place OldBelt at center
+	local beltPosition = centerPosition + Vector3.new(-2, 1, 0) -- Offset to the left
+	local beltSuccess, beltLocalID = ServerPlacement.PlaceItem(player, beltPosition, "OldBelt", 0, nil, nil, true)
+
+	if beltSuccess then
+		-- Convert to local position and register
+		local localBeltPosition = beltPosition - root.Position
+		ItemsAccess.RegisterPlacedItem(player, beltLocalID, localBeltPosition, "OldBelt", 0)
+	end
+
+	-- Place OldForge next to the belt
+	local forgePosition = centerPosition + Vector3.new(2, 1, 0) -- Offset to the right
+	local forgeSuccess, forgeLocalID = ServerPlacement.PlaceItem(player, forgePosition, "OldForge", 0, nil, nil, true)
+
+	if forgeSuccess then
+		-- Convert to local position and register
+		local localForgePosition = forgePosition - root.Position
+		ItemsAccess.RegisterPlacedItem(player, forgeLocalID, localForgePosition, "OldForge", 0)
+	end
+
+	return beltSuccess and forgeSuccess
 end
 
 function ServerPlacement.Setup()

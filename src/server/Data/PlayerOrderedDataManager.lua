@@ -84,8 +84,8 @@ function PlayerOrderedDataManager.Setup()
 	for _, orderedDataModule in pairs(OrderedDataModules:GetChildren()) do
 		if orderedDataModule:IsA("ModuleScript") then
 			local module = require(orderedDataModule)
-			if module.Setup then
-				module.Setup()
+			if module.Init then
+				module.Init()
 			end
 		end
 	end

@@ -62,8 +62,9 @@ function ClientLoader.Start()
 	)
 
 	ClientLoader.SetProgress(1)
-	task.wait(.1)
-	Events.ClientLoaded:FireServer()
+	-- task.wait(.1)
+	Events.ClientLoaded:InvokeServer()
+	print("fire")
 	ClientLoader.ClientLoaded = true
 	ClientLoader.ClientLoadedEvent:Fire()
 	LoadingScreen.Close()

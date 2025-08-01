@@ -9,17 +9,16 @@ ServerLoader.ServerLoadedEvent = Signal.new()
 ServerLoader.ServerLoaded = false
 
 local FOLDERS = {
-	script.Parent.Data,
-	script.Parent.Items,
-	script.Parent.Services,
-	script.Parent.Analytics,
 	script.Parent.Plots,
+	script.Parent.Data,
+	script.Parent.Services,
+	script.Parent.Items,
+	script.Parent.Analytics,
 	script.Parent.Unboxing,
+	script.Parent.Players
 }
 
 function ServerLoader.Start()
-	print("Starting server module loading...")
-
 	-- Collect all modules with Setup functions
 	local modules = LoadingUtility.CollectModules(FOLDERS)
 
@@ -33,7 +32,6 @@ function ServerLoader.Start()
 		print(context)
 	end)
 
-	print("Server modules loaded successfully!")
 	ServerLoader.ServerLoaded = true
 	ServerLoader.ServerLoadedEvent:Fire()
 end

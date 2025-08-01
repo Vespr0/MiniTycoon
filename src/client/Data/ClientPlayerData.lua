@@ -36,6 +36,10 @@ ClientPlayerData.Data = {
 	Plot = {
 		PlotLevel = 1;
 	};
+    -- Tutorial --
+    Tutorial = {
+        Phase = 1;
+    };
     -- Services --
     Services = {
         Offers = nil;
@@ -55,6 +59,8 @@ ClientPlayerData.LevelUpdate = Signal.new()
 ClientPlayerData.StorageUpdate = Signal.new()
 -- Plot
 ClientPlayerData.PlotUpdate = Signal.new()
+-- Tutorial
+ClientPlayerData.TutorialUpdate = Signal.new()
 
 ClientPlayerData.DataSynched = false
 ClientPlayerData.DataSynchedEvent = Signal.new()
@@ -108,6 +114,11 @@ function ClientPlayerData.Read(data)
 			ClientPlayerData.Data.Plot[name] = value
             ClientPlayerData.PlotUpdate:Fire(name,value)
 		end;
+        -- Tutorial
+        Tutorial = function(name,value)
+            ClientPlayerData.Data.Tutorial[name] = value
+            ClientPlayerData.TutorialUpdate:Fire(name,value)
+        end;
     }
 	if data.type then
         local arg1 = data.arg1
@@ -126,6 +137,10 @@ function ClientPlayerData.Read(data)
 			for name,value in arg1.Plot do
 				functions["Plot"](name,value)
 			end
+            
+            for name,value in arg1.Tutorial do
+                functions["Tutorial"](name,value)
+            end
             
             local services = arg1.Services
             functions["OffersInfo"]({Offers = services.Offers, Expiration = services.OffersExpiration})

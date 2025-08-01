@@ -102,8 +102,8 @@ local function BuyRequest(player, args)
 				ItemsAccess.GiveStorageItems(player, itemName, 1)
 				-- Mark offer as bought
 				OffersAccess.MarkOfferAsBought(player, offerID)
-				-- Give exp
-				LevelingAccess.GiveExp(player, offer.Price)
+				-- Give exp 
+				-- LevelingAccess.GiveExp(player, offer.Price)
 				-- Log onboarding step
 				OnboardingAccess.Complete(player, "FirstOfferPurchase")
 				-- Log economy shop purchase

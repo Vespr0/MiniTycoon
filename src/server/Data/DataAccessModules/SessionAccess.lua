@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 -- Modules --
 local DataAccess = require(script.Parent.Parent.DataAccess)
 local OnboardingAccess = require(script.Parent.OnboardingAccess)
+local ServerPlacement = require(script.Parent.Parent.Parent.Plots.ServerPlacement)
 
 local function setSessionVariable(player, variable, value)
 	local dataStore = DataAccess.AccessDataStore(nil, player.UserId)
@@ -31,16 +32,20 @@ local function giveFirstPlayedResources(player)
 	local CashAccess = require(script.Parent.CashAccess)
 	CashAccess.GiveCash(player, 50)
 	
-	-- Log onboarding cash
-	local EconomyLogger = require(script.Parent.Parent.Parent.Analytics.EconomyLogger)
-	local endingCash = CashAccess.GetCash(player)
-	EconomyLogger.LogOnboardingCash(player, 50, endingCash)
-
 	-- Give starter items
 	local ItemsAccess = require(script.Parent.ItemsAccess)
 	ItemsAccess.GiveStorageItems(player, "CoalMine", 1)
 	ItemsAccess.GiveStorageItems(player, "OldBelt", 5)
 	ItemsAccess.GiveStorageItems(player, "OldForge", 1)
+	
+	-- Log starter cash
+	local EconomyLogger = require(script.Parent.Parent.Parent.Analytics.EconomyLogger)
+	local endingCash = CashAccess.GetCash(player)
+	EconomyLogger.LogOnboardingCash(player, 50, endingCash)
+
+	-- Place starter items on plot
+	task.wait(0.1) -- Small delay to ensure plot is ready
+	ServerPlacement.PlaceStarterItems(player)
 end
 
 function SessionAccess.SetFirstPlayed(...)
@@ -95,7 +100,7 @@ function SessionAccess.UpdateTotalPlayTime(...)
 	DataAccess.PlayerDataChanged:Fire(player, "TimePlayed", addedPlayTime)
 end
 
-function SessionAccess.Setup()
+function SessionAccess.Init()
 	Players.PlayerAdded:Connect(function(player)
 		if not hasPlayerPlayedBefore(player) then
 			SessionAccess.SetFirstPlayed(player)

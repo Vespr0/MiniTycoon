@@ -33,7 +33,7 @@ local function buyMarketItem(player, args)
 	local endingCash = cash - price
 	CashAccess.TakeCash(player, price)
 	ItemsAccess.GiveStorageItems(player, itemName, 1)
-	LevelingAccess.GiveExp(player, price)
+	-- LevelingAccess.GiveExp(player, price)
 
 	-- Funnel log for onboarding step
 	OnboardingAccess.Complete(player, "FirstMarketPurchase")

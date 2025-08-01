@@ -89,7 +89,7 @@ function CashAccess.GetCash(...)
 	return dataStore.Value.Cash
 end
 
-function CashAccess.Setup()
+function CashAccess.Init()
 	-- Cash queue.
 	task.defer(function()
 		while true do
@@ -122,7 +122,7 @@ function CashAccess.Setup()
 	Players.PlayerRemoving:Connect(function(player)
 		if RunService:IsStudio() then
 			-- Reset cash
-			CashAccess.GiveCash(player, 50, true)
+			-- CashAccess.GiveCash(player, 50, true)
 			-- CashAccess.TakeCash(player,CashAccess.GetCash(player))
 		end
 		erasePlayer(player)

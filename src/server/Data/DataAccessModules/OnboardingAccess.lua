@@ -59,7 +59,7 @@ function OnboardingAccess.CheckLevelSteps(...)
     end
 end
 
-function OnboardingAccess.Setup()
+function OnboardingAccess.Init()
     -- Nothing to initialize here
 end
 

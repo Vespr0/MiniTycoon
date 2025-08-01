@@ -1,6 +1,7 @@
 local PlayerManager = {}
-local BadgeManager = require(script.Parent.Data.BadgeManager)
-local OnboardingAccess = require(script.Parent.Data.DataAccessModules.OnboardingAccess)
+local Data = script.Parent.Parent.Data
+local BadgeManager = require(Data.BadgeManager)
+local OnboardingAccess = require(Data.DataAccessModules.OnboardingAccess)
 
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
@@ -44,9 +45,10 @@ function PlayerManager.Setup()
         
     end)
     -- Client loading.
-    Events.ClientLoaded.OnServerEvent:Connect(function(player)
+    Events.ClientLoaded.OnServerInvoke = function(player)
         player:SetAttribute("ClientLoaded",true)
-    end)
+        return true
+    end
 end
 
 return PlayerManager

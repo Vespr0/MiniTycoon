@@ -25,14 +25,8 @@ function PlayerDataReplication.SetupPlayer(player)
     repeat task.wait(.2) until player:GetAttribute("ClientLoaded")
     -- Send Full.
     local allData = DataAccess.GetFull(player)
-    warn(allData)
+    -- warn(allData)
 	PlayerDataUpdateBridge:Fire(player,{type="Full",arg1=allData})
-
-    --[[-- Cash.
-    local CashTypeId = "Cash")
-    dataFolder.Cash.Changed:Connect(function(value)
-        PlayerDataUpdateBridge:Fire(player,{type=CashTypeId,arg1=value})
-    end)]]
 end
 
 function PlayerDataReplication.Setup()
@@ -72,7 +66,11 @@ function PlayerDataReplication.Setup()
 			end;
 			["Plot"] = function(player,name,value)
 				PlayerDataUpdateBridge:Fire(player,{type="Plot",arg1=name,arg2=value})
-			end,
+			end;
+            ["Full"] = function(player,allData)
+                -- Send complete data refresh to client
+                PlayerDataUpdateBridge:Fire(player,{type="Full",arg1=allData})
+            end,
         }
         if not functions[type] then return end
         functions[type](player,arg1,arg2)

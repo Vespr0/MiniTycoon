@@ -25,7 +25,7 @@ function LoadingUtility.ResolveDependencies(modules)
 				table.insert(dependencyGraph[dependency], moduleName)
 				inDegree[moduleName] = inDegree[moduleName] + 1
 			else
-				warn("Module '" .. moduleName .. "' depends on '" .. dependency .. "' which was not found!")
+				error("Module '" .. moduleName .. "' depends on '" .. dependency .. "' which was not found!")
 			end
 		end
 	end
@@ -75,7 +75,7 @@ function LoadingUtility.CollectModules(folders)
 					dependencies = dependencies
 				})
 			elseif not success then
-				warn("Failed to require module: " .. module.Name .. " - " .. tostring(required))
+				error("Failed to require module: " .. module.Name .. " - " .. tostring(required))
 			end
 		end
 	end
@@ -98,7 +98,7 @@ function LoadingUtility.LoadModules(modules, progressCallback, contextCallback)
 		
 		local success, err = pcall(moduleData.required.Setup)
 		if not success then
-			warn("Failed to setup module: " .. moduleData.module.Name .. " - " .. tostring(err))
+			error("Failed to setup module: " .. moduleData.module.Name .. " - " .. tostring(err))
 		end
 	end
 	

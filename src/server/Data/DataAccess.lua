@@ -91,13 +91,80 @@ function DataAccess.GetFull(...)
     return dataStore.Value
 end
 
+function DataAccess.WipePlayerData(userId)
+	if typeof(userId) ~= "number" and typeof(userId) ~= "string" then
+		warn("DataAccess.WipePlayerData: Invalid userId type, expected number or string")
+		return false
+	end
+	
+	-- Convert to string for consistency
+	local userIdStr = tostring(userId)
+	
+	-- Find the datastore
+	local dataStore = DataAccess.AccessDataStore(nil, userIdStr)
+	if not dataStore then
+		warn("DataAccess.WipePlayerData: Could not access datastore for userId " .. userIdStr)
+		return false
+	end
+	
+	-- Get the data template from PlayerDataStore
+	local PlayerDataStore = require(script.Parent.PlayerDataStore)
+	local dataTemplate = {
+		-- Basic Data --
+		Level = 1;
+		Exp = 0;
+		Cash = 0;
+		-- Items --
+		Storage = {};
+		PlacedItems = {};
+		-- Plot --
+		Plot = {
+			PlotLevel = 1;
+		};
+		-- Session --
+		Session = { 
+			FirstPlayed = nil;
+			LastPlayed = nil;
+			TimePlayed = 0;
+		};
+		-- Services --
+		Services = {
+			Offers = nil;
+			OffersExpiration = nil;
+		};
+		-- Stats --
+		Stats = {
+			OffersBought = 0;
+		};
+		Tutorial = {
+			TutorialFinished = false;
+			SavedTutorialPhase = 1
+		};
+		-- Onboarding steps tracking --
+		Onboarding = {}
+	}
+	
+	-- Reset to template
+	dataStore.Value = dataTemplate
+	
+	-- If player is online, update their client data
+	local player = Players:GetPlayerByUserId(tonumber(userIdStr))
+	if player then
+		-- Fire full data update to client
+		DataAccess.PlayerDataChanged:Fire(player, "Full", dataStore.Value)
+	end
+	
+	warn("DataAccess.WipePlayerData: Successfully wiped data for userId " .. userIdStr)
+	return true
+end
+
 -- Setup --
 function DataAccess.Setup()
     for _,dataAccessModule in pairs(DataAccessModules:GetChildren()) do
         if dataAccessModule:IsA("ModuleScript") then
             local module = require(dataAccessModule)
-            if module.Setup then
-                module.Setup()
+            if module.Init then
+                module.Init()
             end
         end
     end

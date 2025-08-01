@@ -1,20 +1,16 @@
 -- Tutorial Module
--- Handles tutorial viewport frame positioning and arrow visibility
+-- Handles tutorial UI elements, viewport frame positioning and arrow visibility
 
 local Tutorial = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
 
 -- Ui Modules
 local Ui = require(script.Parent.Parent.UiUtility)
-
 local MenuUi = require(script.Parent.Menu)
 local StorageUi = require(script.Parent.Storage)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
-local Trove = require(ReplicatedStorage.Packages.trove)
 local PlotUtility = require(ReplicatedStorage.Shared.Plots.PlotUtility)
 
 -- Ui Elements
@@ -25,7 +21,6 @@ FocusElement.Parent = script
 local CurrentFocusElement = FocusElement:Clone()
 
 -- Constants
-local PULSE_TIME = 1 / 2
 local PULSE_BASE_SIZE = Vector2.new(0, 0) -- Will be set when focusing an element
 local PULSE_INTENSITY = 15 -- Single number for pulse expansion
 local PULSE_3D_BASE_SIZE = 4
@@ -113,83 +108,26 @@ local function focusTo3DPlotPosition(position2D: Vector2)
 	focusTo3DPosition(position)
 end
 
--- Player should open the storage
-function Tutorial.StartPhaseOne()
-	focusToElement(MenuUi.MainFrame:WaitForChild("Storage"))
+-- Public API - expose the local functions
+Tutorial.showFocus3D = showFocus3D
+Tutorial.hideFocus3D = hideFocus3d
+Tutorial.showFocus = showFocus
+Tutorial.hideFocus = hideFocus
+Tutorial.focusToElement = focusToElement
+Tutorial.focusTo3DPosition = focusTo3DPosition
+Tutorial.focusTo3DPlotPosition = focusTo3DPlotPosition
 
-	-- Wait for the Player to open the storage through the menu
-	StorageUi.OpenedEvent:Wait()
-
-	Tutorial.StartPhaseTwo()
+-- Utility functions
+function Tutorial.getMenuButton(name: string)
+	return MenuUi.MainFrame:WaitForChild(name)
 end
 
--- Player should click on CoalMine, if for some reason he closes storage, go back to phase one
-function Tutorial.StartPhaseTwo()
-	showFocus()
-
-	print("Phase 2 babey")
-	local coalMine = StorageUi.WaitForItemInItemsFrame("CoalMine")
-	focusToElement(coalMine)
-
-	local trove = Trove.new()
-
-	trove:Add(StorageUi.ClosedEvent:Connect(function()
-		trove:Destroy()
-		Tutorial.StartPhaseOne()
-	end))
-
-	trove:Add(StorageUi.ItemSelected:Connect(function(itemName: string)
-		if itemName == "CoalMine" then
-			trove:Destroy()
-			Tutorial.StartPhaseThree()
-			-- else
-			-- 	Tutorial.StartPhaseTwo()
-			-- 	trove:Destroy()
-		end
-	end))
-end
-
--- Player should place the CoalMine item
-function Tutorial.StartPhaseThree()
-	-- Hide the focus element since we're now in placement mode
-	hideFocus()
-	showFocus3D()
-	focusTo3DPlotPosition(Vector2.new(0, 0))
-
-	local trove = Trove.new()
-
-	-- Listen for successful placement - only proceed if it's a CoalMine
-	trove:Add(ClientPlacement.PlacementFinished:Connect(function(placedItemName: string)
-		warn(placedItemName, "THIS SHIT LAAAACED")
-		if placedItemName == "CoalMine" then
-			trove:Destroy()
-			Tutorial.StartPhaseFour()
-		end
-	end))
-
-	-- If placement is aborted, go back to phase two
-	trove:Add(ClientPlacement.PlacementAborted:Connect(function()
-		trove:Destroy()
-		Tutorial.StartPhaseTwo()
-	end))
-end
-
--- Placeholder for the next tutorial phase
-function Tutorial.StartPhaseFour()
-	-- Add your next tutorial step here
-	print("Tutorial Phase Four - CoalMine successfully placed!")
-
-	hideFocus3d()
-	hideFocus()
+function Tutorial.getStorageItem(name: string)
+	return StorageUi.WaitForItemInItemsFrame(name)
 end
 
 function Tutorial.Setup()
-	-- TutorialGui.Enabled = true
-
-	-- Don't start pulse here - it will be started when focusToElement is called
-	-- task.spawn(function()
-	-- 	Tutorial.StartPhaseOne()
-	-- end)
+	TutorialGui.Enabled = true
 end
 
 return Tutorial

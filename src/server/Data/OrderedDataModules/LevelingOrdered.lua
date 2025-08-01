@@ -18,7 +18,7 @@ function LevelingOrdered.UpdatePlayerLevel(...)
     PlayerOrderedDataManager.UpdatePlayerData(LevelingOrdered.DatastoreName, player, level)
 end
 
-function LevelingOrdered.Setup()
+function LevelingOrdered.Init()
     -- Initialize any setup logic if needed
 end
 
