@@ -14,7 +14,7 @@ local PlotUtility = require(ReplicatedStorage.Shared.Plots.PlotUtility)
 TilingManager.TilingInfo = {} 
 
 function TilingManager.Resize(root: BasePart, plotLevel: number)
-    local actualPlotWidth = TilingUtility.GetActualPlotWidth(plotLevel)
+    local actualPlotWidth = PlotUtility.GetActualPlotWidth(plotLevel)
     root.Size = Vector3.new(actualPlotWidth, 1, actualPlotWidth)
 
     local plot = root.Parent

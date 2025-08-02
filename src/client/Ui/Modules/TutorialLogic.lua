@@ -28,13 +28,15 @@ local PHASES_CHECKPOINTS = {4}
 local FINAL_PHASE = 4
 
 local function sendSavedPhaseToServer(phase: number)
-	task.spawn(function()
-		local success, error = Events.Tutorial:InvokeServer("SetPhase", phase)
+	if table.find(PHASES_CHECKPOINTS, phase) then
+		task.spawn(function()
+			local success, error = Events.Tutorial:InvokeServer("SetPhase", phase)
 
-		if not success then
-			error(`Error sending saved tutorial phase to server: {error}`)
-		end
-	end)
+			if not success then
+				error(`Error sending saved tutorial phase to server: {error}`)
+			end
+		end)
+	end
 end
 
 -- Phase management
@@ -42,16 +44,6 @@ local function setPhase(phase: number)
 	TutorialLogic.CurrentPhase = phase
 	TutorialLogic.PhaseChanged:Fire(phase)
 	sendSavedPhaseToServer(phase)
-
-	-- If the phase is a checkpoint then save to server
-	if table.find(PHASES_CHECKPOINTS, phase) then
-		task.spawn(function()
-			local success, error = TutorialRemoteEvent:InvokeServer("SetPhase", phase)
-				if not success then
-				error(`Error while saving tutorial phase to server: {error}`)
-			end
-		end)
-	end
 end
 
 local function cleanupCurrentPhase()

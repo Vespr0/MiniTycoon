@@ -228,7 +228,6 @@ end
 
 function Offers.Close()
 	OffersFrame.Visible = false
-	-- Optionally close Insight when closing OffersFrame
 	Insight.Close()
 end
 
@@ -237,9 +236,10 @@ function Offers.Setup()
 		if not ClientPlayerData.DataSynched then
 			ClientPlayerData.DataSynchedEvent:Wait()
 			
-			Insight.Close() -- Use the new Close function
-	
+			Insight.Close() 
+
 			get()
+			Offers.Reload()
 			local paused = false
 			RunService.RenderStepped:Connect(function()
 				if checkExpiration() then

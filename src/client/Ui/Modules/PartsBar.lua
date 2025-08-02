@@ -26,7 +26,6 @@ local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerDa
 -- Functions --
 local function update(currentPartsCount: number)
     local plotLevel = ClientPlayerData.Data.Plot.PlotLevel
-    print(plotLevel)
     local maxParts = PlotUtility.GetMaxPartsFromPlotLevel(plotLevel)
     
     PartsLabel.Text = `PARTS: {currentPartsCount}/{maxParts}`

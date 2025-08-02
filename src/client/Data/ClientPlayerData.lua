@@ -125,7 +125,7 @@ function ClientPlayerData.Read(data)
         local arg2 = data.arg2
 
 		if data.type == "Full" then
-            print(arg1)
+            -- print(arg1)
             -- In this context, arg1 is the content.
             functions["Cash"](arg1.Cash)
             functions["Leveling"](arg1.Exp,arg1.Level)

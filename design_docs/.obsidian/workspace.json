@@ -22,32 +22,17 @@
             }
           },
           {
-            "id": "a77d606bda7f37bf",
+            "id": "65e11a5325989759",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Overview.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": false
-              },
-              "icon": "lucide-file",
-              "title": "Overview"
-            }
-          },
-          {
-            "id": "f62083a031221bd6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Monetization/Monetization and Currency.md",
+                "file": "Core/Item Types/Upgraders.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Monetization and Currency"
+              "title": "Upgraders"
             }
           }
         ]
@@ -180,42 +165,44 @@
   "left-ribbon": {
     "hiddenItems": {
       "switcher:Open quick switcher": false,
-      "graph:Open graph view": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false
+      "command-palette:Open command palette": false,
+      "graph:Open graph view": false
     }
   },
   "active": "950fe53f08cbbbb3",
   "lastOpenFiles": [
-    "Untitled.md",
-    "TODO.md",
-    "Core/Plot.md",
-    "Monetization/Monetization and Currency.md",
-    "Monetization.md",
-    "Monetization/Overview.md",
-    "Overview.md",
-    "Monetization/Plot-Expansions.md",
-    "Monetization/Premium-Items.md",
-    "Monetization/Quality-of-Life.md",
-    "Monetization/Philosophy.md",
-    "Monetization/Cosmetics.md",
-    "Index.md",
-    "MinersHaven.md",
-    "Miners.md",
-    "Design.md",
     "Economy/Stocks.md",
+    "Core/Item Types/Upgraders.md",
+    "Core/Items.md",
+    "Core/Plot.md",
+    "TODO.md",
+    "Overview.md",
+    "Monetization.md",
+    "Design.md",
     "Balance.md",
     "Economy/Shop.md",
-    "Balance/Economy.md",
-    "Monetization",
-    "Balance/Player-Retention.md",
+    "Economy/Currency/Cash.md",
+    "Monetization/Monetization and Currency.md",
+    "Core/Product.md",
     "Balance/Difficulty.md",
+    "Balance/Economy.md",
     "Balance/Progression.md",
+    "Core/Item Types/Forge.md",
+    "Core/Item Types/Dropper.md",
+    "Core/Item Types",
     "Balance/Overview.md",
+    "Core/Progression.md",
+    "Balance/Player-Retention.md",
+    "Economy/Currency.md",
+    "Economy/Currency",
+    "Index.md",
+    "Product.md",
+    "Untitled.md",
+    "Monetization/Overview.md",
+    "Monetization",
     "Balance",
     "Economy",
-    "Core/Progression.md",
-    "Core/Items.md",
     "Core",
     "Untitled"
   ]

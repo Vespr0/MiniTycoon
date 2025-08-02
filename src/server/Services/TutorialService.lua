@@ -16,13 +16,10 @@ local function onRequest(player, type, ...)
 		local phase = args[1]
 		if phase and typeof(phase) == "number" then
 			TutorialAccess.SaveTutorialPhase(player, phase)
-			warn("we are so back")
 			return true
+		else
+			return false, "Invalid `phase` value"
 		end
-		return false
-	-- elseif type == "MarkFinished" then
-	-- 	TutorialAccess.SetTutorialFinished(player, true)
-	-- 	return true
 	end
 
 	return false, "Invalid request type"

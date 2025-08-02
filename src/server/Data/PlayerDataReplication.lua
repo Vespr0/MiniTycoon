@@ -25,7 +25,7 @@ function PlayerDataReplication.SetupPlayer(player)
     repeat task.wait(.2) until player:GetAttribute("ClientLoaded")
     -- Send Full.
     local allData = DataAccess.GetFull(player)
-    warn(allData)
+    -- warn(allData)
 	PlayerDataUpdateBridge:Fire(player,{type="Full",arg1=allData})
 end
 

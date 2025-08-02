@@ -33,3 +33,5 @@ if RunService:IsStudio() then
     -- Run all tests in the Tests folder
     -- TestingManager.RunAll()
 end
+
+workspace:WaitForChild("Dev"):Destroy()

@@ -75,7 +75,7 @@ function ClientTiling.GenerateTiling(plot, root, seed)
 
 	local tileSize = GameConfig.TileSize
 
-	--local actualPlotWidth = TilingUtility.GetActualPlotWidth(plotLevel)
+	--local actualPlotWidth = PlotUtility.GetActualPlotWidth(plotLevel)
 	local origin = root.Position
 		- Vector3.new(PlotUtility.MaxPlotWidth / 2 + tileSize / 2, 0, PlotUtility.MaxPlotWidth / 2 + tileSize / 2)
 
@@ -158,8 +158,13 @@ function ClientTiling.Setup()
 			error("Plot with name " .. plotName .. " not found.")
 		end
 
+		local root = plot:WaitForChild("Root",2)
+		if not root then
+			error("Root is nil or invalid")
+		end
+
 		-- Call LoadRootAndTiles
-		ClientTiling.GenerateTiling(plot, plot.Root, seed)
+		ClientTiling.GenerateTiling(plot, root, seed)
 	end)
 
 	ReplicateBorder.OnClientEvent:Connect(function(plotName)

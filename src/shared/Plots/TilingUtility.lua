@@ -30,7 +30,7 @@ local DEFAULT_TERRAIN_CONFIG: TerrainConfig = {
 		{ threshold = 0.5, assetName = "Sand" },
 		{ threshold = -math.huge, assetName = "Water" }, -- fallback
 	},
-	riversCount = 3,
+	riversCount = 2,
 	rockThreshold = 0.8,
 	rockNoiseThreshold = 0.2,
 	grassFieldRadius = 4, -- Radius from center where rivers are not allowed
@@ -173,10 +173,6 @@ local function generateSingleTileData(
 	}
 
 	return tile
-end
-
-function TilingUtility.GetActualPlotWidth(plotLevel: number): number
-	return plotLevel * 10 + 10 -- Assuming each plot level increases the width by 10 units
 end
 
 function TilingUtility.GenerateSingleTile(tilePosition: TilePosition, seed: number, config: TerrainConfig?): Tile

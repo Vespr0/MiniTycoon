@@ -15,13 +15,20 @@
 - [ ] Clicking menu icons on mobiel causes weird spring like jitter
 - [ ] ItemSelection Menu has some problem related to The device safe area, even if i enable none in the device safe area settings there are still problems related to how hte position is calculated
 - [ ] Reduce loading time as much as possible (Make loading status user friendly)🔼 
-
+- [ ] Add wind sounds based on wind intensity🔽 
+- [ ] Handling Localization and related changes🔼  
+- [ ] Fix rejoin command🔽 
 ---
 
 ### Current
 
-- [ ] Tutorial System (Phases 1-4) ⏫
-- [ ] Mobile support ⏫ 
+- [x] Tutorial System (Phases 1-4) ⏫ ✅ 2025-08-01
+- [ ] Messages in the tutorial ⏫
+- [ ] Weird bugs encountered with offers, At one point i could buyt offers without feedback and in the console it said it was already boguht, i reentered the game and it fixed , it showed sold. correctly⏫ 
+- [ ] Mobile support 🔺  
 - [ ] Design long term progression 🔼 
 - [ ] Design a monetization strategy⏫ 
 - [ ] Settings system🔼 
+- [x] Wind system ✅ 2025-08-02
+- [ ] Wind Shake (currently if u just use ==windshake== tags there are problems with client placement, maybe make a GhostFunction that converts models into placment modles without the WindShake tag) Actually this is a bigger issue that has to do with ==particles== too.... 🔽
+- [x] Slash commands (For admins) 🔽 ✅ 2025-08-02

@@ -49,6 +49,9 @@ function PlotLoader.Load(player)
 	TilingManager.Resize(root, plotLevel)
 	TilingManager.GenerateTiling(player.UserId, root, plot.Name, plotLevel)
 
+	-- Make root can collide true
+	root.CanCollide = false
+
 	-- Load items.
 	local playerPlacedItems = ItemsAccess.GetPlacedItems(player)
 	if not playerPlacedItems then

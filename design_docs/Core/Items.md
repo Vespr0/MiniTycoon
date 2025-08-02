@@ -1,24 +1,10 @@
-# Item System
-
+#Core 
 ## Overview
 
 Items are objects placed by the player in their plot. They are stationary unless moved and serve different functions in the production chain.
 
-## Item Types
+---
 
-### Droppers
-- **Function**: Produce basic products/resources
-- **Examples**: Ice generators, coal mines, iron mineral extractors, honey producers
-- **Behavior**: Continuously generate base materials
-
-### Upgraders  
-- **Function**: Transform or enhance products
-- **Types**:
-  - **Value Upgraders**: Increase product worth (flat + or multiply *)
-  - **Transformation Upgraders**: Convert basic resources into derivative products
-- **Examples**: Oven (dough → bread), various processing machines
-- **Timing**: Most work instantly, some "trap" products for delayed transformation
-- **Visual Effects**: Some products receive visual effects during processing
 
 ### Forges
 - **Function**: Sell products for cash on contact

@@ -18,7 +18,8 @@ local FOLDERS = {
 	script.Parent.FX;
 	script.Parent.Ui.Modules;
 	script.Parent.Plots;
-	script.Parent.Input
+	script.Parent.Input;
+	script.Parent.Players
 }
 
 function ClientLoader.SetProgress(percentage)
@@ -43,7 +44,6 @@ function ClientLoader.Start()
 	task.wait(.1)
 	-- TODO: May be uneccessary and may just lag mobile
 	-- ClientLoader.LoadFolder(Assets.Items.Droppers)
-	-- ClientLoader.LoadFolder(Assets.Tiles)
 	-- Modules --
 	LoadingScreen.SetContext("Loading Modules")
 	ClientLoader.SetProgress(0)
@@ -62,9 +62,9 @@ function ClientLoader.Start()
 	)
 
 	ClientLoader.SetProgress(1)
-	-- task.wait(.1)
+	LoadingScreen.SetContext("Loading Game")
+	task.wait(3)
 	Events.ClientLoaded:InvokeServer()
-	print("fire")
 	ClientLoader.ClientLoaded = true
 	ClientLoader.ClientLoadedEvent:Fire()
 	LoadingScreen.Close()

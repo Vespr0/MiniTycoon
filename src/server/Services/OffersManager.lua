@@ -20,7 +20,7 @@ local EconomyLogger = require(Server.Analytics.EconomyLogger)
 local IsStudio = RunService:IsStudio()
 
 local MINUTE = 60
-local OFFER_DURATION = IsStudio and MINUTE / 4 or MINUTE * 30
+local OFFER_DURATION = IsStudio and MINUTE / 4 or MINUTE * 15
 
 local function getRequest(player)
 	if not player then

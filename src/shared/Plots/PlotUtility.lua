@@ -12,6 +12,13 @@ PlotUtility.Upgrades = {
 	}	
 }
 
+function PlotUtility.GetActualPlotWidth(plotLevel: number): number
+	local startBonus = 10
+	-- Max size ignoring start bonus
+	local maxWidth = PlotUtility.MaxPlotWidth - startBonus
+	return plotLevel * (maxWidth / PlotUtility.Upgrades.PlotLevel.MaxValue) + startBonus - 0.5
+end
+
 function PlotUtility.GetMaxPartsFromPlotLevel(plotLevel: number)
 	return 20*plotLevel
 end

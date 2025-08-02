@@ -3,9 +3,34 @@
 registry = "test"
 
 [[package]]
+name = "alicesaidhi/conch"
+version = "0.3.0"
+dependencies = [["language", "alicesaidhi/conch-language@0.3.0"]]
+
+[[package]]
+name = "alicesaidhi/conch-language"
+version = "0.3.0"
+dependencies = []
+
+[[package]]
+name = "alicesaidhi/conch-ui"
+version = "0.3.0"
+dependencies = [["conch", "alicesaidhi/conch@0.3.0"], ["language", "alicesaidhi/conch-language@0.3.0"], ["vide", "centau/vide@0.3.1"]]
+
+[[package]]
 name = "andrea/main"
 version = "0.1.0"
-dependencies = [["BridgeNet2", "ffrostflame/bridgenet2@0.5.5"], ["fusion", "elttob/fusion@0.3.0"], ["janitor", "howmanysmall/janitor@1.15.6"], ["signal", "sleitnick/signal@1.5.0"], ["suphisdatastoremodule", "skylord-103/suphisdatastoremodule@1.0.0"], ["trove", "sleitnick/trove@1.0.1"], ["ui-labs", "pepeeltoro41/ui-labs@2.4.0"], ["uiparticle", "kumarion/uiparticle@0.0.1"]]
+dependencies = [["BridgeNet2", "ffrostflame/bridgenet2@0.5.5"], ["conch", "alicesaidhi/conch@0.3.0"], ["conch-ui", "alicesaidhi/conch-ui@0.3.0"], ["fusion", "elttob/fusion@0.3.0"], ["janitor", "howmanysmall/janitor@1.15.6"], ["signal", "sleitnick/signal@1.5.0"], ["suphisdatastoremodule", "skylord-103/suphisdatastoremodule@1.0.0"], ["trove", "sleitnick/trove@1.0.1"], ["ui-labs", "pepeeltoro41/ui-labs@2.4.0"], ["uiparticle", "kumarion/uiparticle@0.0.1"], ["windshake", "boatbomber/windshake@2.0.3"]]
+
+[[package]]
+name = "boatbomber/windshake"
+version = "2.0.3"
+dependencies = []
+
+[[package]]
+name = "centau/vide"
+version = "0.3.1"
+dependencies = []
 
 [[package]]
 name = "elttob/fusion"
