@@ -9,7 +9,7 @@ local Events = ReplicatedStorage.Events
 
 -- Dependencies
 local StorageUi = require(script.Parent.Storage)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.Placement.ClientPlacement)
 local Trove = require(ReplicatedStorage.Packages.trove)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local TutorialUi = require(script.Parent.Tutorial)

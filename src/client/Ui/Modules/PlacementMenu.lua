@@ -3,6 +3,9 @@ local PlacementMenu = {}
 -- Services --
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
 
 -- Ui Modules --
 local Ui = require(script.Parent.Parent.UiUtility)
@@ -11,7 +14,7 @@ local ButtonUtility = require(script.Parent.Util.ButtonUtility)
 -- Modules --
 local Signal = require(ReplicatedStorage.Packages.signal)
 
--- Ui Elements 
+-- Ui Elements
 local Gui = Ui.PlacementMenuGui
 local MainFrame = Gui:WaitForChild("Holder"):WaitForChild("MainFrame")
 local RotateButton = MainFrame:WaitForChild("Rotate")
@@ -28,13 +31,16 @@ PlacementMenu.CancelButton = CancelButton
 
 local function buttonPush(button)
 	local icon = button:FindFirstChildOfClass("ImageLabel")
-	if not icon then return end
+	if not icon then
+		return
+	end
 
 	-- Reset size in case the tween is spammed
 	icon.Size = UDim2.fromScale(1, 1)
 
 	local tween = TweenService:Create(icon, ButtonUtility.BOUNCY_BUTTON_TWEEN_INFO, {
-		Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(ButtonUtility.BUTTON_OFFSET/2, ButtonUtility.BUTTON_OFFSET/2)
+		Size = UDim2.fromScale(1, 1)
+			+ UDim2.fromOffset(ButtonUtility.BUTTON_OFFSET / 2, ButtonUtility.BUTTON_OFFSET / 2),
 	})
 
 	Ui.PlaySound("Select")
@@ -48,6 +54,24 @@ end
 
 function PlacementMenu.Close()
 	Gui.Enabled = false
+end
+
+function PlacementMenu.IsCursorOverMenu()
+	if not Gui.Enabled then
+		return false
+	end
+
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	local mousePos = UserInputService:GetMouseLocation() - GuiService:GetGuiInset()
+	local guiObjectsAtPosition = playerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+
+	for _, guiObject in pairs(guiObjectsAtPosition) do
+		if guiObject:IsDescendantOf(Gui) then
+			return true
+		end
+	end
+
+	return false
 end
 
 function PlacementMenu.Setup()

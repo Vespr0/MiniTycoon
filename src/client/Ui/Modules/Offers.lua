@@ -38,7 +38,7 @@ local Timer = OffersFrame:WaitForChild("Timer")
 -- Modules --
 local ItemInfo = require(Shared.Items.ItemInfo)
 local AssetsDealer = require(Shared.AssetsDealer)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.Placement.ClientPlacement)
 local ClientPlayerData = require(script.Parent.Parent.Parent.Data.ClientPlayerData)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local DataUtility = require(Shared.Data.DataUtility)

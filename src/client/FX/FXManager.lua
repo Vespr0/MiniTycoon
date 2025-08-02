@@ -76,6 +76,39 @@ function FX.Fade(params)
 	})
 end
 
+function FX.AnimatePlacement(params)
+	local model = params.model
+	if not model or not model:IsA("Model") then
+		return
+	end
+
+	SoundManager.PlaySound("Ui/Place", model:GetPivot().Position)
+
+	-- Simple scale animation using Model.Scale property
+	local scaleFactor = 1
+
+	local function scaleModel(factor)
+		scaleFactor = scaleFactor + factor
+		model:ScaleTo(scaleFactor)
+		RunService.RenderStepped:Wait()
+	end
+
+	task.spawn(function()
+		-- Scale down slightly
+		for i = 1, 5 do
+			scaleModel(-0.01)
+		end
+		-- Scale up past original
+		for i = 1, 8 do
+			scaleModel(0.01)
+		end
+		-- Scale back to original
+		for i = 1, 3 do
+			scaleModel(-0.01)
+		end
+	end)
+end
+
 function FX.InitializeWind()
 	WindShake:Init({
 		MatchWorkspaceWind = true,

@@ -17,9 +17,10 @@ local _Plots = workspace:WaitForChild("Plots")
 -- TODO: this module was made without using ui utility, only adding it now, should clean the code up.
 local Ui = require(script.Parent.Parent.UiUtility)
 local PlacementUtility = require(Shared.Plots.PlacementUtility)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.Placement.ClientPlacement)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local ItemSelectionInput = require(script.Parent.Parent.Parent.Input.InputModules.ItemSelectionInput)
+local ClientInput = require(script.Parent.Parent.Parent.Input.ClientInput)
 
 -- LocalPlayer --
 local Player = Players.LocalPlayer
@@ -32,6 +33,8 @@ local Gui = PlayerGui:WaitForChild("ItemSelection")
 local MainFrame = Gui:WaitForChild("MainFrame")
 local Container = MainFrame:WaitForChild("Container")
 local Background = MainFrame:WaitForChild("Background")
+local MoveButton = Container:WaitForChild("MoveButton")
+local StoreButton = Container:WaitForChild("StoreButton")
 
 -- Variables --
 local CurrentllySelectedItem = nil
@@ -100,19 +103,6 @@ local function toggleHoverHighlight(bool)
     HOVER_HIGHLIGHT.Enabled = bool
 end
 
-local function hover(item)
-    CurrentllyHoveredItem = item
-    if CurrentllySelectedItem then return end
-    updateHoverHighlight(CurrentllyHoveredItem)
-    toggleHoverHighlight(true)
-end
-
-local function unHover()
-    CurrentllyHoveredItem = nil
-    if CurrentllySelectedItem then return end
-    toggleHoverHighlight(false)
-end
-
 local function select(item)
     Gui.Enabled = true
     local config = ItemUtility.GetItemConfig(item.Name)
@@ -127,6 +117,30 @@ local function unSelect()
     Gui.Enabled = false
     toggleSelectionHighlight(false)
     CurrentllySelectedItem = nil
+end
+
+local function hover(item)
+    CurrentllyHoveredItem = item
+    if CurrentllySelectedItem then return end
+
+    if ClientInput.HasTouch then
+        if not ClientPlacement.IsPlacing() then
+            select(CurrentllyHoveredItem)
+        end
+    end
+
+    updateHoverHighlight(CurrentllyHoveredItem)
+    toggleHoverHighlight(true)
+end
+
+local function unHover()
+    CurrentllyHoveredItem = nil
+    if CurrentllySelectedItem then return end
+    toggleHoverHighlight(false)
+
+    if ClientInput.HasTouch then
+        unSelect()
+    end
 end
 
 local function update()
@@ -170,15 +184,18 @@ function ItemSelection.Setup()
     MainFrame.Visible = false
 
     -- Selection
-    ItemSelectionInput.SelectEvent:Connect(function()
-        if CurrentllyHoveredItem then
-            if not ClientPlacement.IsPlacing() then
-                select(CurrentllyHoveredItem)
+    if ClientInput.HasKeyboard then
+        ItemSelectionInput.SelectEvent:Connect(function()
+            if CurrentllyHoveredItem then
+                if not ClientPlacement.IsPlacing() then
+                    select(CurrentllyHoveredItem)
+                end
+            else
+                unSelect()
             end
-        else
-            unSelect()
-        end
-    end)
+        end)
+    end
+    
     -- Move
     ItemSelectionInput.MoveEvent:Connect(function()
         move()
@@ -189,6 +206,21 @@ function ItemSelection.Setup()
         deposit()
         Ui.PlaySound("Collect")
     end)
+
+    MoveButton.MouseButton1Click:Connect(function()
+        move()
+        Ui.PlaySound("Collect")
+    end)
+    StoreButton.MouseButton1Click:Connect(function()
+        deposit()
+        Ui.PlaySound("Collect")
+    end)
+
+    if ClientInput.HasKeyboard then
+        -- TODO: Better key visualization
+        MoveButton.Text = "MOVE (V)"
+        StoreButton.Text = "DEPOSIT (B)"
+    end
 end
 
 return ItemSelection

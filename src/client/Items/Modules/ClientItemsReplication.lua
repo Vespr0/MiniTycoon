@@ -17,7 +17,7 @@ local Camera = workspace.Camera
 
 -- Modules --
 local PlacementUtility = require(Shared.Plots.PlacementUtility)
-local ClientPlacement = require(script.Parent.Parent.Parent.Items.ClientPlacement)
+local ClientPlacement = require(script.Parent.Parent.Parent.Items.Placement.ClientPlacement)
 local ItemUtility = require(Shared.Items.ItemUtility)
 local PlotUtility = require(Shared.Plots.PlotUtility)
 

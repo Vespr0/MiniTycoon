@@ -37,9 +37,9 @@ function PlacementInput.Init()
         end
     end)
 
-    TappingInput.DoubleTapEvent:Connect(function()
-        PlacementInput.SelectEvent:Fire()
-    end)
+    -- TappingInput.DoubleTapEvent:Connect(function()
+    --     PlacementInput.SelectEvent:Fire()
+    -- end)
 end
 
 return PlacementInput
